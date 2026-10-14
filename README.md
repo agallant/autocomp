@@ -1,0 +1,2 @@
+# autocomp
+Automatic musical accompaniment
