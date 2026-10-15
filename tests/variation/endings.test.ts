@@ -64,6 +64,7 @@ describe('form endings', () => {
       humanize: false,
       density: 'normal',
       endings: true,
+      swingFeel: 0,
       seed: seedFromString(chart.id),
       tempoBpm: 120,
     })

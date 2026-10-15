@@ -51,6 +51,7 @@ describe('applyCompDensity', () => {
       humanize: false,
       density: 'solo',
       endings: false,
+      swingFeel: 0,
       seed: seedFromString(chart.id),
       tempoBpm: 120,
     })
@@ -110,6 +111,7 @@ describe('applyCompDensity', () => {
       humanize: false,
       density: 'sparse',
       endings: false,
+      swingFeel: 0,
       seed: seedFromString(chart.id),
       tempoBpm: 120,
     })

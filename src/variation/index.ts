@@ -11,6 +11,15 @@ export { humanizeNotes } from './humanize'
 export { hashSeed, mulberry32, seedFromString } from './rng'
 export { isSectionBoundary, sectionBoundaryFlags } from './sectionMeta'
 export {
+  applySwingFeel,
+  DEFAULT_SWING_FEEL,
+  SWING_RATIO_HARD,
+  SWING_RATIO_STRAIGHT,
+  SWING_RATIO_TRIPLET,
+  swingFeelToRatio,
+  swingRatioToFeel,
+} from './swingFeel'
+export {
   COMP_DENSITY_OPTIONS,
   DEFAULT_VARIATION,
   type CompDensity,

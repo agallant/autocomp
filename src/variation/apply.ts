@@ -5,6 +5,7 @@ import { applyFormEnding, formEndingFlags } from './endings'
 import { applySectionFill } from './fills'
 import { humanizeNotes } from './humanize'
 import { sectionBoundaryFlags } from './sectionMeta'
+import { applySwingFeel } from './swingFeel'
 import type { VariationOptions } from './types'
 
 export type ApplyVariationContext = {
@@ -46,6 +47,8 @@ export function applyVariation(
       final: final[ctx.barIndex] === true,
     })
   }
+  // Swing before humanize so jitter sits on the swung grid.
+  out = applySwingFeel(out, opts.swingFeel)
   if (opts.humanize) {
     out = humanizeNotes(out, opts.seed, ctx.barIndex, opts.tempoBpm, ctx.beatsPerBar)
   }

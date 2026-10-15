@@ -22,6 +22,7 @@ describe('applyVariation / createVariedStyle', () => {
     humanize: true,
     density: 'normal',
     endings: false,
+    swingFeel: 0,
     seed: seedFromString(chart.id),
     tempoBpm: 120,
   }
@@ -50,7 +51,9 @@ describe('applyVariation / createVariedStyle', () => {
     const midCtx = buildStyleBarContextFromBars(chart, bars, 1, { wrapNext: false })!
     const base = createJazzSwingStyle()
     const varied = createVariedStyle(base, { ...opts, humanize: false })
-    expect(varied.realizeBar(midCtx)).toEqual(base.realizeBar(midCtx))
+    const notes = varied.realizeBar(midCtx)
+    expect(notes.some((n) => n.voice === 'drums' && n.drum === 'snare')).toBe(false)
+    expect(notes).toEqual(applyVariation(midCtx, base.realizeBar(midCtx), { ...opts, humanize: false }))
   })
 
   it('invalidates fill boundaries when form layout changes in place', () => {
