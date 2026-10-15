@@ -6,7 +6,11 @@ Automatic musical accompaniment as a **client-side TypeScript PWA** — chord ch
 
 ## Status
 
-Milestone **M0** — PWA scaffold, CI, GitHub Pages deploy, and practice-room app shell. See [ROADMAP.md](./ROADMAP.md).
+Milestone **M1** — typed chart/chord music model (parse, validate, JSON). See [ROADMAP.md](./ROADMAP.md).
+
+## Chart format (preview)
+
+Charts are JSON documents (`version: 1`) with `sections`, a `form` list of section ids, and bars made of timed chord slots. Symbols use jazz/pop shorthand (`Dm7`, `G7b9`, `Cmaj7`, `F#m7b5`, slash chords).
 
 ## Develop
 
@@ -43,4 +47,8 @@ Everything runs on-device; GitHub Pages only hosts static assets.
 
 ## Deploy
 
-Pushes to `main` run [`.github/workflows/deploy.yml`](./.github/workflows/deploy.yml), which builds and publishes `dist/` to the `gh-pages` branch (Pages source).
+Successful **CI on `main`** triggers [`.github/workflows/deploy.yml`](./.github/workflows/deploy.yml), which publishes `dist/` to the `gh-pages` branch (Pages source).
+
+### Important: auto-merge token
+
+GitHub does **not** start new workflows from events authored by `GITHUB_TOKEN`. The automerge Action therefore should use a PAT stored as repo secret `AUTO_MERGE_TOKEN` (fine-grained: Contents + Pull requests write on this repo). Without it, merges still work, but CI/deploy on `main` will not run until something else pushes or you re-run workflows.

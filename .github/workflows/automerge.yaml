@@ -17,7 +17,11 @@ jobs:
     steps:
       - name: Enable Auto-Merge
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Prefer a PAT so the merge commit is not authored by GITHUB_TOKEN.
+          # Merges via GITHUB_TOKEN do not trigger other workflows (CI/deploy).
+          # Create a fine-grained PAT with Contents + Pull requests write, then
+          # add it as repo secret AUTO_MERGE_TOKEN.
+          GH_TOKEN: ${{ secrets.AUTO_MERGE_TOKEN || secrets.GITHUB_TOKEN }}
         # Squash only (the main ruleset allows nothing else). Auto-merge waits for the
         # required checks (cubic · AI code reviewer, CodeQL) and resolved conversations.
         run: |

@@ -14,8 +14,8 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 
 | ID | Milestone | Status | Goal |
 | --- | --- | --- | --- |
-| M0 | PWA scaffold | in progress | Vite + TS + PWA, CI, Pages deploy, app shell + transport stub |
-| M1 | Music model | planned | Chords, bars, forms, chart JSON schema + parse/serialize + tests |
+| M0 | PWA scaffold | done | Vite + TS + PWA, CI, Pages deploy, app shell + transport stub |
+| M1 | Music model | in progress | Chords, bars, forms, chart JSON schema + parse/serialize + tests |
 | M2 | Chart editor | planned | iReal-like bar grid editor (entry, navigate, quality, duration) |
 | M3 | Audio clock | planned | Web Audio transport, metronome, lookahead scheduler |
 | M4 | Jazz swing style | planned | Walking bass + piano comp + kit pattern for swing |
@@ -35,7 +35,16 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] CI: lint, typecheck, test, build
 - [x] Deploy workflow publishes `dist/` to `gh-pages`
 - [x] App shell with brand, demo chart, transport stub
-- [ ] Live at https://agallant.github.io/autocomp/ after merge
+- [x] Live at https://agallant.github.io/autocomp/ after merge
+
+## M1 acceptance
+
+- [x] Chord symbol parser (jazz/pop shorthand) + formatter
+- [x] Chord-tone pitch-class helper
+- [x] Chart model (sections, form, bars, slots) with validation
+- [x] JSON serialize/deserialize round-trip
+- [x] Demo chart driven by the model in the UI shell
+- [x] Unit tests for parser + chart
 
 ## Process notes
 
