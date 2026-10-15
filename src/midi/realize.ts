@@ -1,6 +1,12 @@
 import { beatsPerBar, expandChartBars, type Chart, type TimeSignature } from '../music'
 import { buildStyleBarContextFromBars, type StyleEngine } from '../style'
+import { countInBeats } from '../variation'
 import type { AbsoluteMidiNote } from './types'
+
+export type RealizeMidiOptions = {
+  /** Lead-in silence in chart bars (shifts absolute note times). */
+  countInBars?: number
+}
 
 /** Chart-beat length of one quarter note for a meter (4/4 → 1, 6/8 → 2). */
 export function chartBeatsPerQuarter(ts: TimeSignature): number {
@@ -17,10 +23,17 @@ export function quartersPerChartBeat(ts: TimeSignature): number {
  * Does not loop the form — one pass through `expandChartBars`.
  * `startBeat` / `durationBeats` on the result are measured in quarter notes.
  */
-export function realizeChartMidi(chart: Chart, style: StyleEngine): AbsoluteMidiNote[] {
+export function realizeChartMidi(
+  chart: Chart,
+  style: StyleEngine,
+  options: RealizeMidiOptions = {},
+): AbsoluteMidiNote[] {
   const bars = expandChartBars(chart)
   const notes: AbsoluteMidiNote[] = []
-  let quarterCursor = 0
+  const countInBars = Math.max(0, Math.floor(options.countInBars ?? 0))
+  const leadBeats = countInBeats(chart, countInBars)
+  const openTs = bars[0]?.timeSignature ?? chart.timeSignature
+  let quarterCursor = leadBeats * quartersPerChartBeat(openTs)
 
   for (let barIndex = 0; barIndex < bars.length; barIndex++) {
     const bar = bars[barIndex]!

@@ -304,6 +304,33 @@
   color: var(--text-chart-muted, rgba(26, 36, 40, 0.65));
 }
 
+.variation-toggles {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-chart-muted, rgba(26, 36, 40, 0.65));
+}
+
+.variation-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.variation-toggle input {
+  width: 0.95rem;
+  height: 0.95rem;
+  accent-color: var(--teal);
+  cursor: pointer;
+}
+
 .style-picker__select {
   min-height: 2.25rem;
   padding: 0 var(--space-3);
