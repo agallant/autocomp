@@ -123,7 +123,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Optional 1-bar count-in (metronome live; silence in exports)
 - [x] Seeded velocity/timing humanization
 - [x] UI toggles: Fills / Count-in / Humanize
-- [x] Comp density (M15)
+- [ ] Solo density deferred
 - [ ] Complex endings deferred
 
 ## M11 acceptance

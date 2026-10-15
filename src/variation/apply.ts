@@ -18,13 +18,14 @@ export function applyVariation(
   applyCtx: ApplyVariationContext = {},
 ): StyleNote[] {
   let out = notes
+  // Density before fills so Sparse does not strip section-end snare fills.
+  out = applyCompDensity(ctx, out, opts.density)
   if (opts.fills) {
     const flags = applyCtx.sectionBoundaries ?? sectionBoundaryFlags(ctx.chart)
     if (flags[ctx.barIndex]) {
       out = applySectionFill(ctx, out)
     }
   }
-  out = applyCompDensity(ctx, out, opts.density)
   if (opts.humanize) {
     out = humanizeNotes(out, opts.seed, ctx.barIndex, opts.tempoBpm, ctx.beatsPerBar)
   }

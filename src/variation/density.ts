@@ -2,13 +2,7 @@ import { shellVoicing } from '../style'
 import type { StyleBarContext, StyleNote } from '../style'
 import type { CompDensity } from './types'
 
-/** Beat indices that normally get piano comps in 4/4 (2 & 4 → 1, 3). */
-function defaultCompBeats(beatsPerBar: number): number[] {
-  if (beatsPerBar >= 4) return [1, 3]
-  return [Math.min(1, beatsPerBar - 1)]
-}
-
-/** Extra downbeat/offbeat comps used for dense density. */
+/** Extra integer-beat comps used for dense density. */
 function denseExtraBeats(beatsPerBar: number): number[] {
   if (beatsPerBar >= 4) return [0, 2]
   return beatsPerBar > 1 ? [0] : []
@@ -26,10 +20,11 @@ export function applyCompDensity(
   if (density === 'normal') return notes
 
   if (density === 'sparse') {
-    const keepPianoBeat = defaultCompBeats(ctx.beatsPerBar)[0] ?? 0
+    const pianoStarts = notes.filter((n) => n.voice === 'piano').map((n) => n.startBeat)
+    const keepStart = pianoStarts.length > 0 ? Math.min(...pianoStarts) : null
     return notes.filter((n) => {
       if (n.voice === 'bass') return true
-      if (n.voice === 'piano') return Math.floor(n.startBeat) === keepPianoBeat
+      if (n.voice === 'piano') return keepStart !== null && n.startBeat === keepStart
       if (n.voice === 'drums') {
         // Keep pulse + clave; drop busy hats/snares.
         return n.drum === 'kick' || n.drum === 'ride' || n.drum === 'clave'
@@ -38,9 +33,9 @@ export function applyCompDensity(
     })
   }
 
-  // dense: add shell comps on beats that the base style left bare.
+  // dense: add shell comps on integer beats the base style left bare (exact start).
   const occupied = new Set(
-    notes.filter((n) => n.voice === 'piano').map((n) => Math.floor(n.startBeat)),
+    notes.filter((n) => n.voice === 'piano').map((n) => n.startBeat),
   )
   const extras: StyleNote[] = []
   for (const beat of denseExtraBeats(ctx.beatsPerBar)) {
