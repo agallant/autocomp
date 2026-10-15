@@ -49,7 +49,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M32 | Section ops | done | Rename / delete chart sections |
 | M33 | Count-in length | done | Choose 0 / 1 / 2 / 4 bar count-in |
 | M34 | Tempo shortcuts | done | Keyboard tempo ±10 ([ ] / - =) |
-| M35 | Density shortcut | in progress | D cycles Solo → Sparse → Normal → Dense |
+| M35 | Density shortcut | done | D cycles Solo → Sparse → Normal → Dense |
 
 ## M0 acceptance
 
