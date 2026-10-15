@@ -191,16 +191,15 @@ function metaTimeSignature(numerator: number, denominator: number): number[] {
 }
 
 function metaTrackName(name: string): number[] {
-  // Cap by UTF-8 byte length so the meta length stays honest for multi-byte titles.
-  let text = textBytes(name)
-  if (text.length > 64) {
-    text = textBytes(name.slice(0, 64))
-    while (text.length > 64) {
-      name = name.slice(0, -1)
-      text = textBytes(name)
-    }
+  // Cap by UTF-8 byte length, advancing by full Unicode code points (not UTF-16 units).
+  const encoder = new TextEncoder()
+  const bytes: number[] = []
+  for (const character of name) {
+    const encoded = encoder.encode(character)
+    if (bytes.length + encoded.length > 64) break
+    for (const b of encoded) bytes.push(b)
   }
-  return [0xff, 0x03, ...encodeVlq(text.length), ...text]
+  return [0xff, 0x03, ...encodeVlq(bytes.length), ...bytes]
 }
 
 function assertPowerOfTwoMeter(ts: TimeSignature, path: string): void {

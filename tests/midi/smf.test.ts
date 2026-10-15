@@ -132,6 +132,24 @@ describe('encodeSmf / chartToMidiBytes', () => {
     expect(found).toBe(true)
   })
 
+  it('truncates long titles on code-point boundaries without splitting surrogates', () => {
+    const chart = {
+      ...createAutumnPracticeChart(),
+      title: `${'A'.repeat(61)}😀`,
+    }
+    const bytes = chartToMidiBytes(chart, createStyleById('ballad'))
+    // 61 ASCII + 4-byte emoji = 65 > 64, so drop the emoji entirely.
+    const expected = new TextEncoder().encode('A'.repeat(61))
+    const haystack = Array.from(bytes)
+    const needle = Array.from(expected)
+    expect(haystack.some((_, i) => needle.every((b, j) => haystack[i + j] === b))).toBe(true)
+    // Replacement character must not appear (would indicate a split surrogate).
+    const fffd = new TextEncoder().encode('\uFFFD')
+    expect(
+      haystack.some((_, i) => fffd.every((b, j) => haystack[i + j] === b)),
+    ).toBe(false)
+  })
+
   it('builds a MIDI download blob and filename', () => {
     const chart = createAutumnPracticeChart()
     chart.title = 'Blue Room Drill!'
