@@ -14,6 +14,12 @@ function isPositiveFinite(n: unknown): n is number {
   return typeof n === 'number' && Number.isFinite(n) && n > 0
 }
 
+function isValidTimeSignature(ts: unknown): ts is TimeSignature {
+  if (ts === null || typeof ts !== 'object') return false
+  const candidate = ts as TimeSignature
+  return isPositiveFinite(candidate.numerator) && isPositiveFinite(candidate.denominator)
+}
+
 export function beatsPerBar(ts: TimeSignature): number {
   // Treat denominator as beat unit for chart purposes (4/4 → 4, 3/4 → 3, 6/8 → 6).
   return ts.numerator
@@ -43,9 +49,7 @@ export function validateChart(chart: Chart): ChartValidationIssue[] {
   if (!isPositiveFinite(chart.defaultTempoBpm) || chart.defaultTempoBpm < 20 || chart.defaultTempoBpm > 400) {
     issues.push({ path: 'defaultTempoBpm', message: 'tempo must be a finite number in range 20–400' })
   }
-  const timeSignatureOk =
-    isPositiveFinite(chart.timeSignature?.numerator) &&
-    isPositiveFinite(chart.timeSignature?.denominator)
+  const timeSignatureOk = isValidTimeSignature(chart.timeSignature)
   if (!timeSignatureOk) {
     issues.push({ path: 'timeSignature', message: 'invalid time signature' })
   }
@@ -65,18 +69,15 @@ export function validateChart(chart: Chart): ChartValidationIssue[] {
       issues.push({ path: `sections[${si}].bars`, message: 'section has no bars' })
     }
     for (const [bi, bar] of section.bars.entries()) {
-      const barTsOk =
-        !bar.timeSignature ||
-        (isPositiveFinite(bar.timeSignature.numerator) &&
-          isPositiveFinite(bar.timeSignature.denominator))
-      if (!barTsOk) {
+      // Omitted override (undefined) is fine; null/invalid present values are not.
+      if (bar.timeSignature !== undefined && !isValidTimeSignature(bar.timeSignature)) {
         issues.push({
           path: `sections[${si}].bars[${bi}].timeSignature`,
           message: 'invalid bar time signature',
         })
         continue
       }
-      if (!timeSignatureOk && !bar.timeSignature) {
+      if (!timeSignatureOk && bar.timeSignature === undefined) {
         // Cannot compute expected beats without a usable fallback signature.
         continue
       }
@@ -265,10 +266,7 @@ export function chartFromJson(input: unknown): Chart {
   if (!isPositiveFinite(data.defaultTempoBpm)) {
     throw new Error('defaultTempoBpm must be a finite positive number')
   }
-  if (
-    !isPositiveFinite(data.timeSignature?.numerator) ||
-    !isPositiveFinite(data.timeSignature?.denominator)
-  ) {
+  if (!isValidTimeSignature(data.timeSignature)) {
     throw new Error('Invalid timeSignature')
   }
 
@@ -284,6 +282,12 @@ export function chartFromJson(input: unknown): Chart {
       id: section.id,
       label: section.label,
       bars: section.bars.map((bar) => {
+        const rawBar = bar as { timeSignature?: TimeSignature | null; rehearsalMark?: string; slots: typeof bar.slots }
+        if ('timeSignature' in rawBar && rawBar.timeSignature !== undefined) {
+          if (!isValidTimeSignature(rawBar.timeSignature)) {
+            throw new Error('Invalid bar timeSignature (must be omitted or a valid meter; null is not allowed)')
+          }
+        }
         const out: Bar = {
           slots: bar.slots.map((slot) => {
             if (!isPositiveFinite(slot.durationBeats)) {
@@ -302,7 +306,7 @@ export function chartFromJson(input: unknown): Chart {
           }),
         }
         if (bar.rehearsalMark) out.rehearsalMark = bar.rehearsalMark
-        if (bar.timeSignature) out.timeSignature = bar.timeSignature
+        if (isValidTimeSignature(bar.timeSignature)) out.timeSignature = bar.timeSignature
         return out
       }),
     })),

@@ -64,6 +64,15 @@ describe('chart model', () => {
     expect(validateChart(chart).some((i) => i.path === 'timeSignature')).toBe(true)
   })
 
+  it('rejects null bar timeSignature in JSON (omission only)', () => {
+    const chart = createAutumnPracticeChart()
+    const json = chartToJson(chart) as ReturnType<typeof chartToJson> & {
+      sections: Array<{ bars: Array<{ timeSignature?: unknown }> }>
+    }
+    json.sections[0]!.bars[0]!.timeSignature = null
+    expect(() => chartFromJson(json)).toThrow(/Invalid bar timeSignature/)
+  })
+
   it('rejects empty chord strings and invalid keys in JSON', () => {
     const chart = createAutumnPracticeChart()
     const json = chartToJson(chart)
