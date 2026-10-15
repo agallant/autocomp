@@ -73,6 +73,21 @@ export class LookaheadScheduler {
     this.nextNoteTime = 0
   }
 
+  /**
+   * Jump the musical cursor while running. Clears the schedule horizon so the
+   * next tick emits from `bar`/`beat` shortly after `clock.currentTime`.
+   */
+  seek(bar: number, beat = 1): void {
+    if (!this.running) return
+    const safeBar = Math.max(1, Math.floor(bar))
+    const beatsPerBar = Math.max(1, Math.round(this.getBeatsPerBar(safeBar)))
+    const safeBeat = Math.min(beatsPerBar, Math.max(1, Math.floor(beat)))
+    this.position = { bar: safeBar, beat: safeBeat }
+    this.nextNoteTime = this.clock.currentTime + 0.05
+    // Schedule immediately so a delayed interval cannot skip the target beat.
+    this.tick()
+  }
+
   /** Run one scheduling pass (also used by tests without waiting on the interval). */
   tick(): void {
     if (!this.running) return

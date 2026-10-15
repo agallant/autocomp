@@ -25,8 +25,8 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M8 | MIDI I/O | done | MIDI file export; optional WebMIDI out where supported |
 | M9 | Audio render | done | Offline bounce to WAV (MP3 deferred); client-side encode |
 | M10 | Variation | in progress | Fills, intros/endings, solo density, humanization |
-| M11 | Generative | in progress | Style-conditioned progression / reharm helpers |
-| M12 | Listen & follow | planned | Experimental mic/chord following for dynamic backing |
+| M11 | Generative | done | Style-conditioned progression / reharm helpers |
+| M12 | Listen & follow | in progress | Experimental mic/chord following for dynamic backing |
 
 ## M0 acceptance
 
@@ -129,6 +129,15 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] UI: Generate kind/key → loads chart via existing apply path; Reharm applies to selection
 - [x] Unit tests for generators + reharm; charts validate
 - [ ] Full-chart transpose UI / generative melody deferred
+
+## M12 acceptance
+
+- [x] Mic capture via getUserMedia + AnalyserNode (feature-detected)
+- [x] Chroma fold + chord-tone matching against the live chart
+- [x] Follow toggle: stable lock seeks playing transport (or selects bar when stopped)
+- [x] Unit tests for chroma, match, follow engine, scheduler seek
+- [ ] Manual microphone and playback scenarios verified
+- [ ] Polyphonic pitch tracking / ML chord ID deferred
 
 ## Process notes
 
