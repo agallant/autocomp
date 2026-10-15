@@ -155,7 +155,7 @@ export function mountApp(root: HTMLElement): () => void {
       ? `${desc.label} running — ${desc.blurb}.`
       : state.audioReady
         ? `Ready — press Play for ${desc.label}.`
-        : `Ready — press Play to unlock audio and start ${desc.label}.`
+        : `Ready — tap Play to unlock audio (required on iOS/Safari) and start ${desc.label}.`
     sessionStatus.lastChild!.textContent = ` ${label}`
   }
 

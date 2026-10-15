@@ -1,5 +1,6 @@
 import { midiToFrequency } from '../style/midi'
 import type { StyleNote } from '../style/types'
+import { applyAmpEnvelope } from './envelope'
 
 export type ScheduledSource = {
   stop: (when?: number) => void
@@ -36,11 +37,9 @@ function scheduleBass(
   osc.type = 'triangle'
   osc.frequency.setValueAtTime(midiToFrequency(midi), when)
   filter.type = 'lowpass'
-  filter.frequency.setValueAtTime(600, when)
-  const peak = Math.max(0.0001, 0.22 * velocity)
-  gain.gain.setValueAtTime(0.0001, when)
-  gain.gain.exponentialRampToValueAtTime(peak, when + 0.01)
-  gain.gain.exponentialRampToValueAtTime(0.0001, when + duration)
+  filter.frequency.setValueAtTime(800, when)
+  // Slightly hotter for mobile speakers; envelope is linear for Safari.
+  applyAmpEnvelope(gain.gain, when, 0.32 * velocity, duration, 0.01)
   osc.connect(filter)
   filter.connect(gain)
   gain.connect(ctx.destination)
@@ -57,11 +56,9 @@ function schedulePiano(
   velocity: number,
 ): ScheduledSource[] {
   const freqs = [midiToFrequency(midi), midiToFrequency(midi) * 2]
-  const peak = Math.max(0.0001, 0.12 * velocity)
+  const peak = 0.18 * velocity
   const master = ctx.createGain()
-  master.gain.setValueAtTime(0.0001, when)
-  master.gain.exponentialRampToValueAtTime(peak, when + 0.005)
-  master.gain.exponentialRampToValueAtTime(0.0001, when + duration)
+  applyAmpEnvelope(master.gain, when, peak, duration, 0.005)
   master.connect(ctx.destination)
 
   const sources: ScheduledSource[] = []
@@ -93,10 +90,7 @@ function scheduleDrum(
     osc.type = 'sine'
     osc.frequency.setValueAtTime(120, when)
     osc.frequency.exponentialRampToValueAtTime(45, when + 0.08)
-    const peak = Math.max(0.0001, 0.35 * note.velocity)
-    gain.gain.setValueAtTime(0.0001, when)
-    gain.gain.exponentialRampToValueAtTime(peak, when + 0.005)
-    gain.gain.exponentialRampToValueAtTime(0.0001, when + Math.min(duration, 0.18))
+    applyAmpEnvelope(gain.gain, when, 0.45 * note.velocity, Math.min(duration, 0.18), 0.005)
     osc.connect(gain)
     gain.connect(ctx.destination)
     osc.start(when)
@@ -117,10 +111,7 @@ function scheduleDrum(
   filter.type = kind === 'hat' ? 'highpass' : kind === 'ride' ? 'bandpass' : 'highpass'
   filter.frequency.value = kind === 'hat' ? 6000 : kind === 'ride' ? 4000 : 1800
   const gain = ctx.createGain()
-  const peak = Math.max(0.0001, (kind === 'ride' ? 0.12 : 0.18) * note.velocity)
-  gain.gain.setValueAtTime(0.0001, when)
-  gain.gain.exponentialRampToValueAtTime(peak, when + 0.002)
-  gain.gain.exponentialRampToValueAtTime(0.0001, when + length)
+  applyAmpEnvelope(gain.gain, when, (kind === 'ride' ? 0.16 : 0.24) * note.velocity, length, 0.002)
   src.connect(filter)
   filter.connect(gain)
   gain.connect(ctx.destination)
