@@ -122,7 +122,7 @@ import {
   type PracticeLoop,
 } from './practiceLoop'
 import { savedListHtml } from './savedView'
-import { practiceKeyAction } from './practiceKeys'
+import { densityFromPracticeAction, practiceKeyAction } from './practiceKeys'
 import { createTapTempoState, tapTempo } from './tapTempo'
 import { TransportController, type TransportState } from './transport'
 
@@ -931,8 +931,8 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     setPersistStatus(`Tempo ${transport.getState().tempoBpm} BPM.`)
   }
 
-  const cycleDensity = (): void => {
-    variationDensity = nextCompDensity(variationDensity)
+  const applyDensity = (density: CompDensity): void => {
+    variationDensity = density
     const select = root.querySelector<HTMLSelectElement>('#var-density')
     if (select) select.value = variationDensity
     syncTransportStyle({ stopSources: false })
@@ -940,6 +940,10 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     const label =
       COMP_DENSITY_OPTIONS.find((o) => o.id === variationDensity)?.label ?? variationDensity
     setPersistStatus(`Density ${label}.`)
+  }
+
+  const cycleDensity = (): void => {
+    applyDensity(nextCompDensity(variationDensity))
   }
 
   const applyTapTempo = (): void => {
@@ -1525,8 +1529,11 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
         nudgeTempo(-10)
       } else if (practice === 'tempo-up') {
         nudgeTempo(10)
-      } else {
+      } else if (practice === 'cycle-density') {
         cycleDensity()
+      } else {
+        const density = densityFromPracticeAction(practice)
+        if (density) applyDensity(density)
       }
       return
     }

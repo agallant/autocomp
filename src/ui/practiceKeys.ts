@@ -6,7 +6,10 @@
  * - [ / ]: tempo −10 / +10
  * - - / = (and +): tempo −10 / +10
  * - D: cycle comp density
+ * - 1–4: Solo / Sparse / Normal / Dense
  */
+
+import type { CompDensity } from '../variation'
 
 export type PracticeKeyAction =
   | 'toggle-play'
@@ -15,6 +18,10 @@ export type PracticeKeyAction =
   | 'tempo-down'
   | 'tempo-up'
   | 'cycle-density'
+  | 'set-density-solo'
+  | 'set-density-sparse'
+  | 'set-density-normal'
+  | 'set-density-dense'
 
 export type PracticeKeyContext = {
   /** True when a text/select field has focus. */
@@ -31,6 +38,31 @@ export type PracticeKeyContext = {
    * (e.g. zoom with ⌘/Ctrl + − / +).
    */
   withModifier: boolean
+}
+
+const DENSITY_DIGIT_ACTIONS: Readonly<Record<string, PracticeKeyAction>> = {
+  '1': 'set-density-solo',
+  '2': 'set-density-sparse',
+  '3': 'set-density-normal',
+  '4': 'set-density-dense',
+}
+
+/** Map a set-density practice action to its CompDensity id. */
+export function densityFromPracticeAction(
+  action: PracticeKeyAction,
+): CompDensity | null {
+  switch (action) {
+    case 'set-density-solo':
+      return 'solo'
+    case 'set-density-sparse':
+      return 'sparse'
+    case 'set-density-normal':
+      return 'normal'
+    case 'set-density-dense':
+      return 'dense'
+    default:
+      return null
+  }
 }
 
 /**
@@ -52,5 +84,5 @@ export function practiceKeyAction(
   if (key === '[' || key === '-') return 'tempo-down'
   if (key === ']' || key === '=' || key === '+') return 'tempo-up'
   if (key === 'd' || key === 'D') return 'cycle-density'
-  return null
+  return DENSITY_DIGIT_ACTIONS[key] ?? null
 }
