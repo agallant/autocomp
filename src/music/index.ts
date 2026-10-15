@@ -31,7 +31,9 @@ export { ChordParseError, parseChordSymbol, tryParseChordSymbol } from './parseC
 export { formatChord, formatChordCanonical, normalizeExtensions } from './formatChord'
 
 export {
+  chartLooksMinor,
   preferSharpsForKey,
+  preferSharpsForKeyPc,
   transposeChart,
   transposeChord,
 } from './transpose'

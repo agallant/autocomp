@@ -850,17 +850,27 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     })
     const applyTranspose = (semitones: number): void => {
       try {
-        const barIndex = editor.selectedBarIndex
-        const next = transposeChart(editor.chart, semitones)
-        setEditor(selectBar(createEditorState(next), barIndex))
+        // Commit any in-progress chord edit first (mousedown can interrupt blur).
+        const base = editor.editing ? commitEdit(editor) : editor
+        const next = transposeChart(base.chart, semitones)
+        setEditor(selectBar(createEditorState(next), base.selectedBarIndex))
         syncTransportStyle({ stopSources: false })
         setPersistStatus(`Transposed to ${formatRoot(next.key)}.`)
       } catch {
         setPersistStatus('Could not transpose chart.')
       }
     }
-    root.querySelector('#transpose-down')?.addEventListener('click', () => applyTranspose(-1))
-    root.querySelector('#transpose-up')?.addEventListener('click', () => applyTranspose(1))
+    // pointerdown fires before input blur, so the button is not destroyed mid-click.
+    const bindTranspose = (id: string, semitones: number): void => {
+      root.querySelector(id)?.addEventListener('pointerdown', (event: Event) => {
+        const pointer = event as PointerEvent
+        if (pointer.button !== 0) return
+        pointer.preventDefault()
+        applyTranspose(semitones)
+      })
+    }
+    bindTranspose('#transpose-down', -1)
+    bindTranspose('#transpose-up', 1)
     root.querySelector('#midi-out-select')?.addEventListener('focus', () => {
       void refreshMidiOutputs()
     })

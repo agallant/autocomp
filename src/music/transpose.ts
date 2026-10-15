@@ -1,12 +1,58 @@
 import { normalizePc, rootToPc, transposeRoot } from './pitch'
-import type { Chart, Chord, ChordSlot, PitchClass, Root, Section } from './types'
+import type {
+  Chart,
+  Chord,
+  ChordQuality,
+  ChordSlot,
+  PitchClass,
+  Root,
+  Section,
+} from './types'
 
 /** Pitch classes that conventionally prefer flat spellings (F, Bb, Eb, Ab, Db, Gb). */
 const FLAT_KEY_PCS = new Set<PitchClass>([5, 10, 3, 8, 1, 6])
 
-/** Whether lead-sheet spelling for this key center prefers sharps. */
+const MINOR_QUALITIES = new Set<ChordQuality>([
+  'min',
+  'min7',
+  'min6',
+  'minMaj7',
+  'halfDim7',
+  'dim',
+  'dim7',
+])
+
+/** Whether lead-sheet spelling for this key center prefers sharps (major-key table). */
 export function preferSharpsForKey(key: Root): boolean {
-  return !FLAT_KEY_PCS.has(rootToPc(key))
+  return preferSharpsForKeyPc(rootToPc(key), false)
+}
+
+/**
+ * Sharp/flat preference for a key center.
+ * Minor keys use the relative major’s accidental preference (Em→G, F#m→A).
+ */
+export function preferSharpsForKeyPc(keyPc: PitchClass, minor: boolean): boolean {
+  const spellingPc = minor ? normalizePc(keyPc + 3) : keyPc
+  return !FLAT_KEY_PCS.has(spellingPc)
+}
+
+/**
+ * Heuristic: first chord whose root matches `chart.key` is a minor-family quality.
+ * Charts without a tonic hit default to major spelling.
+ */
+export function chartLooksMinor(chart: Chart): boolean {
+  const keyPc = rootToPc(chart.key)
+  for (const section of chart.sections) {
+    for (const bar of section.bars) {
+      for (const slot of bar.slots) {
+        const chord = slot.chord
+        if (!chord) continue
+        if (rootToPc(chord.root) !== keyPc) continue
+        return MINOR_QUALITIES.has(chord.quality)
+      }
+    }
+  }
+  return false
 }
 
 /** Transpose a chord's root and slash bass; clears cached `symbol`. */
@@ -70,9 +116,9 @@ export function transposeChart(
     throw new Error(`Transpose semitones must be an integer (got ${String(semitones)})`)
   }
   if (semitones === 0) return chart
+  const minor = chartLooksMinor(chart)
   const targetKeyPc = normalizePc(rootToPc(chart.key) + semitones)
-  // Prefer spelling from the destination key center, not the source.
-  const useSharps = preferSharps ?? !FLAT_KEY_PCS.has(targetKeyPc)
+  const useSharps = preferSharps ?? preferSharpsForKeyPc(targetKeyPc, minor)
   const key = transposeRoot(chart.key, semitones, useSharps)
   return {
     ...chart,
