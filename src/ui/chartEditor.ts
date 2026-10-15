@@ -237,14 +237,40 @@ export function setFormOrder(state: ChartEditorState, draft: string): ChartEdito
     }
     return { ...state, error: `Unknown section “${token}”` }
   }
+  const prevLoc = locateBar(state.chart, state.selectedBarIndex)
+  const prevSectionId = prevLoc
+    ? state.chart.sections[prevLoc.sectionIndex]!.id
+    : null
+  const prevBarInSection = prevLoc?.barInSection ?? 0
+
   const chart = cloneChart(state.chart)
   chart.form = form
   assertValidChart(chart)
-  const nextIndex = Math.min(state.selectedBarIndex, expandChartBars(chart).length - 1)
+
+  // Keep the same section under the caret across form reorders so a deferred
+  // UI rebuild + Delete cannot target a different section than the highlight.
+  let selectedBarIndex = Math.min(
+    state.selectedBarIndex,
+    Math.max(0, expandChartBars(chart).length - 1),
+  )
+  if (prevSectionId && chart.sections.some((s) => s.id === prevSectionId)) {
+    let index = 0
+    for (const id of chart.form) {
+      const section = chart.sections.find((s) => s.id === id)
+      if (!section) continue
+      if (id === prevSectionId) {
+        selectedBarIndex =
+          index + Math.min(prevBarInSection, section.bars.length - 1)
+        break
+      }
+      index += section.bars.length
+    }
+  }
+
   return {
     ...state,
     chart,
-    selectedBarIndex: Math.max(0, nextIndex),
+    selectedBarIndex,
     editing: false,
     draftSymbol: '',
     error: null,

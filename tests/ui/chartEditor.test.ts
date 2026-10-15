@@ -189,6 +189,15 @@ describe('chartEditor', () => {
     expect(expandChartBars(state.chart)).toHaveLength(7)
   })
 
+  it('preserves the selected section across a form reorder', () => {
+    let state = selectBar(createEditorState(createAabaChart()), 2) // B
+    expect(selectedSectionId(state)).toBe('B')
+    state = setFormOrder(state, 'A A B')
+    expect(state.error).toBeNull()
+    expect(selectedSectionId(state)).toBe('B')
+    expect(state.selectedBarIndex).toBe(4) // A(2)+A(2)+B
+  })
+
   it('rejects unknown form tokens', () => {
     let state = createEditorState(createAabaChart())
     state = setFormOrder(state, 'A C')
