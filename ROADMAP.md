@@ -34,7 +34,8 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M17 | Form endings | done | Penultimate fill + held final-bar cadence |
 | M18 | Voice mute | done | Mute bass / piano / drums for practice |
 | M19 | Practice loop | done | A–B form-bar loop for focused practice |
-| M20 | Tap tempo | in progress | Tap to set tempo from a beat pulse |
+| M20 | Tap tempo | done | Tap to set tempo from a beat pulse |
+| M21 | Metronome click | in progress | Toggle click track during playback |
 
 ## M0 acceptance
 
@@ -208,6 +209,13 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Transport **Tap** button; live style refresh on estimate
 - [x] Unit tests for estimate, reset gap, and clamp
 - [ ] Keyboard shortcut for tap deferred
+
+## M21 acceptance
+
+- [x] Toolbar **Click** toggle wired to `setMetronomeEnabled`
+- [x] Count-in still clicks when the toggle is off
+- [x] Unit test for enabling clicks mid-session
+- [ ] Click volume / subdivision deferred
 
 ## Process notes
 
