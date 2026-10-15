@@ -859,8 +859,13 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       variationEndings = checked
     })
     for (const voice of STYLE_VOICES) {
-      bindVariationToggle(`#voice-${voice}`, (checked) => {
+      root.querySelector<HTMLInputElement>(`#voice-${voice}`)?.addEventListener('change', (event) => {
+        const checked = (event.target as HTMLInputElement).checked
         voiceEnabled = { ...voiceEnabled, [voice]: checked }
+        // Keep transport running; only drop future realizations for unmuted peers.
+        syncTransportStyle({ stopSources: false })
+        // Immediately cut the muted voice's ringing audio + pending WebMIDI.
+        if (!checked) transport?.silenceVoices([voice])
       })
     }
     root.querySelector<HTMLSelectElement>('#var-density')?.addEventListener('change', (event) => {
