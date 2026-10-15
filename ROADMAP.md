@@ -304,7 +304,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 
 - [x] Sounding bar scrolls into view when the playhead advances
 - [x] Scroll uses `nearest` (no jump when already visible); smooth unless reduced-motion
-- [x] Only scrolls once per bar (not every beat)
+- [x] Only scrolls once per bar (not every beat); re-arms on beat-1 loop wrap
 - [x] Unit tests for scroll options
 - [ ] Center-on-playhead preference deferred
 

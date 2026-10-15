@@ -121,6 +121,42 @@ export function renderEditableBars(
     .join('')
 }
 
+/** Remembers which playhead bar-start we already scrolled for. */
+export type PlayheadScrollMemory = {
+  barIndex: number | null
+  /** After leaving beat 1, the next beat-1 may re-scroll (A–B loop wrap). */
+  armed: boolean
+}
+
+export const INITIAL_PLAYHEAD_SCROLL: PlayheadScrollMemory = {
+  barIndex: null,
+  armed: true,
+}
+
+/**
+ * Decide whether to scroll for this transport tick.
+ * Scrolls on beat 1 when the form bar changes, or when re-entering beat 1
+ * after leaving it (so a one-bar practice loop re-scrolls each pass).
+ */
+export function nextPlayheadScroll(
+  memory: PlayheadScrollMemory,
+  playheadBarIndex: number | null,
+  beat: number,
+  playing: boolean,
+): { scroll: boolean; memory: PlayheadScrollMemory } {
+  if (!playing || playheadBarIndex === null) {
+    return { scroll: false, memory: INITIAL_PLAYHEAD_SCROLL }
+  }
+  if (beat !== 1) {
+    return { scroll: false, memory: { barIndex: memory.barIndex, armed: true } }
+  }
+  const scroll = memory.armed || memory.barIndex !== playheadBarIndex
+  return {
+    scroll,
+    memory: scroll ? { barIndex: playheadBarIndex, armed: false } : memory,
+  }
+}
+
 /**
  * Update playhead / play-from classes on an already-rendered `.bars` root
  * without rebuilding the chart (used each transport beat).

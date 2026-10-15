@@ -5,6 +5,8 @@ import { createEditorState, selectBar } from '../../src/ui/chartEditor'
 import {
   chartMetaLine,
   expandBarMeta,
+  INITIAL_PLAYHEAD_SCROLL,
+  nextPlayheadScroll,
   renderEditableBars,
   syncBarPlayhead,
 } from '../../src/ui/chartView'
@@ -164,6 +166,24 @@ describe('chartView', () => {
     expect(html).toMatch(/data-index="24"[^>]*data-section="A"/)
     expect(html).toContain('bar__section')
     expect(chartMetaLine(chart)).toContain('Form AABA')
+  })
+
+  it('re-arms playhead scroll on beat-1 wrap for a one-bar loop', () => {
+    let mem = INITIAL_PLAYHEAD_SCROLL
+    let step = nextPlayheadScroll(mem, 3, 1, true)
+    expect(step.scroll).toBe(true)
+    mem = step.memory
+    step = nextPlayheadScroll(mem, 3, 1, true)
+    expect(step.scroll).toBe(false)
+    mem = step.memory
+    step = nextPlayheadScroll(mem, 3, 2, true)
+    expect(step.scroll).toBe(false)
+    mem = step.memory
+    step = nextPlayheadScroll(mem, 3, 1, true)
+    expect(step.scroll).toBe(true)
+    mem = step.memory
+    step = nextPlayheadScroll(mem, 4, 1, true)
+    expect(step.scroll).toBe(true)
   })
 
   it('falls back to section id when the label is empty', () => {
