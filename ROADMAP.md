@@ -33,7 +33,8 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M16 | Multi-slot bars | done | Space-separated chords → timed slots in a bar |
 | M17 | Form endings | done | Penultimate fill + held final-bar cadence |
 | M18 | Voice mute | done | Mute bass / piano / drums for practice |
-| M19 | Practice loop | in progress | A–B form-bar loop for focused practice |
+| M19 | Practice loop | done | A–B form-bar loop for focused practice |
+| M20 | Tap tempo | in progress | Tap to set tempo from a beat pulse |
 
 ## M0 acceptance
 
@@ -198,8 +199,15 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Transport maps post-count-in bars through the loop window
 - [x] Toolbar Loop toggle + Set A / Set B from selection
 - [x] Unit tests for normalize + resolve mapping
-- [ ] Manual loop playback scenarios verified
+- [ ] Manual loop playback scenarios verified (deferred)
 - [ ] Loop-aware approach tones / ending fills deferred
+
+## M20 acceptance
+
+- [x] Sliding-window tap-tempo estimator (40–300 BPM clamp)
+- [x] Transport **Tap** button; live style refresh on estimate
+- [x] Unit tests for estimate, reset gap, and clamp
+- [ ] Keyboard shortcut for tap deferred
 
 ## Process notes
 
