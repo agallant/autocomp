@@ -6,7 +6,7 @@ Automatic musical accompaniment as a **client-side TypeScript PWA** — chord ch
 
 ## Status
 
-Milestone **M14** — jump-to-key transpose. See [ROADMAP.md](./ROADMAP.md) and [sample credits](./public/samples/LICENSE.md).
+Milestone **M15** — sparse / normal / dense comp density. See [ROADMAP.md](./ROADMAP.md) and [sample credits](./public/samples/LICENSE.md).
 
 ## Chart format (preview)
 

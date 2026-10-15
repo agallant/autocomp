@@ -1,4 +1,5 @@
 import type { StyleBarContext, StyleNote } from '../style'
+import { applyCompDensity } from './density'
 import { applySectionFill } from './fills'
 import { humanizeNotes } from './humanize'
 import { sectionBoundaryFlags } from './sectionMeta'
@@ -17,6 +18,8 @@ export function applyVariation(
   applyCtx: ApplyVariationContext = {},
 ): StyleNote[] {
   let out = notes
+  // Density before fills so Sparse does not strip section-end snare fills.
+  out = applyCompDensity(ctx, out, opts.density)
   if (opts.fills) {
     const flags = applyCtx.sectionBoundaries ?? sectionBoundaryFlags(ctx.chart)
     if (flags[ctx.barIndex]) {

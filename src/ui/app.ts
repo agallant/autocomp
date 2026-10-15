@@ -47,9 +47,11 @@ import {
   type StyleId,
 } from '../style'
 import {
+  COMP_DENSITY_OPTIONS,
   DEFAULT_VARIATION,
   createVariedStyle,
   seedFromString,
+  type CompDensity,
   type VariationOptions,
 } from '../variation'
 import {
@@ -104,6 +106,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
   let variationFills = DEFAULT_VARIATION.fills
   let variationCountIn = DEFAULT_VARIATION.countInBars > 0
   let variationHumanize = DEFAULT_VARIATION.humanize
+  let variationDensity: CompDensity = DEFAULT_VARIATION.density
   let generateKind: ProgressionKind = styleGenerateHints(styleId).defaultKind
   let generateKey: Root = { letter: 'C', accidental: 0 }
   let reharmMode: ReharmMode = 'ii-before-v'
@@ -138,6 +141,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     fills: variationFills,
     countInBars: variationCountIn ? 1 : 0,
     humanize: variationHumanize,
+    density: variationDensity,
     seed: seedFromString(chart.id),
     tempoBpm,
   })
@@ -274,6 +278,15 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
             followSupported ? '' : ' disabled'
           } />
           <span>Follow</span>
+        </label>
+        <label class="style-picker" for="var-density">
+          <span class="style-picker__label">Density</span>
+          <select id="var-density" class="style-picker__select" aria-label="Comp density">
+            ${COMP_DENSITY_OPTIONS.map(
+              (opt) =>
+                `<option value="${opt.id}"${opt.id === variationDensity ? ' selected' : ''}>${escapeHtml(opt.label)}</option>`,
+            ).join('')}
+          </select>
         </label>
       </div>
       <div class="generate-controls" role="group" aria-label="Generate progression">
@@ -814,6 +827,13 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     })
     bindVariationToggle('#var-humanize', (checked) => {
       variationHumanize = checked
+    })
+    root.querySelector<HTMLSelectElement>('#var-density')?.addEventListener('change', (event) => {
+      const value = (event.target as HTMLSelectElement).value as CompDensity
+      if (COMP_DENSITY_OPTIONS.some((o) => o.id === value)) {
+        variationDensity = value
+        syncTransportStyle({ stopSources: false })
+      }
     })
     root.querySelector<HTMLInputElement>('#var-follow')?.addEventListener('change', (event) => {
       const checked = (event.target as HTMLInputElement).checked

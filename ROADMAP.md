@@ -28,7 +28,8 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M11 | Generative | done | Style-conditioned progression / reharm helpers |
 | M12 | Listen & follow | in progress | Experimental mic/chord following for dynamic backing |
 | M13 | Transpose | done | Full-chart transpose (±semitone) with key-aware spelling |
-| M14 | Jump to key | in progress | Transpose to a selected concert key in one step |
+| M14 | Jump to key | done | Transpose to a selected concert key in one step |
+| M15 | Comp density | in progress | Sparse / normal / dense piano–drum texture |
 
 ## M0 acceptance
 
@@ -122,7 +123,8 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Optional 1-bar count-in (metronome live; silence in exports)
 - [x] Seeded velocity/timing humanization
 - [x] UI toggles: Fills / Count-in / Humanize
-- [ ] Solo density / complex endings deferred
+- [ ] Solo density deferred
+- [ ] Complex endings deferred
 
 ## M11 acceptance
 
@@ -154,6 +156,13 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Toolbar target-key select + Go (pointer + keyboard safe)
 - [x] Unit tests for jump and no-op
 - [ ] Enharmonic respell-only picker (F#↔Gb) deferred
+
+## M15 acceptance
+
+- [x] `applyCompDensity` sparse (thin piano/hats) / dense (extra comps) / normal
+- [x] Density select in variation toolbar; live style refresh
+- [x] Unit tests for sparse/dense/normal through `applyVariation`
+- [ ] Per-voice density sliders deferred
 
 ## Process notes
 
