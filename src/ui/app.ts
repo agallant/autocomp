@@ -1,20 +1,11 @@
+import { createAutumnPracticeChart } from '../data/autumnPractice'
 import { APP_VERSION } from '../lib/version'
+import { chartMetaLine, renderChartBars } from './chartView'
 import { TransportController, type TransportState } from './transport'
 
-/** Demo changes for the M0 chart placeholder (ii–V–I family). */
-const DEMO_BARS = ['Dm7', 'G7', 'Cmaj7', 'A7', 'Dm7', 'G7', 'Cmaj7', 'Cmaj7'] as const
-
-function barCells(): string {
-  return DEMO_BARS.map(
-    (chord, i) => `
-      <div class="bar" data-bar="${i + 1}">
-        <span class="bar__chord">${chord}</span>
-        <span class="bar__beat">|</span>
-      </div>`,
-  ).join('')
-}
-
 export function mountApp(root: HTMLElement): () => void {
+  const chart = createAutumnPracticeChart()
+
   root.innerHTML = `
     <div class="app">
       <header class="header">
@@ -29,14 +20,14 @@ export function mountApp(root: HTMLElement): () => void {
         <section class="panel" aria-labelledby="chart-heading">
           <h2 id="chart-heading" class="panel__title">Chart</h2>
           <p class="panel__copy">
-            Practice-ready chord charts with style-driven backing. This milestone ships the offline PWA shell;
-            editable charts and audio styles land next.
+            Practice-ready chord charts with style-driven backing. Charts are now a typed music model
+            (parse, validate, JSON round-trip); the editor and audio engine come next.
           </p>
           <div class="chart-stage" role="group" aria-label="Demo chord chart">
-            <div class="chart-stage__label">Demo · 4/4 · Swing</div>
-            <h3 class="chart-stage__title">Autumn Practice</h3>
+            <div class="chart-stage__label">${chartMetaLine(chart)}</div>
+            <h3 class="chart-stage__title">${chart.title}</h3>
             <div class="bars">
-              ${barCells()}
+              ${renderChartBars(chart)}
             </div>
           </div>
         </section>
@@ -65,7 +56,7 @@ export function mountApp(root: HTMLElement): () => void {
           <button type="button" class="btn" id="tempo-up" aria-label="Increase tempo">+10</button>
         </div>
         <div class="transport__readout">
-          <span>Tempo <strong id="tempo-readout">120</strong> BPM</span>
+          <span>Tempo <strong id="tempo-readout">${chart.defaultTempoBpm}</strong> BPM</span>
           <span>Bar <strong id="bar-readout">1</strong></span>
           <span>Beat <strong id="beat-readout">1</strong></span>
         </div>
@@ -74,6 +65,7 @@ export function mountApp(root: HTMLElement): () => void {
   `
 
   const playToggle = root.querySelector<HTMLButtonElement>('#play-toggle')!
+  const playLabel = playToggle.querySelector<HTMLElement>('span')!
   const tempoDown = root.querySelector<HTMLButtonElement>('#tempo-down')!
   const tempoUp = root.querySelector<HTMLButtonElement>('#tempo-up')!
   const tempoReadout = root.querySelector<HTMLElement>('#tempo-readout')!
@@ -82,10 +74,7 @@ export function mountApp(root: HTMLElement): () => void {
   const statusDot = root.querySelector<HTMLElement>('#status-dot')!
   const sessionStatus = root.querySelector<HTMLElement>('#session-status')!
 
-  const playLabel = playToggle.querySelector<HTMLElement>('span')!
-
   const render = (state: TransportState): void => {
-    // Stable accessible name ("Play") + aria-pressed; visual label may say Stop.
     playToggle.setAttribute('aria-pressed', String(state.playing))
     playLabel.textContent = state.playing ? 'Stop' : 'Play'
     tempoReadout.textContent = String(state.tempoBpm)
@@ -99,6 +88,7 @@ export function mountApp(root: HTMLElement): () => void {
   }
 
   const transport = new TransportController({ onChange: render })
+  transport.setTempo(chart.defaultTempoBpm)
 
   const onPlay = (): void => transport.toggle()
   const onTempoDown = (): void => transport.setTempo(transport.getState().tempoBpm - 10)
