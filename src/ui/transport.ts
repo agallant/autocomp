@@ -95,6 +95,8 @@ export class TransportController {
    * Cleared on stop / Follow seek.
    */
   private startFormOffset = 0
+  /** 1-based chart bar requested at Play (for rebasing when the loop changes). */
+  private playFromFormBar: number | null = null
   private readonly injectedContext: AudioContext | undefined
 
   private ctx: AudioContext | null = null
@@ -184,6 +186,20 @@ export class TransportController {
     const chart = this.getChart?.()
     const total = chart ? expandChartBars(chart).length : 0
     this.practiceLoop = normalizePracticeLoop(loop, total)
+    if (!this.state.playing) return
+    // Play-from offset was computed against the previous loop — rebase.
+    if (this.state.bar > 0) {
+      this.seekToFormBar(this.state.bar)
+      return
+    }
+    if (this.playFromFormBar !== null) {
+      const { passIndex } = passIndexForFormBar(
+        this.playFromFormBar,
+        total,
+        this.practiceLoop,
+      )
+      this.startFormOffset = Math.max(0, passIndex - 1)
+    }
   }
 
   getPracticeLoop(): PracticeLoop {
@@ -257,6 +273,7 @@ export class TransportController {
       total,
       this.practiceLoop,
     )
+    this.playFromFormBar = startBar
     this.startFormOffset = Math.max(0, passIndex - 1)
 
     this.state = {
@@ -291,6 +308,7 @@ export class TransportController {
     this.stopAudioSources()
     this.midiSink?.clear()
     this.startFormOffset = 0
+    this.playFromFormBar = null
     this.state = { ...this.state, playing: false, bar: 1, beat: 1 }
     this.emit()
   }
@@ -322,6 +340,7 @@ export class TransportController {
     this.clearUiTimers()
     // Absolute pass — drop any play-from offset so Follow lands correctly.
     this.startFormOffset = 0
+    this.playFromFormBar = target
     const schedulerBar = passIndex + this.countInBars
     this.scheduler.seek(schedulerBar, 1)
     this.state = { ...this.state, bar: target, beat: 1 }

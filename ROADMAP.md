@@ -225,6 +225,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Compatible with A–B loop clamp via `passIndexForFormBar`
 - [x] Unit test for mid-form start
 - [ ] Visual “playhead from here” affordance deferred
+- [ ] Manual playback checks (mid-form start, restart from top, loop clamp) deferred
 
 ## Process notes
 
