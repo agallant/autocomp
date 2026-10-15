@@ -39,11 +39,24 @@ export function selectedBar(state: ChartEditorState): Bar | null {
   return bars[state.selectedBarIndex] ?? null
 }
 
+/** Space-separated chord symbols for the selected bar (multi-slot aware). */
 export function selectedSymbol(state: ChartEditorState): string {
   const bar = selectedBar(state)
   if (!bar) return ''
-  const chord = bar.slots.find((s) => s.chord)?.chord
-  return chord ? formatChord(chord) : ''
+  const chords = bar.slots.filter((s) => s.chord).map((s) => formatChord(s.chord!))
+  return chords.join(' ')
+}
+
+/**
+ * Split a draft into chord tokens (whitespace-separated).
+ * Empty string → no tokens (clears the bar).
+ */
+export function parseDraftSymbols(draft: string): string[] {
+  return draft
+    .trim()
+    .split(/\s+/)
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0)
 }
 
 export function selectBar(state: ChartEditorState, index: number): ChartEditorState {
@@ -74,11 +87,15 @@ export function setDraftSymbol(state: ChartEditorState, draftSymbol: string): Ch
   return { ...state, draftSymbol, error: null }
 }
 
-/** Commit draft symbol into the selected bar (whole-bar chord). Empty clears the bar. */
+/**
+ * Commit draft into the selected bar.
+ * Whitespace-separated symbols become equal (or nearly equal) duration slots.
+ * Empty clears the bar.
+ */
 export function commitEdit(state: ChartEditorState): ChartEditorState {
-  const symbol = state.draftSymbol.trim()
+  const tokens = parseDraftSymbols(state.draftSymbol)
   const existing = selectedBar(state)
-  if (symbol === '') {
+  if (tokens.length === 0) {
     return {
       ...updateBarAt(state, state.selectedBarIndex, emptyBar(state.chart, existing)),
       editing: false,
@@ -86,12 +103,29 @@ export function commitEdit(state: ChartEditorState): ChartEditorState {
       error: null,
     }
   }
-  if (!tryParseChordSymbol(symbol)) {
-    return { ...state, error: `Invalid chord “${symbol}”` }
+  for (const token of tokens) {
+    if (!tryParseChordSymbol(token)) {
+      return { ...state, error: `Invalid chord “${token}”` }
+    }
   }
-  const chord = parseChordSymbol(symbol)
   const meter = existing?.timeSignature ?? state.chart.timeSignature
-  const bar = barFromSymbols([formatChord(chord)], meter)
+  const beats = beatsPerBar(meter)
+  if (tokens.length > beats) {
+    return {
+      ...state,
+      error: `At most ${beats} chords per bar in ${meter.numerator}/${meter.denominator}`,
+    }
+  }
+  const symbols = tokens.map((token) => formatChord(parseChordSymbol(token)))
+  let bar: Bar
+  try {
+    bar = barFromSymbols(symbols, meter)
+  } catch (err) {
+    return {
+      ...state,
+      error: err instanceof Error ? err.message : 'Could not build bar slots',
+    }
+  }
   if (existing?.timeSignature !== undefined) bar.timeSignature = existing.timeSignature
   if (existing?.rehearsalMark !== undefined) bar.rehearsalMark = existing.rehearsalMark
   return {

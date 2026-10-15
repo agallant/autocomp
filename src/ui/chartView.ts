@@ -19,15 +19,16 @@ export function renderEditableBars(state: ChartEditorState): string {
       if (editing) {
         return `
           <div class="bar bar--selected bar--editing" data-bar="${i + 1}" data-index="${i}">
-            <label class="sr-only" for="chord-input">Chord symbol</label>
+            <label class="sr-only" for="chord-input">Chord symbols</label>
             <input
               id="chord-input"
               class="bar__input"
               type="text"
               value="${escapeAttr(state.draftSymbol)}"
+              placeholder="Dm7 G7"
               spellcheck="false"
               autocomplete="off"
-              aria-label="Chord symbol"
+              aria-label="Chord symbols (space-separated for multiple slots)"
             />
             <span class="bar__beat">|</span>
           </div>`

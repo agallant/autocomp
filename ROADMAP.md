@@ -16,7 +16,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | --- | --- | --- | --- |
 | M0 | PWA scaffold | done | Vite + TS + PWA, CI, Pages deploy, app shell + transport stub |
 | M1 | Music model | done | Chords, bars, forms, chart JSON schema + parse/serialize + tests |
-| M2 | Chart editor | done | iReal-like bar grid editor (select, navigate, chord entry); multi-slot duration editing deferred |
+| M2 | Chart editor | done | iReal-like bar grid editor (select, navigate, chord entry) |
 | M3 | Audio clock | done | Web Audio transport, metronome, lookahead scheduler |
 | M4 | Jazz swing style | done | Walking bass + piano comp + kit pattern for swing |
 | M5 | Style pack | done | Bossa, ballad, Latin/salsa-lite; style picker |
@@ -29,7 +29,8 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M12 | Listen & follow | in progress | Experimental mic/chord following for dynamic backing |
 | M13 | Transpose | done | Full-chart transpose (±semitone) with key-aware spelling |
 | M14 | Jump to key | done | Transpose to a selected concert key in one step |
-| M15 | Comp density | in progress | Sparse / normal / dense piano–drum texture |
+| M15 | Comp density | done | Sparse / normal / dense piano–drum texture |
+| M16 | Multi-slot bars | in progress | Space-separated chords → timed slots in a bar |
 
 ## M0 acceptance
 
@@ -56,6 +57,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Add / remove bars
 - [x] Editable chart title
 - [x] Editor unit tests
+- [x] Multi-slot duration editing (M16)
 
 ## M3 acceptance
 
@@ -163,6 +165,13 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Density select in variation toolbar; live style refresh
 - [x] Unit tests for sparse/dense/normal through `applyVariation`
 - [ ] Per-voice density sliders deferred
+
+## M16 acceptance
+
+- [x] Space-separated draft (e.g. `Dm7 G7`) → equal/near-equal duration slots
+- [x] Begin-edit loads all bar slots into the draft; display joins with spaces
+- [x] Reject more chords than beats; preserve meter/rehearsal mark
+- [ ] Explicit per-slot duration UI (e.g. 3+1) deferred
 
 ## Process notes
 
