@@ -32,7 +32,8 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M15 | Comp density | done | Sparse / normal / dense piano–drum texture |
 | M16 | Multi-slot bars | done | Space-separated chords → timed slots in a bar |
 | M17 | Form endings | done | Penultimate fill + held final-bar cadence |
-| M18 | Voice mute | in progress | Mute bass / piano / drums for practice |
+| M18 | Voice mute | done | Mute bass / piano / drums for practice |
+| M19 | Practice loop | in progress | A–B form-bar loop for focused practice |
 
 ## M0 acceptance
 
@@ -188,8 +189,17 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Toolbar voice toggles; live refresh without stopping transport
 - [x] Applies to live playback, MIDI export, and WAV bounce
 - [x] Unit tests for filter + muted `realizeBar`
-- [ ] Manual playback and export scenarios verified
+- [ ] Manual playback and export scenarios verified (deferred)
 - [ ] Per-voice volume / balance deferred
+
+## M19 acceptance
+
+- [x] Normalize / resolve A–B form-bar loop helpers
+- [x] Transport maps post-count-in bars through the loop window
+- [x] Toolbar Loop toggle + Set A / Set B from selection
+- [x] Unit tests for normalize + resolve mapping
+- [ ] Manual loop playback scenarios verified
+- [ ] Loop-aware approach tones / ending fills deferred
 
 ## Process notes
 
