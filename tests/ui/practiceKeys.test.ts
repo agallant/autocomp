@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { practiceKeyAction } from '../../src/ui/practiceKeys'
+import {
+  densityFromPracticeAction,
+  practiceKeyAction,
+} from '../../src/ui/practiceKeys'
 
 describe('practiceKeyAction', () => {
   const free: Parameters<typeof practiceKeyAction>[1] = {
@@ -32,12 +35,27 @@ describe('practiceKeyAction', () => {
     expect(practiceKeyAction('D', { ...free, withModifier: true })).toBeNull()
   })
 
+  it('maps 1–4 to Solo / Sparse / Normal / Dense', () => {
+    expect(practiceKeyAction('1', free)).toBe('set-density-solo')
+    expect(practiceKeyAction('2', free)).toBe('set-density-sparse')
+    expect(practiceKeyAction('3', free)).toBe('set-density-normal')
+    expect(practiceKeyAction('4', free)).toBe('set-density-dense')
+    expect(practiceKeyAction('1', { ...free, withModifier: true })).toBeNull()
+    expect(practiceKeyAction('2', { ...free, editing: true })).toBeNull()
+    expect(densityFromPracticeAction('set-density-solo')).toBe('solo')
+    expect(densityFromPracticeAction('set-density-sparse')).toBe('sparse')
+    expect(densityFromPracticeAction('set-density-normal')).toBe('normal')
+    expect(densityFromPracticeAction('set-density-dense')).toBe('dense')
+    expect(densityFromPracticeAction('cycle-density')).toBeNull()
+  })
+
   it('ignores shortcuts in form fields or during chord edit', () => {
     expect(practiceKeyAction(' ', { ...free, inFormField: true })).toBeNull()
     expect(practiceKeyAction('t', { ...free, editing: true })).toBeNull()
     expect(practiceKeyAction('m', { ...free, inFormField: true })).toBeNull()
     expect(practiceKeyAction('[', { ...free, editing: true })).toBeNull()
     expect(practiceKeyAction('=', { ...free, inFormField: true })).toBeNull()
+    expect(practiceKeyAction('3', { ...free, inFormField: true })).toBeNull()
   })
 
   it('ignores Ctrl / Meta / Alt so browser zoom shortcuts still work', () => {
