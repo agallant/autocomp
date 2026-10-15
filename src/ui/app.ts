@@ -32,7 +32,7 @@ export function mountApp(root: HTMLElement): () => void {
             Practice-ready chord charts with style-driven backing. This milestone ships the offline PWA shell;
             editable charts and audio styles land next.
           </p>
-          <div class="chart-stage" aria-label="Demo chord chart">
+          <div class="chart-stage" role="group" aria-label="Demo chord chart">
             <div class="chart-stage__label">Demo · 4/4 · Swing</div>
             <h3 class="chart-stage__title">Autumn Practice</h3>
             <div class="bars">
@@ -52,8 +52,14 @@ export function mountApp(root: HTMLElement): () => void {
 
       <footer class="transport" aria-label="Transport">
         <div class="transport__controls">
-          <button type="button" class="btn btn--primary" id="play-toggle" aria-pressed="false">
-            Play
+          <button
+            type="button"
+            class="btn btn--primary"
+            id="play-toggle"
+            aria-label="Play"
+            aria-pressed="false"
+          >
+            <span aria-hidden="true">Play</span>
           </button>
           <button type="button" class="btn" id="tempo-down" aria-label="Decrease tempo">−10</button>
           <button type="button" class="btn" id="tempo-up" aria-label="Increase tempo">+10</button>
@@ -76,9 +82,12 @@ export function mountApp(root: HTMLElement): () => void {
   const statusDot = root.querySelector<HTMLElement>('#status-dot')!
   const sessionStatus = root.querySelector<HTMLElement>('#session-status')!
 
+  const playLabel = playToggle.querySelector<HTMLElement>('span')!
+
   const render = (state: TransportState): void => {
+    // Stable accessible name ("Play") + aria-pressed; visual label may say Stop.
     playToggle.setAttribute('aria-pressed', String(state.playing))
-    playToggle.textContent = state.playing ? 'Stop' : 'Play'
+    playLabel.textContent = state.playing ? 'Stop' : 'Play'
     tempoReadout.textContent = String(state.tempoBpm)
     barReadout.textContent = String(state.bar)
     beatReadout.textContent = String(state.beat)

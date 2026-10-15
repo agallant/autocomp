@@ -43,10 +43,40 @@ export class TransportController {
 
   play(): void {
     if (this.state.playing) return
-    this.state.playing = true
-    this.state.bar = 1
-    this.state.beat = 1
+    this.state = { ...this.state, playing: true, bar: 1, beat: 1 }
     this.emit()
+    this.startTimer()
+  }
+
+  stop(): void {
+    this.clearTimer()
+    this.state = { ...this.state, playing: false, bar: 1, beat: 1 }
+    this.emit()
+  }
+
+  setTempo(tempoBpm: number): void {
+    const clamped = Math.min(300, Math.max(40, Math.round(tempoBpm)))
+    this.state = { ...this.state, tempoBpm: clamped }
+    if (this.state.playing) {
+      // Reschedule at the new interval without resetting bar/beat.
+      this.startTimer()
+    }
+    this.emit()
+  }
+
+  dispose(): void {
+    this.stop()
+  }
+
+  private clearTimer(): void {
+    if (this.timer !== null) {
+      clearInterval(this.timer)
+      this.timer = null
+    }
+  }
+
+  private startTimer(): void {
+    this.clearTimer()
     const msPerBeat = 60_000 / this.state.tempoBpm
     this.timer = setInterval(() => {
       let { beat, bar } = this.state
@@ -58,28 +88,6 @@ export class TransportController {
       this.state = { ...this.state, beat, bar }
       this.emit()
     }, msPerBeat)
-  }
-
-  stop(): void {
-    if (this.timer !== null) {
-      clearInterval(this.timer)
-      this.timer = null
-    }
-    this.state = { ...this.state, playing: false, bar: 1, beat: 1 }
-    this.emit()
-  }
-
-  setTempo(tempoBpm: number): void {
-    const clamped = Math.min(300, Math.max(40, Math.round(tempoBpm)))
-    const wasPlaying = this.state.playing
-    if (wasPlaying) this.stop()
-    this.state = { ...this.state, tempoBpm: clamped }
-    this.emit()
-    if (wasPlaying) this.play()
-  }
-
-  dispose(): void {
-    this.stop()
   }
 
   private emit(): void {

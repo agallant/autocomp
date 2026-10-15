@@ -208,7 +208,7 @@
 
 .btn--primary[aria-pressed='true'] {
   background: linear-gradient(180deg, #d96b6b, var(--danger));
-  color: #fff;
+  color: #1a1208;
 }
 
 .transport__readout {
@@ -262,7 +262,18 @@
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .panel,
+  .status-dot--live {
+    animation: none;
+  }
+}
+
 @media (max-width: 720px) {
+  .app {
+    grid-template-rows: var(--header-h) 1fr calc(var(--transport-h) + 1.5rem);
+  }
+
   .brand__tag {
     display: none;
   }

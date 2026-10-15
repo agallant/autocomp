@@ -1,7 +1,10 @@
 name: Deploy GitHub Pages
 
 on:
-  push:
+  # Deploy only after CI succeeds on main (avoids publishing a broken build).
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
     branches: [main]
   workflow_dispatch:
 
@@ -16,9 +19,17 @@ jobs:
   deploy:
     name: build-and-deploy
     runs-on: ubuntu-latest
+    # Manual runs must target main; workflow_run runs only after a successful CI push.
+    if: |
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push')
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
 
       - name: Setup Node
         uses: actions/setup-node@v4

@@ -44,4 +44,25 @@ describe('TransportController', () => {
     expect(transport.getState().tempoBpm).toBe(300)
     transport.dispose()
   })
+
+  it('keeps bar/beat when tempo changes during playback', () => {
+    vi.useFakeTimers()
+    const transport = new TransportController({ onChange: () => undefined })
+    transport.play()
+    vi.advanceTimersByTime(500)
+    expect(transport.getState()).toMatchObject({ bar: 1, beat: 2, playing: true })
+
+    transport.setTempo(60)
+    expect(transport.getState()).toMatchObject({
+      tempoBpm: 60,
+      bar: 1,
+      beat: 2,
+      playing: true,
+    })
+
+    vi.advanceTimersByTime(1000)
+    expect(transport.getState()).toMatchObject({ bar: 1, beat: 3 })
+    transport.dispose()
+  })
 })
+
