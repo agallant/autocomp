@@ -36,6 +36,7 @@ import {
   libraryControlsHtml,
   libraryListHtml,
 } from './libraryView'
+import { escapeAttr, escapeHtml } from './html'
 import { savedListHtml } from './savedView'
 import { TransportController, type TransportState } from './transport'
 
@@ -410,7 +411,8 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
         anchor.href = url
         anchor.download = chartDownloadFilename(editor.chart)
         anchor.click()
-        URL.revokeObjectURL(url)
+        // Defer revoke — some browsers resolve the download asynchronously.
+        setTimeout(() => URL.revokeObjectURL(url), 1000)
         setPersistStatus(`Exported ${chartDownloadFilename(editor.chart)}.`)
       } catch {
         setPersistStatus('Could not export chart.')
@@ -422,15 +424,20 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       input.value = ''
       if (!file) return
       void (async () => {
+        let chart
         try {
-          const text = await file.text()
-          const chart = parseChartImport(text)
-          applyChart(chart, { activeTuneId: chart.id })
+          chart = parseChartImport(await file.text())
+        } catch {
+          setPersistStatus('Could not import chart JSON.')
+          return
+        }
+        applyChart(chart, { activeTuneId: chart.id })
+        try {
           await charts.put(chart)
           setPersistStatus(`Imported “${chart.title}”.`)
           await refreshSaved()
         } catch {
-          setPersistStatus('Could not import chart JSON.')
+          setPersistStatus(`Loaded “${chart.title}”, but could not save it locally.`)
         }
       })()
     })
@@ -522,14 +529,3 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
   }
 }
 
-function escapeHtml(value: string): string {
-  return value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-}
-
-function escapeAttr(value: string): string {
-  return escapeHtml(value).replaceAll("'", '&#39;')
-}

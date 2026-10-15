@@ -1,6 +1,6 @@
+import { assertValidChart, type Chart } from '../music'
 import { cloneChart } from './clone'
 import type { ChartRepository, SavedChartMeta, SavedChartRecord } from './types'
-import type { Chart } from '../music'
 
 /** In-memory repository for tests and environments without IndexedDB. */
 export function createMemoryChartRepository(
@@ -8,6 +8,7 @@ export function createMemoryChartRepository(
 ): ChartRepository {
   const records = new Map<string, SavedChartRecord>()
   for (const record of seed) {
+    assertValidChart(record.chart)
     records.set(record.id, {
       ...record,
       chart: cloneChart(record.chart),
@@ -25,6 +26,7 @@ export function createMemoryChartRepository(
       return record ? cloneChart(record.chart) : null
     },
     async put(chart: Chart): Promise<SavedChartRecord> {
+      assertValidChart(chart)
       const record: SavedChartRecord = {
         id: chart.id,
         title: chart.title,

@@ -13,7 +13,7 @@ type StoredRow = {
   chart: ChartJson
 }
 
-function openDb(): Promise<IDBDatabase> {
+export function openDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, DB_VERSION)
     request.onerror = () => reject(request.error ?? new Error('Failed to open IndexedDB'))
@@ -34,6 +34,14 @@ function reqToPromise<T>(request: IDBRequest<T>): Promise<T> {
   })
 }
 
+function txDone(tx: IDBTransaction): Promise<void> {
+  return new Promise((resolve, reject) => {
+    tx.oncomplete = () => resolve()
+    tx.onabort = () => reject(tx.error ?? new Error('IndexedDB transaction aborted'))
+    tx.onerror = () => reject(tx.error ?? new Error('IndexedDB transaction failed'))
+  })
+}
+
 /** IndexedDB-backed chart repository for the browser. */
 export function createIdbChartRepository(): ChartRepository {
   return {
@@ -41,8 +49,9 @@ export function createIdbChartRepository(): ChartRepository {
       const db = await openDb()
       try {
         const tx = db.transaction(STORE, 'readonly')
-        const store = tx.objectStore(STORE)
-        const rows = (await reqToPromise(store.getAll())) as StoredRow[]
+        const complete = txDone(tx)
+        const rows = (await reqToPromise(tx.objectStore(STORE).getAll())) as StoredRow[]
+        await complete
         return rows
           .map(({ id, title, updatedAt }) => ({ id, title, updatedAt }))
           .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
@@ -55,7 +64,9 @@ export function createIdbChartRepository(): ChartRepository {
       const db = await openDb()
       try {
         const tx = db.transaction(STORE, 'readonly')
+        const complete = txDone(tx)
         const row = (await reqToPromise(tx.objectStore(STORE).get(id))) as StoredRow | undefined
+        await complete
         if (!row) return null
         return chartFromJson(row.chart)
       } finally {
@@ -80,7 +91,9 @@ export function createIdbChartRepository(): ChartRepository {
       const db = await openDb()
       try {
         const tx = db.transaction(STORE, 'readwrite')
-        await reqToPromise(tx.objectStore(STORE).put(row))
+        const complete = txDone(tx)
+        tx.objectStore(STORE).put(row)
+        await complete
       } finally {
         db.close()
       }
@@ -91,7 +104,9 @@ export function createIdbChartRepository(): ChartRepository {
       const db = await openDb()
       try {
         const tx = db.transaction(STORE, 'readwrite')
-        await reqToPromise(tx.objectStore(STORE).delete(id))
+        const complete = txDone(tx)
+        tx.objectStore(STORE).delete(id)
+        await complete
       } finally {
         db.close()
       }

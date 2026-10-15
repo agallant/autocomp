@@ -1,7 +1,12 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { createAutumnPracticeChart } from '../../src/data/practiceCharts'
 import { serializeChart } from '../../src/music'
-import { createMemoryChartRepository, parseChartImport } from '../../src/storage'
+import {
+  createFallbackChartRepository,
+  createMemoryChartRepository,
+  parseChartImport,
+  type ChartRepository,
+} from '../../src/storage'
 
 describe('chart persistence', () => {
   it('saves, lists, loads, and deletes charts in memory', async () => {
@@ -23,6 +28,32 @@ describe('chart persistence', () => {
     expect(await repo.get('autumn-practice')).toBeNull()
   })
 
+  it('rejects invalid charts in the memory repository', async () => {
+    const repo = createMemoryChartRepository()
+    const chart = createAutumnPracticeChart()
+    chart.title = ''
+    await expect(repo.put(chart)).rejects.toThrow()
+  })
+
+  it('falls back when the primary repository fails', async () => {
+    const primary: ChartRepository = {
+      list: vi.fn(async () => {
+        throw new Error('idb down')
+      }),
+      get: vi.fn(async () => null),
+      put: vi.fn(async () => {
+        throw new Error('idb down')
+      }),
+      delete: vi.fn(async () => undefined),
+    }
+    const fallback = createMemoryChartRepository()
+    const repo = createFallbackChartRepository(primary, fallback)
+    const chart = createAutumnPracticeChart()
+    await repo.put(chart)
+    expect(await repo.list()).toHaveLength(1)
+    expect(primary.put).toHaveBeenCalledTimes(1)
+  })
+
   it('round-trips import/export JSON text', () => {
     const chart = createAutumnPracticeChart()
     const text = serializeChart(chart)
@@ -32,3 +63,4 @@ describe('chart persistence', () => {
     expect(serializeChart(restored)).toBe(serializeChart(chart))
   })
 })
+

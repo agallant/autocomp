@@ -1,4 +1,5 @@
 import type { SavedChartMeta } from '../storage'
+import { escapeAttr, escapeHtml } from './html'
 
 export function savedListHtml(items: readonly SavedChartMeta[]): string {
   if (items.length === 0) {
@@ -39,16 +40,4 @@ function formatSavedAt(iso: string): string {
     hour: 'numeric',
     minute: '2-digit',
   })
-}
-
-function escapeHtml(value: string): string {
-  return value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-}
-
-function escapeAttr(value: string): string {
-  return escapeHtml(value).replaceAll("'", '&#39;')
 }

@@ -184,6 +184,11 @@
   margin: 0;
 }
 
+.chart-toolbar__file:focus-within {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
+
 .panel__title {
   margin: 0 0 var(--space-2);
   font-family: var(--font-display);
