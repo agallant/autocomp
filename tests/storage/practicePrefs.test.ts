@@ -22,6 +22,7 @@ describe('practicePrefs', () => {
     prefs.fills = false
     prefs.humanize = false
     prefs.endings = true
+    prefs.centerPlayhead = true
     savePracticePrefs(prefs, storage)
     expect(storage.getItem(PRACTICE_PREFS_KEY)).toContain('"density":"sparse"')
     const loaded = loadPracticePrefs(storage)
@@ -35,6 +36,7 @@ describe('practicePrefs', () => {
     expect(loaded.fills).toBe(false)
     expect(loaded.humanize).toBe(false)
     expect(loaded.endings).toBe(true)
+    expect(loaded.centerPlayhead).toBe(true)
   })
 
   it('returns defaults for missing or invalid storage', () => {
@@ -68,5 +70,12 @@ describe('practicePrefs', () => {
     expect(normalizePracticePrefs({ swingFeel: null }).swingFeel).toBe(defaults.swingFeel)
     expect(normalizePracticePrefs({ swingFeel: false }).swingFeel).toBe(defaults.swingFeel)
     expect(normalizePracticePrefs({ swingFeel: '80' }).swingFeel).toBe(defaults.swingFeel)
+  })
+
+  it('defaults centerPlayhead to false and rejects non-booleans', () => {
+    expect(defaultPracticePrefs().centerPlayhead).toBe(false)
+    expect(normalizePracticePrefs({}).centerPlayhead).toBe(false)
+    expect(normalizePracticePrefs({ centerPlayhead: 'yes' }).centerPlayhead).toBe(false)
+    expect(normalizePracticePrefs({ centerPlayhead: true }).centerPlayhead).toBe(true)
   })
 })

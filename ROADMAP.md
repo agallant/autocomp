@@ -51,7 +51,8 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M34 | Tempo shortcuts | done | Keyboard tempo ±10 ([ ] / - =) |
 | M35 | Density shortcut | done | D cycles Solo → Sparse → Normal → Dense |
 | M36 | Practice prefs | done | Persist mix / click / count-in / density locally |
-| M37 | Density keys | in progress | 1–4 jump to Solo / Sparse / Normal / Dense |
+| M37 | Density keys | done | 1–4 jump to Solo / Sparse / Normal / Dense |
+| M38 | Center playhead | in progress | Optional centered playhead scroll while playing |
 
 ## M0 acceptance
 
@@ -313,7 +314,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Scroll uses `nearest` (no jump when already visible); smooth unless reduced-motion
 - [x] Only scrolls once per bar (not every beat); re-arms on beat-1 loop wrap
 - [x] Unit tests for scroll options
-- [ ] Center-on-playhead preference deferred
+- [x] Center-on-playhead preference (M38)
 
 ## M32 acceptance
 
@@ -357,6 +358,13 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Same guards as other practice keys (form fields, chord edit, modifiers)
 - [x] Updates density select + live style wrap + persisted prefs
 - [x] Unit tests for digit map and action → density helper
+
+## M38 acceptance
+
+- [x] `centerPlayhead` practice pref (default off = nearest scroll)
+- [x] Center toggle in variation toolbar; persists via localStorage
+- [x] `syncBarPlayhead` uses `block`/`inline: 'center'` when enabled
+- [x] Unit tests for scroll options + prefs normalize
 
 ## Process notes
 

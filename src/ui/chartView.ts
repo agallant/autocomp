@@ -161,8 +161,9 @@ export function nextPlayheadScroll(
  * Update playhead / play-from classes on an already-rendered `.bars` root
  * without rebuilding the chart (used each transport beat).
  * Markers are CSS pseudo-elements on the classes, so class sync is enough.
- * When `scrollIntoView` is true, scrolls the sounding bar into the nearest
- * visible area (smooth unless `reduceMotion`).
+ * When `scrollIntoView` is true, scrolls the sounding bar into view
+ * (`nearest` by default, or `center` when `centerPlayhead` is set;
+ * smooth unless `reduceMotion`).
  */
 export function syncBarPlayhead(
   barsRoot: ParentNode,
@@ -171,6 +172,8 @@ export function syncBarPlayhead(
     playheadBarIndex: number | null
     playing: boolean
     scrollIntoView?: boolean
+    /** Prefer vertical centering over nearest-edge scrolling. */
+    centerPlayhead?: boolean
     reduceMotion?: boolean
   },
 ): void {
@@ -196,9 +199,10 @@ export function syncBarPlayhead(
     playheadEl &&
     typeof playheadEl.scrollIntoView === 'function'
   ) {
+    const block = options.centerPlayhead ? 'center' : 'nearest'
     playheadEl.scrollIntoView({
-      block: 'nearest',
-      inline: 'nearest',
+      block,
+      inline: block,
       behavior: options.reduceMotion ? 'auto' : 'smooth',
     })
   }

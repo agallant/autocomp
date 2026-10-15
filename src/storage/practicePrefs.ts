@@ -28,6 +28,8 @@ export type PracticePrefs = {
   fills: boolean
   humanize: boolean
   endings: boolean
+  /** Scroll the sounding bar to the center of the viewport while playing. */
+  centerPlayhead: boolean
 }
 
 export type PrefsStorage = {
@@ -80,6 +82,7 @@ export function defaultPracticePrefs(): PracticePrefs {
     fills: DEFAULT_VARIATION.fills,
     humanize: DEFAULT_VARIATION.humanize,
     endings: DEFAULT_VARIATION.endings,
+    centerPlayhead: false,
   }
 }
 
@@ -130,6 +133,10 @@ export function normalizePracticePrefs(raw: unknown): PracticePrefs {
     fills: typeof data.fills === 'boolean' ? data.fills : base.fills,
     humanize: typeof data.humanize === 'boolean' ? data.humanize : base.humanize,
     endings: typeof data.endings === 'boolean' ? data.endings : base.endings,
+    centerPlayhead:
+      typeof data.centerPlayhead === 'boolean'
+        ? data.centerPlayhead
+        : base.centerPlayhead,
   }
 }
 
