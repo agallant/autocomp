@@ -29,7 +29,15 @@ import {
   wavDownloadFilename,
   wavToDownloadBlob,
 } from '../render'
-import { formatRoot, parseRoot, transposeChart, type Chart, type Root } from '../music'
+import {
+  formatRoot,
+  parseRoot,
+  rootToPc,
+  transposeChart,
+  transposeChartToKey,
+  type Chart,
+  type Root,
+} from '../music'
 import {
   STYLE_PACK,
   createStyleById,
@@ -307,6 +315,17 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
         <span class="transpose-key" id="transpose-key" aria-live="polite">${escapeHtml(formatRoot(state.chart.key))}</span>
         <button type="button" class="btn" id="transpose-down" aria-label="Transpose down one semitone">−1</button>
         <button type="button" class="btn" id="transpose-up" aria-label="Transpose up one semitone">+1</button>
+        <label class="style-picker" for="transpose-target" data-preserve-edit>
+          <span class="style-picker__label">To</span>
+          <select id="transpose-target" class="style-picker__select" aria-label="Target key" data-preserve-edit>
+            ${GENERATE_KEYS.map((key) => {
+              const label = formatRoot(key)
+              const selected = rootToPc(key) === rootToPc(state.chart.key)
+              return `<option value="${escapeAttr(label)}"${selected ? ' selected' : ''}>${escapeHtml(label)}</option>`
+            }).join('')}
+          </select>
+        </label>
+        <button type="button" class="btn" id="transpose-to-key">Go</button>
       </div>
       ${
         webMidiAvailable
@@ -880,6 +899,41 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     }
     bindTranspose('#transpose-down', -1)
     bindTranspose('#transpose-up', 1)
+    const applyTransposeToKey = (): void => {
+      try {
+        const base = editor.editing ? commitEdit(editor) : editor
+        if (editor.editing && base.error) {
+          setEditor(base)
+          return
+        }
+        const select = root.querySelector<HTMLSelectElement>('#transpose-target')
+        const target = select ? parseRoot(select.value) : null
+        if (!target) {
+          setPersistStatus('Pick a target key.')
+          return
+        }
+        const next = transposeChartToKey(base.chart, target)
+        setEditor(selectBar(createEditorState(next), base.selectedBarIndex))
+        syncTransportStyle({ stopSources: false })
+        setPersistStatus(`Transposed to ${formatRoot(next.key)}.`)
+      } catch {
+        setPersistStatus('Could not transpose chart.')
+      }
+    }
+    const bindTransposeAction = (id: string, action: () => void): void => {
+      const button = root.querySelector(id)
+      button?.addEventListener('pointerdown', (event: Event) => {
+        const pointer = event as PointerEvent
+        if (pointer.button !== 0) return
+        pointer.preventDefault()
+        action()
+      })
+      button?.addEventListener('click', (event: Event) => {
+        const mouse = event as MouseEvent
+        if (mouse.detail === 0) action()
+      })
+    }
+    bindTransposeAction('#transpose-to-key', applyTransposeToKey)
     root.querySelector('#midi-out-select')?.addEventListener('focus', () => {
       void refreshMidiOutputs()
     })
@@ -937,10 +991,12 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
         setEditor(cancelEdit(editor))
       }
     })
-    chordInput?.addEventListener('blur', () => {
-      if (editor.editing) {
-        setEditor(commitEdit(editor))
-      }
+    chordInput?.addEventListener('blur', (event: FocusEvent) => {
+      if (!editor.editing) return
+      const related = event.relatedTarget
+      // Keep the draft when focus moves to transpose target (select rebuild would kill it).
+      if (related instanceof Element && related.closest('[data-preserve-edit]')) return
+      setEditor(commitEdit(editor))
     })
   }
 
