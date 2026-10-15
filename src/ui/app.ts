@@ -30,6 +30,7 @@ import {
   wavToDownloadBlob,
 } from '../render'
 import {
+  expandChartBars,
   formatRoot,
   parseRoot,
   rootToPc,
@@ -87,6 +88,11 @@ import {
   libraryListHtml,
 } from './libraryView'
 import { escapeAttr, escapeHtml } from './html'
+import {
+  DEFAULT_PRACTICE_LOOP,
+  normalizePracticeLoop,
+  type PracticeLoop,
+} from './practiceLoop'
 import { savedListHtml } from './savedView'
 import { TransportController, type TransportState } from './transport'
 
@@ -114,6 +120,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
   let variationDensity: CompDensity = DEFAULT_VARIATION.density
   let variationEndings = DEFAULT_VARIATION.endings
   let voiceEnabled: VoiceMuteState = { ...DEFAULT_VOICE_MUTE }
+  let practiceLoop: PracticeLoop = { ...DEFAULT_PRACTICE_LOOP }
   let generateKind: ProgressionKind = styleGenerateHints(styleId).defaultKind
   let generateKey: Root = { letter: 'C', accidental: 0 }
   let reharmMode: ReharmMode = 'ii-before-v'
@@ -316,6 +323,18 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
         </label>`,
         ).join('')}
       </div>
+      <div class="generate-controls" role="group" aria-label="Practice loop">
+        <label class="variation-toggle" title="Loop form bars A through B while playing">
+          <input type="checkbox" id="loop-enable"${practiceLoop.enabled ? ' checked' : ''} />
+          <span>Loop</span>
+        </label>
+        <button type="button" class="btn" id="loop-set-a" title="Set loop start to the selected bar">
+          A=${practiceLoop.startBar}
+        </button>
+        <button type="button" class="btn" id="loop-set-b" title="Set loop end to the selected bar">
+          B=${practiceLoop.endBar}
+        </button>
+      </div>
       <div class="generate-controls" role="group" aria-label="Generate progression">
         <label class="style-picker" for="generate-kind">
           <span class="style-picker__label">Generate</span>
@@ -442,6 +461,8 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     if (opts.styleId) styleId = opts.styleId
     else if (chart.styleHint && isStyleId(chart.styleHint)) styleId = chart.styleHint
     else if (chart.styleHint === 'swing') styleId = 'jazz-swing'
+    practiceLoop = normalizePracticeLoop(practiceLoop, expandChartBars(chart).length)
+    transport?.setPracticeLoop(practiceLoop)
     refreshChart()
     refreshLibrary()
     transport?.setBeatsPerBar(chart.timeSignature.numerator)
@@ -659,6 +680,8 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     const desc = getStyleDescriptor(styleId)
     const tempoBpm = editor.chart.defaultTempoBpm || desc.suggestedTempoBpm
     transport?.dispose()
+    const totalBars = expandChartBars(editor.chart).length
+    practiceLoop = normalizePracticeLoop(practiceLoop, totalBars)
     transport = new TransportController({
       onChange: renderTransport,
       beatsPerBar: editor.chart.timeSignature.numerator,
@@ -667,6 +690,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       metronomeEnabled: false,
       midiSink,
       countInBars: variationCountIn ? 1 : 0,
+      practiceLoop,
     })
     transport.setTempo(tempoBpm)
 
@@ -868,6 +892,37 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
         if (!checked) transport?.silenceVoices([voice])
       })
     }
+    const syncPracticeLoop = (next: PracticeLoop): void => {
+      const total = expandChartBars(editor.chart).length
+      practiceLoop = normalizePracticeLoop(next, total)
+      transport?.setPracticeLoop(practiceLoop)
+      const aBtn = root.querySelector('#loop-set-a')
+      const bBtn = root.querySelector('#loop-set-b')
+      if (aBtn) aBtn.textContent = `A=${practiceLoop.startBar}`
+      if (bBtn) bBtn.textContent = `B=${practiceLoop.endBar}`
+      const enable = root.querySelector<HTMLInputElement>('#loop-enable')
+      if (enable) enable.checked = practiceLoop.enabled
+    }
+    root.querySelector<HTMLInputElement>('#loop-enable')?.addEventListener('change', (event) => {
+      syncPracticeLoop({
+        ...practiceLoop,
+        enabled: (event.target as HTMLInputElement).checked,
+      })
+    })
+    root.querySelector('#loop-set-a')?.addEventListener('click', () => {
+      syncPracticeLoop({
+        ...practiceLoop,
+        startBar: editor.selectedBarIndex + 1,
+      })
+      setPersistStatus(`Loop A = bar ${practiceLoop.startBar}.`)
+    })
+    root.querySelector('#loop-set-b')?.addEventListener('click', () => {
+      syncPracticeLoop({
+        ...practiceLoop,
+        endBar: editor.selectedBarIndex + 1,
+      })
+      setPersistStatus(`Loop B = bar ${practiceLoop.endBar}.`)
+    })
     root.querySelector<HTMLSelectElement>('#var-density')?.addEventListener('change', (event) => {
       const value = (event.target as HTMLSelectElement).value as CompDensity
       if (COMP_DENSITY_OPTIONS.some((o) => o.id === value)) {

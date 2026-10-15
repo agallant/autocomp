@@ -11,6 +11,12 @@ import {
 import type { WebMidiSink } from '../midi'
 import { beatsPerBar, expandChartBars, type Chart } from '../music'
 import { buildStyleBarContext, type StyleEngine, type StyleVoice } from '../style'
+import {
+  DEFAULT_PRACTICE_LOOP,
+  normalizePracticeLoop,
+  resolveLoopedFormBar,
+  type PracticeLoop,
+} from './practiceLoop'
 
 type TrackedAudioSource = {
   voice: StyleVoice | 'metronome'
@@ -50,6 +56,8 @@ export type TransportOptions = TransportCallbacks & {
   midiSink?: WebMidiSink | null
   /** Bars of metronome before form bar 1 (style silent during count-in). */
   countInBars?: number
+  /** Optional A–B practice loop over form bars. */
+  practiceLoop?: PracticeLoop
 }
 
 /**
@@ -80,6 +88,7 @@ export class TransportController {
   private countInBars: number
   /** Count-in changes while playing apply on the next `play()`. */
   private pendingCountInBars: number | null = null
+  private practiceLoop: PracticeLoop
   private readonly injectedContext: AudioContext | undefined
 
   private ctx: AudioContext | null = null
@@ -103,6 +112,9 @@ export class TransportController {
     this.getChart = options.getChart ?? null
     this.midiSink = options.midiSink ?? null
     this.countInBars = Math.max(0, Math.floor(options.countInBars ?? 0))
+    this.practiceLoop = options.practiceLoop
+      ? { ...options.practiceLoop }
+      : { ...DEFAULT_PRACTICE_LOOP }
     this.metronomeEnabled =
       options.metronomeEnabled !== undefined
         ? options.metronomeEnabled
@@ -160,6 +172,16 @@ export class TransportController {
 
   getCountInBars(): number {
     return this.countInBars
+  }
+
+  setPracticeLoop(loop: PracticeLoop): void {
+    const chart = this.getChart?.()
+    const total = chart ? expandChartBars(chart).length : 0
+    this.practiceLoop = normalizePracticeLoop(loop, total)
+  }
+
+  getPracticeLoop(): PracticeLoop {
+    return { ...this.practiceLoop }
   }
 
   /**
@@ -286,19 +308,25 @@ export class TransportController {
     return this.ctx
   }
 
-  private beatsForFormBar(formBar: number): number {
+  private beatsForFormBar(schedulerBar: number): number {
     const chart = this.getChart?.()
     if (!chart) return this.defaultBeatsPerBar
     const bars = expandChartBars(chart)
     if (bars.length === 0) return this.defaultBeatsPerBar
     // Count-in uses the opening bar's meter.
-    if (formBar <= this.countInBars) {
+    if (schedulerBar <= this.countInBars) {
       const open = bars[0]!
       return beatsPerBar(open.timeSignature ?? chart.timeSignature)
     }
-    const formIndex = formBar - 1 - this.countInBars
-    const bar = bars[((formIndex % bars.length) + bars.length) % bars.length]!
+    const formBar = this.formBarForSchedulerBar(schedulerBar, bars.length)
+    const bar = bars[formBar - 1]!
     return beatsPerBar(bar.timeSignature ?? chart.timeSignature)
+  }
+
+  /** 1-based chart form bar for a scheduler bar after count-in. */
+  private formBarForSchedulerBar(schedulerBar: number, totalBars: number): number {
+    const pass = schedulerBar - this.countInBars
+    return resolveLoopedFormBar(pass, totalBars, this.practiceLoop)
   }
 
   private handleScheduledBeat(ctx: AudioContext, beat: ScheduledBeat): void {
@@ -312,7 +340,12 @@ export class TransportController {
       this.uiTimers.delete(timer)
       if (!this.state.playing) return
       // Count-in shows as bar 0; form bars are 1-based after the lead-in.
-      const displayBar = inCountIn ? 0 : beat.bar - this.countInBars
+      let displayBar = 0
+      if (!inCountIn) {
+        const chart = this.getChart?.()
+        const total = chart ? expandChartBars(chart).length : 0
+        displayBar = this.formBarForSchedulerBar(beat.bar, total)
+      }
       this.state = { ...this.state, bar: displayBar, beat: beat.beat }
       this.emit()
     }, delayMs)
@@ -326,8 +359,8 @@ export class TransportController {
     const chart = this.getChart()
     const total = expandChartBars(chart).length
     if (total === 0) return
-    const formIndex = beat.bar - 1 - this.countInBars
-    const barIndex = ((formIndex % total) + total) % total
+    const formBar = this.formBarForSchedulerBar(beat.bar, total)
+    const barIndex = formBar - 1
     const styleCtx = buildStyleBarContext(chart, barIndex)
     if (!styleCtx) return
     const beatIndex = beat.beat - 1
