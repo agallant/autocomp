@@ -19,7 +19,8 @@ export const PROGRESSION_CATALOG: ProgressionDescriptor[] = [
 ]
 
 function slugKey(key: Root): string {
-  return formatRoot(key).toLowerCase().replace('#', 's').replace('b', 'b')
+  // Flat accidentals stay as `b`; sharps become `s` for URL/id-safe slugs.
+  return formatRoot(key).toLowerCase().replaceAll('#', 's')
 }
 
 function buildChart(
