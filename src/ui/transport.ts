@@ -1,4 +1,6 @@
 import {
+  clampClickLevel,
+  DEFAULT_CLICK_LEVEL,
   ensureSampleKit,
   getAudioContext,
   LookaheadScheduler,
@@ -49,6 +51,8 @@ export type TransportOptions = TransportCallbacks & {
   clearIntervalFn?: typeof clearInterval
   /** When false, skips scheduling click sounds (UI/scheduler still run). */
   metronomeEnabled?: boolean
+  /** Click track level 0–1 (also scales count-in clicks). */
+  clickLevel?: number
   /** Optional accompaniment style realized per beat. */
   style?: StyleEngine | null
   /** Live chart provider used by the style engine. */
@@ -83,6 +87,7 @@ export class TransportController {
   private readonly setIntervalFn: typeof setInterval
   private readonly clearIntervalFn: typeof clearInterval
   private metronomeEnabled: boolean
+  private clickLevel: number
   private style: StyleEngine | null
   private getChart: (() => Chart) | null
   private midiSink: WebMidiSink | null
@@ -127,6 +132,9 @@ export class TransportController {
       options.metronomeEnabled !== undefined
         ? options.metronomeEnabled
         : this.style === null
+    this.clickLevel = clampClickLevel(
+      options.clickLevel !== undefined ? options.clickLevel : DEFAULT_CLICK_LEVEL,
+    )
     this.state = { ...this.state, styleId: this.style?.id ?? null }
     this.callbacks.onChange(this.getState())
   }
@@ -165,6 +173,14 @@ export class TransportController {
 
   setMetronomeEnabled(enabled: boolean): void {
     this.metronomeEnabled = enabled
+  }
+
+  setClickLevel(level: number): void {
+    this.clickLevel = clampClickLevel(level)
+  }
+
+  getClickLevel(): number {
+    return this.clickLevel
   }
 
   setCountInBars(bars: number): void {
@@ -389,7 +405,8 @@ export class TransportController {
   private handleScheduledBeat(ctx: AudioContext, beat: ScheduledBeat): void {
     const inCountIn = beat.bar <= this.countInBars
     if (this.metronomeEnabled || inCountIn) {
-      this.trackAudioSource('metronome', scheduleMetronomeClick(ctx, beat.time, beat.accent))
+      const click = scheduleMetronomeClick(ctx, beat.time, beat.accent, this.clickLevel)
+      if (click) this.trackAudioSource('metronome', click)
     }
     this.scheduleStyleBeat(ctx, beat)
     const delayMs = Math.max(0, (beat.time - ctx.currentTime) * 1000)
