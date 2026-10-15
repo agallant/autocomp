@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { scheduleStyleNote } from '../../src/audio/synth'
+import { midiToFrequency } from '../../src/style/midi'
 import type { StyleNote } from '../../src/style'
 
 function createFakeContext() {
@@ -26,6 +27,7 @@ function createFakeContext() {
     frequency: { value: 0, setValueAtTime: vi.fn() },
     connect: vi.fn(),
   }
+  let lastBuffer: Float32Array | null = null
   const bufferSource = {
     buffer: null as AudioBuffer | null,
     connect: vi.fn(),
@@ -40,6 +42,7 @@ function createFakeContext() {
     createBiquadFilter: vi.fn(() => filter as unknown as BiquadFilterNode),
     createBuffer: vi.fn((channels: number, length: number, rate: number) => {
       const data = new Float32Array(length)
+      lastBuffer = data
       return {
         numberOfChannels: channels,
         length,
@@ -48,12 +51,13 @@ function createFakeContext() {
       } as unknown as AudioBuffer
     }),
     createBufferSource: vi.fn(() => bufferSource as unknown as AudioBufferSourceNode),
+    getLastBuffer: () => lastBuffer,
   }
-  return { ctx: ctx as unknown as BaseAudioContext, osc, bufferSource }
+  return { ctx: ctx as unknown as BaseAudioContext & { getLastBuffer: () => Float32Array | null }, osc, bufferSource }
 }
 
 describe('scheduleStyleNote', () => {
-  it('schedules a bass note', () => {
+  it('schedules a bass note at the MIDI frequency', () => {
     const { ctx, osc } = createFakeContext()
     const note: StyleNote = {
       voice: 'bass',
@@ -62,11 +66,26 @@ describe('scheduleStyleNote', () => {
       durationBeats: 1,
       velocity: 0.7,
     }
-    scheduleStyleNote(ctx, note, 1, 0.5)
+    const sources = scheduleStyleNote(ctx, note, 1, 0.5)
+    expect(osc.frequency.setValueAtTime).toHaveBeenCalledWith(midiToFrequency(40), 1)
     expect(osc.start).toHaveBeenCalledWith(1)
+    expect(sources).toHaveLength(1)
   })
 
-  it('schedules a drum hit from noise', () => {
+  it('skips zero-velocity notes', () => {
+    const { ctx, osc } = createFakeContext()
+    const note: StyleNote = {
+      voice: 'bass',
+      midi: 40,
+      startBeat: 0,
+      durationBeats: 1,
+      velocity: 0,
+    }
+    expect(scheduleStyleNote(ctx, note, 0, 0.5)).toEqual([])
+    expect(osc.start).not.toHaveBeenCalled()
+  })
+
+  it('schedules a drum hit with a nonzero noise buffer', () => {
     const { ctx, bufferSource } = createFakeContext()
     const note: StyleNote = {
       voice: 'drums',
@@ -78,5 +97,8 @@ describe('scheduleStyleNote', () => {
     }
     scheduleStyleNote(ctx, note, 0.5, 0.5)
     expect(bufferSource.start).toHaveBeenCalledWith(0.5)
+    const data = ctx.getLastBuffer()
+    expect(data).not.toBeNull()
+    expect(data!.some((sample) => sample !== 0)).toBe(true)
   })
 })

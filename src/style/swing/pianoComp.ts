@@ -10,7 +10,6 @@ const PIANO_CENTER = 60
 export function realizePianoComp(ctx: StyleBarContext): StyleNote[] {
   const notes: StyleNote[] = []
   for (let beat = 0; beat < ctx.beatsPerBar; beat++) {
-    // Classic jazz piano comps on 2 & 4 in 4/4; on beat 2 only in triple meters.
     const isCompBeat =
       ctx.beatsPerBar >= 4 ? beat === 1 || beat === 3 : beat === Math.min(1, ctx.beatsPerBar - 1)
     if (!isCompBeat) continue
@@ -40,6 +39,9 @@ export function shellVoicing(chord: Chord): number[] {
   if (seventh !== null) intervals.push(seventh)
   if (intervals.length === 0) {
     intervals.push(0, 7)
+  } else if (intervals.length === 1) {
+    // Triads only yield a third — add the fifth (or root) so comps stay two-note.
+    intervals.push(tones.has(7) ? 7 : 0)
   }
 
   return intervals.map((iv) => pcToMidiNear(normalizePc(root + iv), PIANO_CENTER))

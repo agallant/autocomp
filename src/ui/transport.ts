@@ -5,8 +5,9 @@ import {
   scheduleMetronomeClick,
   scheduleStyleNote,
   type ScheduledBeat,
+  type ScheduledSource,
 } from '../audio'
-import { expandChartBars, type Chart } from '../music'
+import { beatsPerBar, expandChartBars, type Chart } from '../music'
 import { buildStyleBarContext, type StyleEngine } from '../style'
 
 export type TransportState = {
@@ -34,7 +35,7 @@ export type TransportOptions = TransportCallbacks & {
   clearIntervalFn?: typeof clearInterval
   /** When false, skips scheduling click sounds (UI/scheduler still run). */
   metronomeEnabled?: boolean
-  /** Optional accompaniment style realized on each bar downbeat. */
+  /** Optional accompaniment style realized per beat. */
   style?: StyleEngine | null
   /** Live chart provider used by the style engine. */
   getChart?: () => Chart
@@ -54,7 +55,7 @@ export class TransportController {
     styleId: null,
   }
 
-  private beatsPerBar: number
+  private defaultBeatsPerBar: number
   private readonly callbacks: TransportCallbacks
   private readonly createAudioContext: () => AudioContext
   private readonly setTimeoutFn: typeof setTimeout
@@ -69,13 +70,14 @@ export class TransportController {
   private ctx: AudioContext | null = null
   private scheduler: LookaheadScheduler | null = null
   private uiTimers = new Set<ReturnType<typeof setTimeout>>()
+  private audioSources = new Set<ScheduledSource>()
   /** Monotonic token so overlapping async `play()` calls can be invalidated. */
   private playGeneration = 0
   private starting = false
 
   constructor(options: TransportOptions) {
     this.callbacks = options
-    this.beatsPerBar = Math.max(1, Math.round(options.beatsPerBar ?? 4))
+    this.defaultBeatsPerBar = Math.max(1, Math.round(options.beatsPerBar ?? 4))
     this.injectedContext = options.audioContext
     this.createAudioContext = options.createAudioContext ?? getAudioContext
     this.setTimeoutFn = options.setTimeoutFn ?? setTimeout
@@ -84,7 +86,6 @@ export class TransportController {
     this.clearIntervalFn = options.clearIntervalFn ?? clearInterval
     this.style = options.style ?? null
     this.getChart = options.getChart ?? null
-    // Default: metronome on only when no style is attached.
     this.metronomeEnabled =
       options.metronomeEnabled !== undefined
         ? options.metronomeEnabled
@@ -97,8 +98,8 @@ export class TransportController {
     return { ...this.state }
   }
 
-  setBeatsPerBar(beatsPerBar: number): void {
-    this.beatsPerBar = Math.max(1, Math.round(beatsPerBar))
+  setBeatsPerBar(beats: number): void {
+    this.defaultBeatsPerBar = Math.max(1, Math.round(beats))
   }
 
   setStyle(style: StyleEngine | null): void {
@@ -152,7 +153,7 @@ export class TransportController {
     this.scheduler = new LookaheadScheduler({
       clock: ctx,
       getTempoBpm: () => this.state.tempoBpm,
-      getBeatsPerBar: () => this.beatsPerBar,
+      getBeatsPerBar: (bar) => this.beatsForFormBar(bar),
       setIntervalFn: this.setIntervalFn,
       clearIntervalFn: this.clearIntervalFn,
       onSchedule: (beat) => this.handleScheduledBeat(ctx, beat),
@@ -166,6 +167,7 @@ export class TransportController {
     this.scheduler?.stop()
     this.scheduler = null
     this.clearUiTimers()
+    this.stopAudioSources()
     this.state = { ...this.state, playing: false, bar: 1, beat: 1 }
     this.emit()
   }
@@ -186,13 +188,20 @@ export class TransportController {
     return this.ctx
   }
 
+  private beatsForFormBar(formBar: number): number {
+    const chart = this.getChart?.()
+    if (!chart) return this.defaultBeatsPerBar
+    const bars = expandChartBars(chart)
+    if (bars.length === 0) return this.defaultBeatsPerBar
+    const bar = bars[((formBar - 1) % bars.length + bars.length) % bars.length]!
+    return beatsPerBar(bar.timeSignature ?? chart.timeSignature)
+  }
+
   private handleScheduledBeat(ctx: AudioContext, beat: ScheduledBeat): void {
     if (this.metronomeEnabled) {
       scheduleMetronomeClick(ctx, beat.time, beat.accent)
     }
-    if (beat.accent) {
-      this.scheduleStyleBar(ctx, beat)
-    }
+    this.scheduleStyleBeat(ctx, beat)
     const delayMs = Math.max(0, (beat.time - ctx.currentTime) * 1000)
     const timer = this.setTimeoutFn(() => {
       this.uiTimers.delete(timer)
@@ -203,19 +212,35 @@ export class TransportController {
     this.uiTimers.add(timer)
   }
 
-  private scheduleStyleBar(ctx: AudioContext, beat: ScheduledBeat): void {
+  /** Schedule only the style notes that fall inside this beat (keeps Stop / tempo responsive). */
+  private scheduleStyleBeat(ctx: AudioContext, beat: ScheduledBeat): void {
     if (!this.style || !this.getChart) return
     const chart = this.getChart()
     const total = expandChartBars(chart).length
     if (total === 0) return
-    const barIndex = (Math.max(0, beat.bar - 1) % total + total) % total
+    const barIndex = ((beat.bar - 1) % total + total) % total
     const styleCtx = buildStyleBarContext(chart, barIndex)
     if (!styleCtx) return
+    const beatIndex = beat.beat - 1
     const secondsPerBeat = 60 / Math.max(1, this.state.tempoBpm)
     for (const note of this.style.realizeBar(styleCtx)) {
-      const when = beat.time + note.startBeat * secondsPerBeat
-      scheduleStyleNote(ctx, note, when, secondsPerBeat)
+      if (note.startBeat < beatIndex || note.startBeat >= beatIndex + 1) continue
+      const when = beat.time + (note.startBeat - beatIndex) * secondsPerBeat
+      for (const source of scheduleStyleNote(ctx, note, when, secondsPerBeat)) {
+        this.audioSources.add(source)
+      }
     }
+  }
+
+  private stopAudioSources(): void {
+    for (const source of this.audioSources) {
+      try {
+        source.stop(0)
+      } catch {
+        // already stopped
+      }
+    }
+    this.audioSources.clear()
   }
 
   private clearUiTimers(): void {

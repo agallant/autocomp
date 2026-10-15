@@ -5,7 +5,7 @@ import type { StyleBarContext, StyleNote } from '../types'
 const BASS_CENTER = 38 // around low D
 
 /**
- * Quarter-note walking bass: root on beat 1, chord tones mid-bar,
+ * Quarter-note walking bass: root on beat 1, moving chord tones mid-bar,
  * chromatic approach into the next bar on the last beat.
  */
 export function realizeWalkingBass(ctx: StyleBarContext): StyleNote[] {
@@ -27,7 +27,7 @@ export function realizeWalkingBass(ctx: StyleBarContext): StyleNote[] {
       const tones = chordTonePcs(chord)
       midi =
         prevMidi !== null
-          ? nearestChordToneMidi(tones, prevMidi)
+          ? nearestChordToneMidi(tones, prevMidi, { excludeMidi: prevMidi })
           : pcToMidiNear(tones[beat % tones.length]!, BASS_CENTER)
     }
 
@@ -52,16 +52,23 @@ function approachMidi(from: number, target: number, chord: Chord): number {
   return nearestChordToneMidi(chordTonePcs(chord), target - step)
 }
 
-function nearestChordToneMidi(tones: number[], fromMidi: number): number {
-  let best = pcToMidiNear(normalizePc(tones[0]!), fromMidi)
-  let bestDist = Math.abs(best - fromMidi)
+function nearestChordToneMidi(
+  tones: number[],
+  fromMidi: number,
+  opts: { excludeMidi?: number } = {},
+): number {
+  let best: number | null = null
+  let bestDist = Infinity
   for (const pc of tones) {
     const midi = pcToMidiNear(normalizePc(pc), fromMidi)
+    if (opts.excludeMidi !== undefined && midi === opts.excludeMidi) continue
     const dist = Math.abs(midi - fromMidi)
     if (dist < bestDist) {
       best = midi
       bestDist = dist
     }
   }
-  return best
+  if (best !== null) return best
+  // All chord tones collapsed to the excluded pitch — step away by a second.
+  return fromMidi + 2
 }

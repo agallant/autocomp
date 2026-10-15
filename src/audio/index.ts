@@ -1,5 +1,5 @@
 export { getAudioContext, resumeAudioContext, resetAudioContextForTests } from './context'
 export { scheduleMetronomeClick } from './metronome'
 export { LookaheadScheduler, secondsPerBeat } from './scheduler'
-export { scheduleStyleNote } from './synth'
+export { scheduleStyleNote, type ScheduledSource } from './synth'
 export type { AudioClock, BeatPosition, ScheduledBeat } from './types'

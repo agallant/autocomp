@@ -3,7 +3,8 @@ import type { AudioClock, BeatPosition, ScheduledBeat } from './types'
 export type LookaheadSchedulerOptions = {
   clock: AudioClock
   getTempoBpm: () => number
-  getBeatsPerBar: () => number
+  /** Beats in the bar for the given 1-based form bar number. */
+  getBeatsPerBar: (bar: number) => number
   /** How far ahead of the audio clock to schedule (seconds). */
   scheduleAheadTime?: number
   /** How often to run the scheduling loop (ms). */
@@ -24,7 +25,7 @@ export class LookaheadScheduler {
   private readonly setIntervalFn: typeof setInterval
   private readonly clearIntervalFn: typeof clearInterval
   private readonly getTempoBpm: () => number
-  private readonly getBeatsPerBar: () => number
+  private readonly getBeatsPerBar: (bar: number) => number
   private readonly onSchedule: (beat: ScheduledBeat) => void
   private readonly clock: AudioClock
 
@@ -78,7 +79,7 @@ export class LookaheadScheduler {
     const now = this.clock.currentTime
     const horizon = now + this.scheduleAheadTime
     while (this.nextNoteTime < horizon) {
-      const beatsPerBar = Math.max(1, Math.round(this.getBeatsPerBar()))
+      const beatsPerBar = Math.max(1, Math.round(this.getBeatsPerBar(this.position.bar)))
       // Skip beats that already elapsed (tab backgrounded / long stall) — keep position.
       if (this.nextNoteTime < now) {
         this.advance(beatsPerBar)
