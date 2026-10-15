@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import { createAutumnPracticeChart } from '../../src/data/autumnPractice'
+import { createRhythmLabChart } from '../../src/data/practiceCharts'
 import { createEditorState, selectBar } from '../../src/ui/chartEditor'
-import { renderEditableBars, syncBarPlayhead } from '../../src/ui/chartView'
+import {
+  chartMetaLine,
+  expandBarMeta,
+  renderEditableBars,
+  syncBarPlayhead,
+} from '../../src/ui/chartView'
 
 describe('chartView', () => {
   it('shows NC for silent slots in multi-slot bars', () => {
@@ -111,7 +117,35 @@ describe('chartView', () => {
       ],
     }
     const html = renderEditableBars(state)
-    expect(html).toContain('aria-label="Bar 1, C&quot; onclick=&quot;alert(1), play from here"')
+    expect(html).toMatch(
+      /aria-label="Bar 1, section A, C&quot; onclick=&quot;alert\(1\), play from here"/,
+    )
     expect(html).not.toContain('aria-label="Bar 1, C" onclick')
+  })
+
+  it('marks section starts for repeated form occurrences', () => {
+    const chart = createRhythmLabChart()
+    const meta = expandBarMeta(chart)
+    expect(meta.filter((m) => m.isSectionStart).map((m) => m.sectionLabel)).toEqual([
+      'A',
+      'A',
+      'B',
+      'A',
+    ])
+    const html = renderEditableBars(createEditorState(chart))
+    expect(html).toMatch(/data-index="0"[^>]*data-section="A"/)
+    expect(html).toMatch(/data-index="8"[^>]*data-section="A"/)
+    expect(html).toMatch(/data-index="16"[^>]*data-section="B"/)
+    expect(html).toMatch(/data-index="24"[^>]*data-section="A"/)
+    expect(html).toContain('bar__section')
+    expect(chartMetaLine(chart)).toContain('Form AABA')
+  })
+
+  it('falls back to section id when the label is empty', () => {
+    const state = createEditorState(createAutumnPracticeChart())
+    state.chart.sections[0]!.label = ''
+    const html = renderEditableBars(state)
+    expect(html).toMatch(/data-index="0"[^>]*data-section="A"/)
+    expect(html).toMatch(/aria-label="Bar 1, section A,/)
   })
 })

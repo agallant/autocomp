@@ -26,7 +26,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M9 | Audio render | done | Offline bounce to WAV (MP3 deferred); client-side encode |
 | M10 | Variation | done | Fills, intros/endings, solo density, humanization |
 | M11 | Generative | done | Style-conditioned progression / reharm helpers |
-| M12 | Listen & follow | in progress | Experimental mic/chord following for dynamic backing |
+| M12 | Listen & follow | done | Experimental mic/chord following for dynamic backing |
 | M13 | Transpose | done | Full-chart transpose (±semitone) with key-aware spelling |
 | M14 | Jump to key | done | Transpose to a selected concert key in one step |
 | M15 | Comp density | done | Sparse / normal / dense piano–drum texture |
@@ -42,7 +42,8 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M25 | Voice volume | done | Per-voice level for bass / piano / drums |
 | M26 | Guide melody | done | Generative guide-tone practice line |
 | M27 | Keyboard shortcuts | done | Space play/pause, T tap, M click |
-| M28 | Playhead affordance | in progress | Play-from-here marker + live playhead |
+| M28 | Playhead affordance | done | Play-from-here marker + live playhead |
+| M29 | Form editor | in progress | Edit form order + section markers on the grid |
 
 ## M0 acceptance
 
@@ -153,7 +154,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Chroma fold + chord-tone matching against the live chart
 - [x] Follow toggle: stable lock seeks playing transport (or selects bar when stopped)
 - [x] Unit tests for chroma, match, follow engine, scheduler seek
-- [ ] Manual microphone and playback scenarios verified
+- [ ] Manual microphone and playback scenarios verified (deferred)
 - [ ] Polyphonic pitch tracking / ML chord ID deferred
 
 ## M13 acceptance
@@ -279,6 +280,15 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] `syncBarPlayhead` updates the grid without a full re-render
 - [x] Unit tests for markers and sync
 - [ ] Scroll-into-view for off-screen playhead deferred
+
+## M29 acceptance
+
+- [x] Form field edits space-separated section order (`A A B A`)
+- [x] Add section appends a new empty lettered section to the form
+- [x] Section-start markers on the chart grid (including repeats)
+- [x] Meta line shows compact form string
+- [x] Unit tests for form rewrite, add section, and markers
+- [ ] Rename / delete sections deferred
 
 ## Process notes
 

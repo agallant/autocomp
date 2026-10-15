@@ -19,6 +19,30 @@ export type RenderBarsOptions = {
   showPlayFrom?: boolean
 }
 
+/** Expanded-form metadata for section boundary markers. */
+export type ExpandedBarMeta = {
+  sectionId: string
+  sectionLabel: string
+  /** True on the first bar of each form occurrence. */
+  isSectionStart: boolean
+}
+
+export function expandBarMeta(chart: Chart): ExpandedBarMeta[] {
+  const out: ExpandedBarMeta[] = []
+  for (const id of chart.form) {
+    const section = chart.sections.find((s) => s.id === id)
+    if (!section) continue
+    section.bars.forEach((_, barInSection) => {
+      out.push({
+        sectionId: section.id,
+        sectionLabel: section.label,
+        isSectionStart: barInSection === 0,
+      })
+    })
+  }
+  return out
+}
+
 export function renderEditableBars(
   state: ChartEditorState,
   options: RenderBarsOptions = {},
@@ -26,6 +50,7 @@ export function renderEditableBars(
   const bars = state.chart.form.flatMap(
     (id) => state.chart.sections.find((s) => s.id === id)?.bars ?? [],
   )
+  const meta = expandBarMeta(state.chart)
   const playhead = options.playheadBarIndex
   const showPlayFrom = options.showPlayFrom !== false
 
@@ -35,6 +60,9 @@ export function renderEditableBars(
       const editing = selected && state.editing
       const isPlayhead = playhead !== null && playhead !== undefined && i === playhead
       const isPlayFrom = showPlayFrom && selected && !isPlayhead && !editing
+      const sectionStart = meta[i]?.isSectionStart
+        ? meta[i]!.sectionLabel.trim() || meta[i]!.sectionId
+        : null
       const label = slotLabel(bar)
       const classes = [
         'bar',
@@ -42,13 +70,20 @@ export function renderEditableBars(
         editing ? 'bar--editing' : '',
         isPlayhead ? 'bar--playhead' : '',
         isPlayFrom ? 'bar--play-from' : '',
+        sectionStart ? 'bar--section-start' : '',
       ]
         .filter(Boolean)
         .join(' ')
+      const sectionMark = sectionStart
+        ? `<span class="bar__section" aria-hidden="true">${escapeHtml(sectionStart)}</span>`
+        : ''
 
       if (editing) {
         return `
-          <div class="${classes}" data-bar="${i + 1}" data-index="${i}">
+          <div class="${classes}" data-bar="${i + 1}" data-index="${i}"${
+            sectionStart ? ` data-section="${escapeAttr(sectionStart)}"` : ''
+          }>
+            ${sectionMark}
             <label class="sr-only" for="chord-input">Chord symbols</label>
             <input
               id="chord-input"
@@ -69,12 +104,16 @@ export function renderEditableBars(
           class="${classes}"
           data-bar="${i + 1}"
           data-index="${i}"
+          ${sectionStart ? `data-section="${escapeAttr(sectionStart)}"` : ''}
           aria-pressed="${selected}"
           ${isPlayhead ? 'aria-current="true"' : ''}
-          aria-label="Bar ${i + 1}, ${escapeAttr(label === '·' ? 'empty' : label)}${
+          aria-label="Bar ${i + 1}${
+            sectionStart ? `, section ${escapeAttr(sectionStart)}` : ''
+          }, ${escapeAttr(label === '·' ? 'empty' : label)}${
             isPlayFrom ? ', play from here' : isPlayhead ? ', playing' : ''
           }"
         >
+          ${sectionMark}
           <span class="bar__chord">${escapeHtml(label)}</span>
           <span class="bar__beat">|</span>
         </button>`
@@ -111,7 +150,8 @@ export function syncBarPlayhead(
 
 export function chartMetaLine(chart: Chart): string {
   const style = chart.styleHint ? ` · ${capitalize(chart.styleHint)}` : ''
-  return `Edit · ${formatRoot(chart.key)} · ${chart.timeSignature.numerator}/${chart.timeSignature.denominator}${style}`
+  const form = chart.form.length ? ` · Form ${escapeHtml(chart.form.join(''))}` : ''
+  return `Edit · ${formatRoot(chart.key)} · ${chart.timeSignature.numerator}/${chart.timeSignature.denominator}${style}${form}`
 }
 
 function capitalize(value: string): string {

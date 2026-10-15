@@ -196,6 +196,97 @@ export function setTitle(state: ChartEditorState, title: string): ChartEditorSta
   return { ...state, chart, error: null }
 }
 
+/** Space-separated form tokens for the toolbar (section ids / labels). */
+export function formDraftString(chart: Chart): string {
+  return chart.form.join(' ')
+}
+
+/**
+ * Set playback order from a whitespace-separated draft.
+ * Tokens match section `id` first, then unique `label`.
+ */
+export function setFormOrder(state: ChartEditorState, draft: string): ChartEditorState {
+  const tokens = draft.trim().split(/\s+/).filter((t) => t.length > 0)
+  if (tokens.length === 0) {
+    return { ...state, error: 'Form needs at least one section' }
+  }
+  const byId = new Map(state.chart.sections.map((s) => [s.id, s]))
+  const labelCounts = new Map<string, number>()
+  for (const section of state.chart.sections) {
+    labelCounts.set(section.label, (labelCounts.get(section.label) ?? 0) + 1)
+  }
+  const byLabel = new Map<string, string>()
+  for (const section of state.chart.sections) {
+    if ((labelCounts.get(section.label) ?? 0) === 1) {
+      byLabel.set(section.label, section.id)
+    }
+  }
+  const form: string[] = []
+  for (const token of tokens) {
+    if (byId.has(token)) {
+      form.push(token)
+      continue
+    }
+    const fromLabel = byLabel.get(token)
+    if (fromLabel) {
+      form.push(fromLabel)
+      continue
+    }
+    if ((labelCounts.get(token) ?? 0) > 1) {
+      return { ...state, error: `Ambiguous section label “${token}” — use the section id` }
+    }
+    return { ...state, error: `Unknown section “${token}”` }
+  }
+  const chart = cloneChart(state.chart)
+  chart.form = form
+  assertValidChart(chart)
+  const nextIndex = Math.min(state.selectedBarIndex, expandChartBars(chart).length - 1)
+  return {
+    ...state,
+    chart,
+    selectedBarIndex: Math.max(0, nextIndex),
+    editing: false,
+    draftSymbol: '',
+    error: null,
+  }
+}
+
+/** Append a new empty section (next free letter id) and add it to the form. */
+export function addSection(state: ChartEditorState): ChartEditorState {
+  const chart = cloneChart(state.chart)
+  const id = nextSectionId(chart)
+  const loc = locateBar(chart, state.selectedBarIndex)
+  const templateLen = loc ? chart.sections[loc.sectionIndex]!.bars.length : 4
+  const barCountNew = Math.max(1, templateLen)
+  chart.sections.push({
+    id,
+    label: id,
+    bars: Array.from({ length: barCountNew }, () => emptyBar(chart)),
+  })
+  chart.form.push(id)
+  assertValidChart(chart)
+  const selectedBarIndex = expandChartBars(chart).length - barCountNew
+  return {
+    ...state,
+    chart,
+    selectedBarIndex,
+    editing: false,
+    draftSymbol: '',
+    error: null,
+  }
+}
+
+function nextSectionId(chart: Chart): string {
+  const used = new Set(chart.sections.map((s) => s.id))
+  for (let i = 0; i < 26; i++) {
+    const id = String.fromCharCode(65 + i) // A–Z
+    if (!used.has(id)) return id
+  }
+  let n = 1
+  while (used.has(`S${n}`)) n += 1
+  return `S${n}`
+}
+
 function emptyBar(chart: Chart, preserve?: Bar | null): Bar {
   const meter = preserve?.timeSignature ?? chart.timeSignature
   const bar: Bar = {

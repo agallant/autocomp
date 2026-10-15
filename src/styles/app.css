@@ -420,6 +420,31 @@
   font-size: 0.8rem;
 }
 
+.form-editor__input {
+  min-width: 6.5rem;
+  max-width: 12rem;
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.bar--section-start {
+  position: relative;
+}
+
+.bar__section {
+  position: absolute;
+  top: 0.2rem;
+  right: 0.35rem;
+  z-index: 1;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--text-chart);
+  pointer-events: none;
+}
+
 .bars {
   position: relative;
   display: grid;

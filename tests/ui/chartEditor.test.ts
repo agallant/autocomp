@@ -10,13 +10,16 @@ import {
 } from '../../src/music'
 import {
   addBarAfterSelection,
+  addSection,
   beginEdit,
   commitEdit,
   createEditorState,
+  formDraftString,
   moveSelection,
   removeSelectedBar,
   selectBar,
   setDraftSymbol,
+  setFormOrder,
   setTitle,
 } from '../../src/ui/chartEditor'
 
@@ -171,6 +174,46 @@ describe('chartEditor', () => {
     let state = createEditorState(createAutumnPracticeChart())
     state = setTitle(state, 'Blue Practice')
     expect(state.chart.title).toBe('Blue Practice')
+  })
+
+  it('rewrites form order from a space-separated draft', () => {
+    let state = createEditorState(createAabaChart())
+    expect(formDraftString(state.chart)).toBe('A B A')
+    state = setFormOrder(state, 'A A B A')
+    expect(state.error).toBeNull()
+    expect(state.chart.form).toEqual(['A', 'A', 'B', 'A'])
+    expect(expandChartBars(state.chart)).toHaveLength(7)
+  })
+
+  it('rejects unknown form tokens', () => {
+    let state = createEditorState(createAabaChart())
+    state = setFormOrder(state, 'A C')
+    expect(state.error).toMatch(/Unknown section/)
+    expect(state.chart.form).toEqual(['A', 'B', 'A'])
+  })
+
+  it('rejects ambiguous duplicated section labels', () => {
+    const chart = createAabaChart()
+    chart.sections[0]!.label = 'Part'
+    chart.sections[1]!.label = 'Part'
+    let state = createEditorState(chart)
+    state = setFormOrder(state, 'Part B')
+    expect(state.error).toMatch(/Ambiguous section label/)
+    expect(state.chart.form).toEqual(['A', 'B', 'A'])
+    state = setFormOrder(state, 'A B A')
+    expect(state.error).toBeNull()
+    expect(state.chart.form).toEqual(['A', 'B', 'A'])
+  })
+
+  it('appends a new empty section to the form', () => {
+    let state = createEditorState(createAabaChart())
+    state = addSection(state)
+    expect(state.error).toBeNull()
+    expect(state.chart.sections.map((s) => s.id)).toContain('C')
+    expect(state.chart.form.at(-1)).toBe('C')
+    const added = state.chart.sections.find((s) => s.id === 'C')!
+    expect(added.bars.length).toBe(2) // matches selected section A length
+    expect(added.bars.every((b) => b.slots.every((s) => !s.chord))).toBe(true)
   })
 })
 
