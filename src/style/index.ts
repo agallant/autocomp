@@ -1,5 +1,12 @@
 export type { StyleBarContext, StyleEngine, StyleNote, StyleVoice } from './types'
 export {
+  createMutedStyle,
+  filterMutedVoices,
+  DEFAULT_VOICE_MUTE,
+  STYLE_VOICES,
+  type VoiceMuteState,
+} from './mute'
+export {
   buildStyleBarContext,
   buildStyleBarContextFromBars,
   chordAtBeat,

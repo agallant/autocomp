@@ -31,7 +31,8 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M14 | Jump to key | done | Transpose to a selected concert key in one step |
 | M15 | Comp density | done | Sparse / normal / dense piano–drum texture |
 | M16 | Multi-slot bars | done | Space-separated chords → timed slots in a bar |
-| M17 | Form endings | in progress | Penultimate fill + held final-bar cadence |
+| M17 | Form endings | done | Penultimate fill + held final-bar cadence |
+| M18 | Voice mute | in progress | Mute bass / piano / drums for practice |
 
 ## M0 acceptance
 
@@ -180,6 +181,14 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Toolbar **Ending** toggle; shared live/MIDI/WAV path
 - [x] Unit tests for flags and ending treatment
 - [ ] Multi-chorus / tag coda form editing deferred
+
+## M18 acceptance
+
+- [x] Per-voice mute (bass / piano / drums) via style wrapper
+- [x] Toolbar voice toggles; live refresh without stopping transport
+- [x] Applies to live playback, MIDI export, and WAV bounce
+- [x] Unit tests for filter + muted `realizeBar`
+- [ ] Per-voice volume / balance deferred
 
 ## Process notes
 
