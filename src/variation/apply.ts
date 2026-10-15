@@ -5,6 +5,7 @@ import { applyFormEnding, formEndingFlags } from './endings'
 import { applySectionFill } from './fills'
 import { humanizeNotes } from './humanize'
 import { sectionBoundaryFlags } from './sectionMeta'
+import { applySwingFeel } from './swingFeel'
 import type { VariationOptions } from './types'
 
 export type ApplyVariationContext = {
@@ -12,7 +13,15 @@ export type ApplyVariationContext = {
   sectionBoundaries?: readonly boolean[]
   formPenultimate?: readonly boolean[]
   formFinal?: readonly boolean[]
+  /**
+   * Style engine id. Swing feel only warps jazz-swing upbeats so bossa/Latin
+   * syncopation at beat+0.5 stays untouched.
+   */
+  styleId?: string
 }
+
+/** Styles whose even-eighth skips are meant to follow the Swing control. */
+const SWING_FEEL_STYLES = new Set(['jazz-swing'])
 
 /** Post-process one bar of style notes. Shared by live / MIDI / bounce. */
 export function applyVariation(
@@ -45,6 +54,10 @@ export function applyVariation(
       penultimate: !solo && penultimate[ctx.barIndex] === true,
       final: final[ctx.barIndex] === true,
     })
+  }
+  // Swing before humanize so jitter sits on the swung grid (jazz-swing only).
+  if (applyCtx.styleId === undefined || SWING_FEEL_STYLES.has(applyCtx.styleId)) {
+    out = applySwingFeel(out, opts.swingFeel)
   }
   if (opts.humanize) {
     out = humanizeNotes(out, opts.seed, ctx.barIndex, opts.tempoBpm, ctx.beatsPerBar)

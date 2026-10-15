@@ -50,13 +50,13 @@ describe('jazz swing style', () => {
     expect(shellVoicing(parseChordSymbol('C')).sort((a, b) => a - b)).toEqual([55, 64])
   })
 
-  it('lays a swing ride with skips on both 2 and 4', () => {
+  it('lays a swing ride with even-eighth skips on both 2 and 4', () => {
     const chart = createAutumnPracticeChart()
     const ctx = buildStyleBarContext(chart, 0)!
     const notes = realizeSwingDrums(ctx)
     const rides = notes.filter((n) => n.drum === 'ride')
-    expect(rides.some((n) => Math.abs(n.startBeat - (1 + 2 / 3)) < 1e-9)).toBe(true)
-    expect(rides.some((n) => Math.abs(n.startBeat - (3 + 2 / 3)) < 1e-9)).toBe(true)
+    expect(rides.some((n) => Math.abs(n.startBeat - 1.5) < 1e-9)).toBe(true)
+    expect(rides.some((n) => Math.abs(n.startBeat - 3.5) < 1e-9)).toBe(true)
     expect(notes.some((n) => n.drum === 'kick')).toBe(true)
     expect(notes.some((n) => n.drum === 'hat')).toBe(true)
   })

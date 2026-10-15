@@ -37,7 +37,8 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M20 | Tap tempo | done | Tap to set tempo from a beat pulse |
 | M21 | Metronome click | done | Toggle click track during playback |
 | M22 | Play from bar | done | Start playback at the selected chart bar |
-| M23 | Solo density | in progress | Thinner backing for solo practice |
+| M23 | Solo density | done | Thinner backing for solo practice |
+| M24 | Swing feel | in progress | Straight → triplet → hard shuffle amount |
 
 ## M0 acceptance
 
@@ -131,7 +132,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Optional 1-bar count-in (metronome live; silence in exports)
 - [x] Seeded velocity/timing humanization
 - [x] UI toggles: Fills / Count-in / Humanize
-- [ ] Solo density deferred
+- [x] Solo density (M23)
 - [x] Complex endings (M17)
 
 ## M11 acceptance
@@ -234,6 +235,14 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Density picker includes Solo; shared live/MIDI/WAV path
 - [x] Unit tests for solo thinning
 - [ ] Per-voice solo mix deferred
+
+## M24 acceptance
+
+- [x] `swingFeel` (0–100) warps even-eighth upbeats (straight → hard)
+- [x] Jazz swing ride skips authored as even eighths; default ~triplet
+- [x] Toolbar Swing range; shared live/MIDI/WAV path
+- [x] Unit tests for ratio mapping and ride skip warping
+- [ ] Per-style swing defaults deferred
 
 ## Process notes
 

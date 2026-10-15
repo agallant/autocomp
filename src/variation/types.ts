@@ -1,3 +1,5 @@
+import { DEFAULT_SWING_FEEL } from './swingFeel'
+
 /** How busy the backing feels relative to the base style. */
 export type CompDensity = 'solo' | 'sparse' | 'normal' | 'dense'
 
@@ -12,6 +14,11 @@ export type VariationOptions = {
   density: CompDensity
   /** Penultimate fill + held final-bar cadence at form end. */
   endings: boolean
+  /**
+   * Swing feel for even-eighth upbeats (0 = straight, ~67 = triplet, 100 = hard).
+   * Shared live / MIDI / WAV path.
+   */
+  swingFeel: number
   /** Deterministic RNG seed (e.g. hash of chart id). */
   seed: number
   /** Tempo used to convert humanize ms → beats. */
@@ -24,6 +31,7 @@ export const DEFAULT_VARIATION: Omit<VariationOptions, 'seed' | 'tempoBpm'> = {
   humanize: true,
   density: 'normal',
   endings: false,
+  swingFeel: DEFAULT_SWING_FEEL,
 }
 
 export const COMP_DENSITY_OPTIONS: ReadonlyArray<{ id: CompDensity; label: string }> = [

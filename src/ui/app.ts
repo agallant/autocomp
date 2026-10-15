@@ -54,6 +54,7 @@ import {
 } from '../style'
 import {
   COMP_DENSITY_OPTIONS,
+  DEFAULT_SWING_FEEL,
   DEFAULT_VARIATION,
   createVariedStyle,
   seedFromString,
@@ -122,6 +123,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
   let variationHumanize = DEFAULT_VARIATION.humanize
   let variationDensity: CompDensity = DEFAULT_VARIATION.density
   let variationEndings = DEFAULT_VARIATION.endings
+  let variationSwingFeel = DEFAULT_VARIATION.swingFeel
   let voiceEnabled: VoiceMuteState = { ...DEFAULT_VOICE_MUTE }
   let practiceLoop: PracticeLoop = { ...DEFAULT_PRACTICE_LOOP }
   const tapTempoState = createTapTempoState()
@@ -161,6 +163,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     humanize: variationHumanize,
     density: variationDensity,
     endings: variationEndings,
+    swingFeel: variationSwingFeel,
     seed: seedFromString(chart.id),
     tempoBpm,
   })
@@ -321,6 +324,24 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
                 `<option value="${opt.id}"${opt.id === variationDensity ? ' selected' : ''}>${escapeHtml(opt.label)}</option>`,
             ).join('')}
           </select>
+        </label>
+        <label
+          class="style-picker style-picker--swing"
+          for="var-swing"
+          title="Straight (0) → triplet (~67) → hard shuffle (100)"
+        >
+          <span class="style-picker__label">Swing</span>
+          <input
+            type="range"
+            id="var-swing"
+            class="style-picker__range"
+            min="0"
+            max="100"
+            step="1"
+            value="${variationSwingFeel}"
+            aria-label="Swing feel"
+          />
+          <span class="style-picker__value" id="var-swing-readout" aria-live="polite">${variationSwingFeel}</span>
         </label>
       </div>
       <div class="variation-toggles" role="group" aria-label="Voices">
@@ -963,6 +984,16 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
         variationDensity = value
         syncTransportStyle({ stopSources: false })
       }
+    })
+    const swingInput = root.querySelector<HTMLInputElement>('#var-swing')
+    const swingReadout = root.querySelector<HTMLElement>('#var-swing-readout')
+    swingInput?.addEventListener('input', (event) => {
+      const raw = Number((event.target as HTMLInputElement).value)
+      variationSwingFeel = Number.isFinite(raw)
+        ? Math.min(100, Math.max(0, Math.round(raw)))
+        : DEFAULT_SWING_FEEL
+      if (swingReadout) swingReadout.textContent = String(variationSwingFeel)
+      syncTransportStyle({ stopSources: false })
     })
     root.querySelector<HTMLInputElement>('#var-follow')?.addEventListener('change', (event) => {
       const checked = (event.target as HTMLInputElement).checked
