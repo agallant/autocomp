@@ -7,6 +7,15 @@ export {
   type VoiceMuteState,
 } from './mute'
 export {
+  applyVoiceLevels,
+  clampVoiceLevel,
+  createLeveledStyle,
+  DEFAULT_VOICE_LEVELS,
+  normalizeVoiceLevels,
+  voiceLevelsAreDefault,
+  type VoiceLevels,
+} from './voiceLevels'
+export {
   buildStyleBarContext,
   buildStyleBarContextFromBars,
   chordAtBeat,
