@@ -1,5 +1,6 @@
-import { createAutumnPracticeChart } from '../data/autumnPractice'
+import { createAutumnPracticeChart } from '../data/practiceCharts'
 import { APP_VERSION } from '../lib/version'
+import { TUNE_LIBRARY, getTuneById, type TuneTag } from '../library'
 import {
   STYLE_PACK,
   createStyleById,
@@ -21,11 +22,17 @@ import {
   type ChartEditorState,
 } from './chartEditor'
 import { chartMetaLine, renderEditableBars } from './chartView'
+import {
+  createLibraryViewState,
+  libraryControlsHtml,
+  libraryListHtml,
+} from './libraryView'
 import { TransportController, type TransportState } from './transport'
 
 export function mountApp(root: HTMLElement): () => void {
   let editor = createEditorState(createAutumnPracticeChart())
   let styleId: StyleId = 'jazz-swing'
+  let library = createLibraryViewState('autumn-practice')
 
   const renderShell = (): void => {
     root.innerHTML = `
@@ -47,6 +54,17 @@ export function mountApp(root: HTMLElement): () => void {
             </p>
             <div class="chart-stage" role="group" aria-label="Editable chord chart" id="chart-stage">
               ${chartStageInner(editor)}
+            </div>
+          </section>
+
+          <section class="panel" aria-labelledby="library-heading">
+            <h2 id="library-heading" class="panel__title">Library</h2>
+            <p class="panel__copy">
+              Built-in practice progressions — search or filter by tag, then load a chart.
+            </p>
+            ${libraryControlsHtml(library)}
+            <div id="library-results">
+              ${libraryListHtml(library, TUNE_LIBRARY)}
             </div>
           </section>
 
@@ -82,6 +100,7 @@ export function mountApp(root: HTMLElement): () => void {
       </div>
     `
     bindChart()
+    bindLibrary()
     bindTransport()
   }
 
@@ -122,6 +141,13 @@ export function mountApp(root: HTMLElement): () => void {
     bindChart()
   }
 
+  const refreshLibrary = (): void => {
+    const results = root.querySelector('#library-results')
+    if (!results) return
+    results.innerHTML = libraryListHtml(library, TUNE_LIBRARY)
+    bindLibraryItems()
+  }
+
   const setEditor = (next: ChartEditorState): void => {
     editor = next
     refreshChart()
@@ -129,6 +155,22 @@ export function mountApp(root: HTMLElement): () => void {
       // Keep typing after a failed commit (innerHTML replaces the focused input).
       focusChordInput({ selectAll: next.error === null })
     }
+  }
+
+  const loadTune = (tuneId: string): void => {
+    const tune = getTuneById(tuneId)
+    if (!tune) return
+    transport?.stop()
+    const chart = tune.createChart()
+    editor = createEditorState(chart)
+    library = { ...library, activeTuneId: tune.id }
+    styleId = tune.styleId
+    refreshChart()
+    refreshLibrary()
+    // Reuse the existing transport — rebinding would stack Play/tempo listeners.
+    transport?.setBeatsPerBar(chart.timeSignature.numerator)
+    transport?.setTempo(chart.defaultTempoBpm)
+    applyStyle(styleId, { adjustTempo: false })
   }
 
   let transport: TransportController | null = null
@@ -202,6 +244,30 @@ export function mountApp(root: HTMLElement): () => void {
       if (!transport) return
       transport.setTempo(transport.getState().tempoBpm + 10)
     })
+  }
+
+  const bindLibraryItems = (): void => {
+    root.querySelectorAll<HTMLButtonElement>('[data-tune-id]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const id = button.dataset.tuneId
+        if (id) loadTune(id)
+      })
+    })
+  }
+
+  const bindLibrary = (): void => {
+    const search = root.querySelector<HTMLInputElement>('#library-search')
+    const tagSelect = root.querySelector<HTMLSelectElement>('#library-tag')
+    search?.addEventListener('input', () => {
+      library = { ...library, query: search.value }
+      refreshLibrary()
+    })
+    tagSelect?.addEventListener('change', () => {
+      const value = tagSelect.value
+      library = { ...library, tag: (value || '') as TuneTag | '' }
+      refreshLibrary()
+    })
+    bindLibraryItems()
   }
 
   const bindChart = (): void => {

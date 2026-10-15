@@ -19,8 +19,8 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M2 | Chart editor | done | iReal-like bar grid editor (select, navigate, chord entry); multi-slot duration editing deferred |
 | M3 | Audio clock | done | Web Audio transport, metronome, lookahead scheduler |
 | M4 | Jazz swing style | done | Walking bass + piano comp + kit pattern for swing |
-| M5 | Style pack | in progress | Bossa, ballad, Latin/salsa-lite; style picker |
-| M6 | Tune library | planned | Built-in standards/progressions + search/tags |
+| M5 | Style pack | done | Bossa, ballad, Latin/salsa-lite; style picker |
+| M6 | Tune library | in progress | Built-in practice progressions + search/tags |
 | M7 | Persistence | planned | Local save/load charts (IndexedDB), import/export JSON |
 | M8 | MIDI I/O | planned | MIDI file export; optional WebMIDI out where supported |
 | M9 | Audio render | planned | Offline bounce to WAV/MP3 (client-side encode) |
@@ -80,6 +80,15 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Style registry + in-app style picker
 - [x] Suggested tempo applied when changing styles
 - [x] Unit tests covering each pack style
+
+## M6 acceptance
+
+- [x] Built-in practice progression catalog (original educational charts)
+- [x] Tags on each tune (style / harmony / feel)
+- [x] Search by title, blurb, and tags
+- [x] Tag filter in the library UI
+- [x] Loading a tune replaces the editor chart and applies style + tempo
+- [x] Unit tests for catalog filtering and chart validity
 
 ## Process notes
 

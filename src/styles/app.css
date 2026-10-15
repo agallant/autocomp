@@ -66,6 +66,100 @@
   animation-delay: 80ms;
 }
 
+.panel:nth-child(3) {
+  animation-delay: 140ms;
+}
+
+.library-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: var(--space-3);
+  margin: var(--space-4) 0 var(--space-3);
+}
+
+.library-field {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.library-field__label {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.library-search,
+.library-tag {
+  min-height: 2.5rem;
+  width: 100%;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--bg-elevated);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
+}
+
+.library-search:focus,
+.library-tag:focus {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
+
+.library-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.library-item {
+  width: 100%;
+  display: grid;
+  gap: 0.2rem;
+  text-align: left;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: inherit;
+  min-height: 3.25rem;
+}
+
+.library-item:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.library-item--active {
+  border-color: var(--teal);
+  background: rgba(47, 143, 138, 0.12);
+  box-shadow: inset 0 0 0 1px var(--teal);
+}
+
+.library-item__title {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.library-item__meta {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.library-empty {
+  margin: var(--space-3) 0 0;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+
 .panel__title {
   margin: 0 0 var(--space-2);
   font-family: var(--font-display);
@@ -405,6 +499,10 @@ button.bar.bar--selected:hover {
 
   .main {
     padding: var(--space-4);
+  }
+
+  .library-controls {
+    grid-template-columns: 1fr;
   }
 
   .bars {
