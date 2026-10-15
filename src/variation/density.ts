@@ -54,6 +54,7 @@ export function applyCompDensity(
     const thinned = notes
       .filter((n) => {
         if (n.voice === 'piano') return false
+        if (n.voice === 'melody') return true // keep optional guide line
         if (n.voice === 'bass') {
           // Keep integer even beats (0, 2, …) for a lighter walk.
           const beat = Math.round(n.startBeat)
@@ -74,7 +75,7 @@ export function applyCompDensity(
     const pianoStarts = notes.filter((n) => n.voice === 'piano').map((n) => n.startBeat)
     const keepStart = pianoStarts.length > 0 ? Math.min(...pianoStarts) : null
     return notes.filter((n) => {
-      if (n.voice === 'bass') return true
+      if (n.voice === 'bass' || n.voice === 'melody') return true
       if (n.voice === 'piano') return keepStart !== null && n.startBeat === keepStart
       if (n.voice === 'drums') {
         // Keep pulse + clave; drop busy hats/snares.

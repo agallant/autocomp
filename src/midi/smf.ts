@@ -1,4 +1,5 @@
 import { beatsPerBar, expandChartBars, type Chart, type TimeSignature } from '../music'
+import type { StyleVoice } from '../style'
 import { countInBeats } from '../variation'
 import { quartersPerChartBeat } from './realize'
 import type { AbsoluteMidiNote } from './types'
@@ -25,7 +26,7 @@ type TrackEvent = {
 
 /**
  * Encode realized accompaniment notes as a Format-1 Standard MIDI File.
- * Track 0 = tempo/meter; tracks 1–3 = bass, piano, drums.
+ * Track 0 = tempo/meter; tracks 1–4 = bass, piano, guide, drums.
  * Notes must be timed in quarter notes (see `realizeChartMidi`).
  */
 export function encodeSmf(
@@ -45,10 +46,11 @@ export function encodeSmf(
     : 0
   const tempoTrack = buildTempoMeterTrack(chart, tempoBpm, ppq, countInBars)
 
-  const byVoice = {
-    bass: [] as AbsoluteMidiNote[],
-    piano: [] as AbsoluteMidiNote[],
-    drums: [] as AbsoluteMidiNote[],
+  const byVoice: Record<StyleVoice, AbsoluteMidiNote[]> = {
+    bass: [],
+    piano: [],
+    melody: [],
+    drums: [],
   }
   for (const note of notes) {
     byVoice[note.voice].push(note)
@@ -58,6 +60,7 @@ export function encodeSmf(
     encodeTrack(tempoTrack),
     encodeVoiceTrack('Bass', 'bass', byVoice.bass, ppq),
     encodeVoiceTrack('Piano', 'piano', byVoice.piano, ppq),
+    encodeVoiceTrack('Guide', 'melody', byVoice.melody, ppq),
     encodeVoiceTrack('Drums', 'drums', byVoice.drums, ppq),
   ]
 

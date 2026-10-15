@@ -73,6 +73,7 @@ export function createWebMidiSink(
     try {
       output.send([0xc0 | VOICE_CHANNEL.bass, VOICE_PROGRAM.bass])
       output.send([0xc0 | VOICE_CHANNEL.piano, VOICE_PROGRAM.piano])
+      output.send([0xc0 | VOICE_CHANNEL.melody, VOICE_PROGRAM.melody])
     } catch {
       // Output may have disconnected.
     }
@@ -104,7 +105,7 @@ export function createWebMidiSink(
       timers.clearTimeoutFn(entry.timer)
     }
     pending.clear()
-    allNotesOff(['bass', 'piano', 'drums'])
+    allNotesOff(['bass', 'piano', 'melody', 'drums'])
   }
 
   return {

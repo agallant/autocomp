@@ -8,6 +8,7 @@ export const DEFAULT_VOICE_LEVELS: VoiceLevels = {
   bass: 1,
   piano: 1,
   drums: 1,
+  melody: 1,
 }
 
 /** Clamp a raw level into the playable 0–1 range. */
@@ -24,6 +25,7 @@ export function normalizeVoiceLevels(
     bass: clampVoiceLevel(levels.bass ?? DEFAULT_VOICE_LEVELS.bass),
     piano: clampVoiceLevel(levels.piano ?? DEFAULT_VOICE_LEVELS.piano),
     drums: clampVoiceLevel(levels.drums ?? DEFAULT_VOICE_LEVELS.drums),
+    melody: clampVoiceLevel(levels.melody ?? DEFAULT_VOICE_LEVELS.melody),
   }
 }
 

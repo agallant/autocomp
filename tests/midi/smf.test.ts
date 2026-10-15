@@ -75,7 +75,7 @@ describe('encodeSmf / chartToMidiBytes', () => {
     expect(encodeVlq(480)).toEqual([0x83, 0x60])
   })
 
-  it('writes a Format-1 SMF with tempo and four tracks', () => {
+  it('writes a Format-1 SMF with tempo and five tracks', () => {
     const chart = createAutumnPracticeChart()
     const bytes = chartToMidiBytes(chart, createStyleById('jazz-swing'), { tempoBpm: 140 })
 
@@ -83,7 +83,8 @@ describe('encodeSmf / chartToMidiBytes', () => {
     expect(bytes[8]).toBe(0)
     expect(bytes[9]).toBe(1)
     expect(bytes[10]).toBe(0)
-    expect(bytes[11]).toBe(4)
+    // Tempo + bass + piano + guide melody + drums
+    expect(bytes[11]).toBe(5)
     expect((bytes[12]! << 8) | bytes[13]!).toBe(MIDI_PPQ)
     expect(readAscii(bytes, 14, 4)).toBe('MTrk')
 

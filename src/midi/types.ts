@@ -7,6 +7,7 @@ export const MIDI_PPQ = 480
 export const VOICE_CHANNEL: Record<StyleVoice, number> = {
   bass: 0,
   piano: 1,
+  melody: 2,
   drums: 9,
 }
 
@@ -14,6 +15,7 @@ export const VOICE_CHANNEL: Record<StyleVoice, number> = {
 export const VOICE_PROGRAM: Record<Exclude<StyleVoice, 'drums'>, number> = {
   bass: 32, // Acoustic Bass
   piano: 0, // Acoustic Grand Piano
+  melody: 73, // Flute — sits above the rhythm section
 }
 
 /** Style note placed on an absolute quarter-note timeline from the form start. */
