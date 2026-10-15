@@ -17,7 +17,11 @@ import {
   formDraftString,
   moveSelection,
   removeSelectedBar,
+  removeSelectedSection,
+  renameSelectedSection,
   selectBar,
+  selectedSectionId,
+  selectedSectionLabel,
   setDraftSymbol,
   setFormOrder,
   setTitle,
@@ -214,6 +218,38 @@ describe('chartEditor', () => {
     const added = state.chart.sections.find((s) => s.id === 'C')!
     expect(added.bars.length).toBe(2) // matches selected section A length
     expect(added.bars.every((b) => b.slots.every((s) => !s.chord))).toBe(true)
+  })
+
+  it('renames the selected section label without changing ids', () => {
+    let state = selectBar(createEditorState(createAabaChart()), 2) // section B
+    expect(selectedSectionId(state)).toBe('B')
+    state = renameSelectedSection(state, 'Bridge')
+    expect(state.error).toBeNull()
+    expect(selectedSectionLabel(state)).toBe('Bridge')
+    expect(state.chart.sections.find((s) => s.id === 'B')!.label).toBe('Bridge')
+    expect(state.chart.form).toEqual(['A', 'B', 'A'])
+  })
+
+  it('rejects an empty section label', () => {
+    let state = createEditorState(createAabaChart())
+    state = renameSelectedSection(state, '   ')
+    expect(state.error).toMatch(/Section label required/)
+  })
+
+  it('removes the selected section and strips it from the form', () => {
+    let state = selectBar(createEditorState(createAabaChart()), 2) // B
+    state = removeSelectedSection(state)
+    expect(state.error).toBeNull()
+    expect(state.chart.sections.map((s) => s.id)).toEqual(['A'])
+    expect(state.chart.form).toEqual(['A', 'A'])
+    expect(expandChartBars(state.chart)).toHaveLength(4)
+  })
+
+  it('rejects deleting the last remaining section', () => {
+    let state = createEditorState(createAutumnPracticeChart())
+    state = removeSelectedSection(state)
+    expect(state.error).toMatch(/at least one section/)
+    expect(state.chart.sections).toHaveLength(1)
   })
 })
 

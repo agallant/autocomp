@@ -45,7 +45,8 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M28 | Playhead affordance | done | Play-from-here marker + live playhead |
 | M29 | Form editor | done | Edit form order + section markers on the grid |
 | M30 | Click volume | done | Adjustable metronome / count-in click level |
-| M31 | Playhead scroll | in progress | Keep the sounding bar in view during playback |
+| M31 | Playhead scroll | done | Keep the sounding bar in view during playback |
+| M32 | Section ops | in progress | Rename / delete chart sections |
 
 ## M0 acceptance
 
@@ -290,7 +291,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Section-start markers on the chart grid (including repeats)
 - [x] Meta line shows compact form string
 - [x] Unit tests for form rewrite, add section, and markers
-- [ ] Rename / delete sections deferred
+- [x] Rename / delete sections (M32)
 
 ## M30 acceptance
 
@@ -307,6 +308,14 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Only scrolls once per bar (not every beat); re-arms on beat-1 loop wrap
 - [x] Unit tests for scroll options
 - [ ] Center-on-playhead preference deferred
+
+## M32 acceptance
+
+- [x] Rename selected section label (id / form tokens unchanged)
+- [x] Delete selected section; strip from form; keep ≥1 section
+- [x] Toolbar Section field + Delete section control
+- [x] Unit tests for rename, delete, and last-section guard
+- [ ] Reorder sections list UI deferred
 
 ## Process notes
 
