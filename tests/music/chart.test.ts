@@ -66,10 +66,9 @@ describe('chart model', () => {
 
   it('rejects null bar timeSignature in JSON (omission only)', () => {
     const chart = createAutumnPracticeChart()
-    const json = chartToJson(chart) as ReturnType<typeof chartToJson> & {
-      sections: Array<{ bars: Array<{ timeSignature?: unknown }> }>
-    }
-    json.sections[0]!.bars[0]!.timeSignature = null
+    const json = chartToJson(chart)
+    const bar = json.sections[0]!.bars[0]! as { timeSignature?: unknown }
+    bar.timeSignature = null
     expect(() => chartFromJson(json)).toThrow(/Invalid bar timeSignature/)
   })
 
