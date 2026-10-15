@@ -54,6 +54,31 @@ describe('chart persistence', () => {
     expect(primary.put).toHaveBeenCalledTimes(1)
   })
 
+  it('does not fall back on chart validation errors', async () => {
+    const primary: ChartRepository = {
+      list: vi.fn(async () => []),
+      get: vi.fn(async () => null),
+      put: vi.fn(async () => {
+        throw new Error('Invalid chart: title: title is required')
+      }),
+      delete: vi.fn(async () => undefined),
+    }
+    const fallback = createMemoryChartRepository()
+    const repo = createFallbackChartRepository(primary, fallback)
+    const chart = createAutumnPracticeChart()
+    await expect(repo.put(chart)).rejects.toThrow(/Invalid chart/)
+    // Next valid-looking call should still hit primary (not memory).
+    primary.put = vi.fn(async (next) => ({
+      id: next.id,
+      title: next.title,
+      updatedAt: new Date().toISOString(),
+      chart: next,
+    }))
+    await repo.put(chart)
+    expect(primary.put).toHaveBeenCalledTimes(1)
+    expect(await fallback.list()).toHaveLength(0)
+  })
+
   it('round-trips import/export JSON text', () => {
     const chart = createAutumnPracticeChart()
     const text = serializeChart(chart)

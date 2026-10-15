@@ -16,7 +16,11 @@ export function createDefaultChartRepository(): ChartRepository {
   return createFallbackChartRepository(createIdbChartRepository(), createMemoryChartRepository())
 }
 
-/** Use `primary` until it throws, then permanently switch to `fallback`. */
+export function isChartValidationError(err: unknown): boolean {
+  return err instanceof Error && err.message.startsWith('Invalid chart:')
+}
+
+/** Use `primary` until a storage failure, then permanently switch to `fallback`. */
 export function createFallbackChartRepository(
   primary: ChartRepository,
   fallback: ChartRepository,
@@ -28,7 +32,9 @@ export function createFallbackChartRepository(
     if (usingFallback) return fn(fallback)
     try {
       return await fn(active)
-    } catch {
+    } catch (err) {
+      // Validation failures are caller bugs — keep using IndexedDB.
+      if (isChartValidationError(err)) throw err
       usingFallback = true
       active = fallback
       return fn(fallback)
