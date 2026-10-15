@@ -63,12 +63,6 @@ export function renderEditableBars(
             <span class="bar__beat">|</span>
           </div>`
       }
-      const playFromMark = isPlayFrom
-        ? `<span class="bar__play-from" aria-hidden="true" title="Play from here"></span>`
-        : ''
-      const playheadMark = isPlayhead
-        ? `<span class="bar__playhead" aria-hidden="true"></span>`
-        : ''
       return `
         <button
           type="button"
@@ -81,7 +75,6 @@ export function renderEditableBars(
             isPlayFrom ? ', play from here' : isPlayhead ? ', playing' : ''
           }"
         >
-          ${playFromMark}${playheadMark}
           <span class="bar__chord">${escapeHtml(label)}</span>
           <span class="bar__beat">|</span>
         </button>`
@@ -92,6 +85,7 @@ export function renderEditableBars(
 /**
  * Update playhead / play-from classes on an already-rendered `.bars` root
  * without rebuilding the chart (used each transport beat).
+ * Markers are CSS pseudo-elements on the classes, so class sync is enough.
  */
 export function syncBarPlayhead(
   barsRoot: ParentNode,
@@ -106,7 +100,8 @@ export function syncBarPlayhead(
     const index = Number(el.dataset.index)
     if (!Number.isInteger(index)) continue
     const isPlayhead = playing && playheadBarIndex !== null && index === playheadBarIndex
-    const isPlayFrom = !playing && index === selectedBarIndex && !el.classList.contains('bar--editing')
+    const isPlayFrom =
+      !playing && index === selectedBarIndex && !el.classList.contains('bar--editing')
     el.classList.toggle('bar--playhead', isPlayhead)
     el.classList.toggle('bar--play-from', isPlayFrom)
     if (isPlayhead) el.setAttribute('aria-current', 'true')

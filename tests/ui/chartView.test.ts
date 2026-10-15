@@ -28,18 +28,22 @@ describe('chartView', () => {
   it('marks the selected bar as play-from-here when stopped', () => {
     const state = selectBar(createEditorState(createAutumnPracticeChart()), 2)
     const html = renderEditableBars(state)
-    expect(html).toContain('bar--play-from')
-    expect(html).toContain('play from here')
+    const selected = html.match(/class="([^"]*)"[^>]*data-index="2"[^>]*>/)
+    expect(selected?.[1]).toContain('bar--play-from')
+    expect(selected?.[1]).not.toContain('bar--playhead')
+    expect(html).toMatch(/data-index="2"[^>]*aria-label="[^"]*play from here"/)
     expect(html).not.toContain('bar--playhead')
   })
 
   it('marks the sounding bar as playhead while playing', () => {
     const state = selectBar(createEditorState(createAutumnPracticeChart()), 0)
     const html = renderEditableBars(state, { playheadBarIndex: 3 })
-    expect(html).toContain('bar--playhead')
-    expect(html).toContain('aria-current="true"')
-    // Selection still shows play-from when it is not the playhead.
-    expect(html).toContain('bar--play-from')
+    const playhead = html.match(/class="([^"]*)"[^>]*data-index="3"[^>]*>/)
+    expect(playhead?.[1]).toContain('bar--playhead')
+    expect(html).toMatch(/data-index="3"[^>]*aria-current="true"/)
+    const selected = html.match(/class="([^"]*)"[^>]*data-index="0"[^>]*>/)
+    expect(selected?.[1]).toContain('bar--play-from')
+    expect(selected?.[1]).not.toContain('bar--playhead')
   })
 
   it('syncBarPlayhead toggles classes without rebuilding markup', () => {
