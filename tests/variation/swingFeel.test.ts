@@ -75,41 +75,44 @@ describe('swingFeel', () => {
     expect(swungSkip.length).toBeGreaterThan(0)
   })
 
-  it('does not warp bossa/Latin even-eighth syncopation at default feel', () => {
-    const chart = createAutumnPracticeChart()
-    const bars = expandChartBars(chart)
-    const ctx = buildStyleBarContextFromBars(chart, bars, 0, { wrapNext: false })!
-    const syncopated = [
-      {
-        voice: 'piano' as const,
-        midi: 60,
-        startBeat: 0.5,
-        durationBeats: 0.5,
-        velocity: 0.4,
-      },
-      {
-        voice: 'bass' as const,
-        midi: 40,
-        startBeat: 1.5,
-        durationBeats: 0.5,
-        velocity: 0.5,
-      },
-    ]
-    const viaBossa = applyVariation(
-      ctx,
-      syncopated,
-      {
-        fills: false,
-        countInBars: 0,
-        humanize: false,
-        density: 'normal',
-        endings: false,
-        swingFeel: DEFAULT_SWING_FEEL,
-        seed: seedFromString(chart.id),
-        tempoBpm: 120,
-      },
-      { styleId: 'bossa' },
-    )
-    expect(viaBossa.map((n) => n.startBeat)).toEqual([0.5, 1.5])
-  })
+  it.each(['bossa', 'latin', 'ballad'] as const)(
+    'does not warp %s even-eighth syncopation at default feel',
+    (styleId) => {
+      const chart = createAutumnPracticeChart()
+      const bars = expandChartBars(chart)
+      const ctx = buildStyleBarContextFromBars(chart, bars, 0, { wrapNext: false })!
+      const syncopated = [
+        {
+          voice: 'piano' as const,
+          midi: 60,
+          startBeat: 0.5,
+          durationBeats: 0.5,
+          velocity: 0.4,
+        },
+        {
+          voice: 'bass' as const,
+          midi: 40,
+          startBeat: 1.5,
+          durationBeats: 0.5,
+          velocity: 0.5,
+        },
+      ]
+      const via = applyVariation(
+        ctx,
+        syncopated,
+        {
+          fills: false,
+          countInBars: 0,
+          humanize: false,
+          density: 'normal',
+          endings: false,
+          swingFeel: DEFAULT_SWING_FEEL,
+          seed: seedFromString(chart.id),
+          tempoBpm: 120,
+        },
+        { styleId },
+      )
+      expect(via.map((n) => n.startBeat)).toEqual([0.5, 1.5])
+    },
+  )
 })
