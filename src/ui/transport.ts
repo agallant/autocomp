@@ -227,7 +227,18 @@ export class TransportController {
       if (note.startBeat < beatIndex || note.startBeat >= beatIndex + 1) continue
       const when = beat.time + (note.startBeat - beatIndex) * secondsPerBeat
       for (const source of scheduleStyleNote(ctx, note, when, secondsPerBeat)) {
-        this.audioSources.add(source)
+        this.trackAudioSource(source)
+      }
+    }
+  }
+
+  private trackAudioSource(source: ScheduledSource): void {
+    this.audioSources.add(source)
+    // Drop finished nodes so long sessions do not retain every past hit.
+    const node = source as ScheduledSource & { onended: ((ev: Event) => void) | null }
+    if ('onended' in node) {
+      node.onended = () => {
+        this.audioSources.delete(source)
       }
     }
   }
