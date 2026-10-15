@@ -35,7 +35,8 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M18 | Voice mute | done | Mute bass / piano / drums for practice |
 | M19 | Practice loop | done | A–B form-bar loop for focused practice |
 | M20 | Tap tempo | done | Tap to set tempo from a beat pulse |
-| M21 | Metronome click | in progress | Toggle click track during playback |
+| M21 | Metronome click | done | Toggle click track during playback |
+| M22 | Play from bar | in progress | Start playback at the selected chart bar |
 
 ## M0 acceptance
 
@@ -216,6 +217,15 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Count-in still clicks when the toggle is off
 - [x] Unit test for enabling clicks mid-session
 - [ ] Click volume / subdivision deferred
+
+## M22 acceptance
+
+- [x] `play({ formBar })` / toggle start from a 1-based chart bar
+- [x] Play button uses the selected bar; count-in still leads in
+- [x] Compatible with A–B loop clamp via `passIndexForFormBar`
+- [x] Unit test for mid-form start
+- [ ] Visual “playhead from here” affordance deferred
+- [ ] Manual playback checks (mid-form start, restart from top, loop clamp) deferred
 
 ## Process notes
 

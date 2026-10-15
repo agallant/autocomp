@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { createAutumnPracticeChart } from '../src/data/practiceCharts'
 import { TransportController } from '../src/ui/transport'
 
 type FakeOsc = {
@@ -267,6 +268,28 @@ describe('TransportController', () => {
       beat: 2,
       playing: true,
     })
+    transport.dispose()
+  })
+
+  it('starts playback from a selected form bar', async () => {
+    vi.useFakeTimers()
+    const ctx = createFakeAudioContext('running')
+    const chart = createAutumnPracticeChart()
+    const transport = new TransportController({
+      onChange: () => undefined,
+      audioContext: ctx as unknown as AudioContext,
+      metronomeEnabled: false,
+      getChart: () => chart,
+      setIntervalFn: (fn, ms) => setInterval(fn, ms) as unknown as ReturnType<typeof setInterval>,
+      clearIntervalFn: (id) => clearInterval(id as unknown as number),
+      setTimeoutFn: (fn, ms) => setTimeout(fn, ms) as unknown as ReturnType<typeof setTimeout>,
+      clearTimeoutFn: (id) => clearTimeout(id as unknown as number),
+    })
+
+    await transport.play({ formBar: 3 })
+    expect(transport.getState()).toMatchObject({ playing: true, bar: 3, beat: 1 })
+    await vi.advanceTimersByTimeAsync(80)
+    expect(transport.getState().bar).toBe(3)
     transport.dispose()
   })
 
