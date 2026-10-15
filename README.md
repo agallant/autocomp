@@ -6,7 +6,7 @@ Automatic musical accompaniment as a **client-side TypeScript PWA** — chord ch
 
 ## Status
 
-Milestone **M6** — built-in practice tune library with search/tags, plus style pack accompaniment. See [ROADMAP.md](./ROADMAP.md).
+Milestone **M7** — local chart save/load (IndexedDB) plus JSON import/export, on top of the practice library and style pack. See [ROADMAP.md](./ROADMAP.md).
 
 ## Chart format (preview)
 

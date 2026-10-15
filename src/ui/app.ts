@@ -1,6 +1,7 @@
 import { createAutumnPracticeChart } from '../data/practiceCharts'
 import { APP_VERSION } from '../lib/version'
 import { TUNE_LIBRARY, getTuneById, type TuneTag } from '../library'
+import type { Chart } from '../music'
 import {
   STYLE_PACK,
   createStyleById,
@@ -8,6 +9,14 @@ import {
   isStyleId,
   type StyleId,
 } from '../style'
+import {
+  chartDownloadFilename,
+  chartToDownloadBlob,
+  createDefaultChartRepository,
+  parseChartImport,
+  type ChartRepository,
+  type SavedChartMeta,
+} from '../storage'
 import {
   addBarAfterSelection,
   beginEdit,
@@ -27,12 +36,21 @@ import {
   libraryControlsHtml,
   libraryListHtml,
 } from './libraryView'
+import { savedListHtml } from './savedView'
 import { TransportController, type TransportState } from './transport'
 
-export function mountApp(root: HTMLElement): () => void {
+export type MountAppOptions = {
+  /** Inject a chart repository (tests / non-browser). */
+  chartRepository?: ChartRepository
+}
+
+export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () => void {
   let editor = createEditorState(createAutumnPracticeChart())
   let styleId: StyleId = 'jazz-swing'
   let library = createLibraryViewState('autumn-practice')
+  let savedCharts: SavedChartMeta[] = []
+  let persistStatus = ''
+  const charts = options.chartRepository ?? createDefaultChartRepository()
 
   const renderShell = (): void => {
     root.innerHTML = `
@@ -65,6 +83,10 @@ export function mountApp(root: HTMLElement): () => void {
             ${libraryControlsHtml(library)}
             <div id="library-results">
               ${libraryListHtml(library, TUNE_LIBRARY)}
+            </div>
+            <h3 class="panel__subtitle">Saved on this device</h3>
+            <div id="saved-results">
+              ${savedListHtml(savedCharts)}
             </div>
           </section>
 
@@ -101,7 +123,9 @@ export function mountApp(root: HTMLElement): () => void {
     `
     bindChart()
     bindLibrary()
+    bindSaved()
     bindTransport()
+    void refreshSaved()
   }
 
   const chartStageInner = (state: ChartEditorState): string => `
@@ -118,6 +142,12 @@ export function mountApp(root: HTMLElement): () => void {
       <button type="button" class="btn" id="edit-chord">Edit chord</button>
       <button type="button" class="btn" id="add-bar">Add bar</button>
       <button type="button" class="btn" id="remove-bar">Remove bar</button>
+      <button type="button" class="btn" id="save-chart">Save</button>
+      <button type="button" class="btn" id="export-chart">Export</button>
+      <label class="btn chart-toolbar__file">
+        Import
+        <input id="import-chart" class="sr-only" type="file" accept="application/json,.json" />
+      </label>
       <label class="style-picker" for="style-select">
         <span class="style-picker__label">Style</span>
         <select id="style-select" class="style-picker__select" aria-label="Backing style">
@@ -128,11 +158,17 @@ export function mountApp(root: HTMLElement): () => void {
         </select>
       </label>
     </div>
-    <p class="chart-error" id="chart-error" role="status">${escapeHtml(state.error ?? '')}</p>
+    <p class="chart-error" id="chart-error" role="status">${escapeHtml(state.error ?? persistStatus)}</p>
     <div class="bars" id="bars">
       ${renderEditableBars(state)}
     </div>
   `
+
+  const setPersistStatus = (message: string): void => {
+    persistStatus = message
+    const err = root.querySelector('#chart-error')
+    if (err) err.textContent = message
+  }
 
   const refreshChart = (): void => {
     const stage = root.querySelector('#chart-stage')
@@ -148,6 +184,20 @@ export function mountApp(root: HTMLElement): () => void {
     bindLibraryItems()
   }
 
+  const refreshSaved = async (): Promise<void> => {
+    try {
+      savedCharts = await charts.list()
+    } catch {
+      savedCharts = []
+      setPersistStatus('Could not read saved charts.')
+    }
+    const results = root.querySelector('#saved-results')
+    if (results) {
+      results.innerHTML = savedListHtml(savedCharts)
+      bindSaved()
+    }
+  }
+
   const setEditor = (next: ChartEditorState): void => {
     editor = next
     refreshChart()
@@ -157,20 +207,40 @@ export function mountApp(root: HTMLElement): () => void {
     }
   }
 
-  const loadTune = (tuneId: string): void => {
-    const tune = getTuneById(tuneId)
-    if (!tune) return
+  const applyChart = (chart: Chart, opts: { styleId?: StyleId; activeTuneId?: string }): void => {
     transport?.stop()
-    const chart = tune.createChart()
     editor = createEditorState(chart)
-    library = { ...library, activeTuneId: tune.id }
-    styleId = tune.styleId
+    if (opts.activeTuneId) {
+      library = { ...library, activeTuneId: opts.activeTuneId }
+    }
+    if (opts.styleId) styleId = opts.styleId
+    else if (chart.styleHint && isStyleId(chart.styleHint)) styleId = chart.styleHint
+    else if (chart.styleHint === 'swing') styleId = 'jazz-swing'
     refreshChart()
     refreshLibrary()
-    // Reuse the existing transport — rebinding would stack Play/tempo listeners.
     transport?.setBeatsPerBar(chart.timeSignature.numerator)
     transport?.setTempo(chart.defaultTempoBpm)
     applyStyle(styleId, { adjustTempo: false })
+  }
+
+  const loadTune = (tuneId: string): void => {
+    const tune = getTuneById(tuneId)
+    if (!tune) return
+    applyChart(tune.createChart(), { styleId: tune.styleId, activeTuneId: tune.id })
+  }
+
+  const loadSaved = async (id: string): Promise<void> => {
+    try {
+      const chart = await charts.get(id)
+      if (!chart) {
+        setPersistStatus('Saved chart not found.')
+        return
+      }
+      applyChart(chart, { activeTuneId: chart.id })
+      setPersistStatus(`Loaded “${chart.title}”.`)
+    } catch {
+      setPersistStatus('Could not load saved chart.')
+    }
   }
 
   let transport: TransportController | null = null
@@ -270,6 +340,30 @@ export function mountApp(root: HTMLElement): () => void {
     bindLibraryItems()
   }
 
+  const bindSaved = (): void => {
+    root.querySelectorAll<HTMLButtonElement>('[data-saved-id]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const id = button.dataset.savedId
+        if (id) void loadSaved(id)
+      })
+    })
+    root.querySelectorAll<HTMLButtonElement>('[data-delete-id]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const id = button.dataset.deleteId
+        if (!id) return
+        void (async () => {
+          try {
+            await charts.delete(id)
+            setPersistStatus('Deleted saved chart.')
+            await refreshSaved()
+          } catch {
+            setPersistStatus('Could not delete saved chart.')
+          }
+        })()
+      })
+    })
+  }
+
   const bindChart = (): void => {
     const bars = root.querySelector('#bars')
     bars?.querySelectorAll<HTMLElement>('[data-index]').forEach((el) => {
@@ -297,6 +391,49 @@ export function mountApp(root: HTMLElement): () => void {
     root.querySelector('#remove-bar')?.addEventListener('click', () => {
       setEditor(removeSelectedBar(editor))
     })
+    root.querySelector('#save-chart')?.addEventListener('click', () => {
+      void (async () => {
+        try {
+          const record = await charts.put(editor.chart)
+          setPersistStatus(`Saved “${record.title}”.`)
+          await refreshSaved()
+        } catch {
+          setPersistStatus('Could not save chart.')
+        }
+      })()
+    })
+    root.querySelector('#export-chart')?.addEventListener('click', () => {
+      try {
+        const blob = chartToDownloadBlob(editor.chart)
+        const url = URL.createObjectURL(blob)
+        const anchor = document.createElement('a')
+        anchor.href = url
+        anchor.download = chartDownloadFilename(editor.chart)
+        anchor.click()
+        URL.revokeObjectURL(url)
+        setPersistStatus(`Exported ${chartDownloadFilename(editor.chart)}.`)
+      } catch {
+        setPersistStatus('Could not export chart.')
+      }
+    })
+    root.querySelector<HTMLInputElement>('#import-chart')?.addEventListener('change', (event) => {
+      const input = event.target as HTMLInputElement
+      const file = input.files?.[0]
+      input.value = ''
+      if (!file) return
+      void (async () => {
+        try {
+          const text = await file.text()
+          const chart = parseChartImport(text)
+          applyChart(chart, { activeTuneId: chart.id })
+          await charts.put(chart)
+          setPersistStatus(`Imported “${chart.title}”.`)
+          await refreshSaved()
+        } catch {
+          setPersistStatus('Could not import chart JSON.')
+        }
+      })()
+    })
     root.querySelector<HTMLSelectElement>('#style-select')?.addEventListener('change', (event) => {
       const value = (event.target as HTMLSelectElement).value
       if (!isStyleId(value)) return
@@ -311,6 +448,7 @@ export function mountApp(root: HTMLElement): () => void {
     const chordInput = root.querySelector<HTMLInputElement>('#chord-input')
     chordInput?.addEventListener('input', () => {
       editor = setDraftSymbol(editor, chordInput.value)
+      persistStatus = ''
       const err = root.querySelector('#chart-error')
       if (err) err.textContent = ''
     })
