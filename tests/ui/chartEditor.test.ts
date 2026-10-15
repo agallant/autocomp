@@ -245,6 +245,18 @@ describe('chartEditor', () => {
     expect(expandChartBars(state.chart)).toHaveLength(4)
   })
 
+  it('falls back to the remaining section when form only referenced the deleted one', () => {
+    const chart = createAabaChart()
+    chart.form = ['B', 'B']
+    let state = selectBar(createEditorState(chart), 0)
+    expect(selectedSectionId(state)).toBe('B')
+    state = removeSelectedSection(state)
+    expect(state.error).toBeNull()
+    expect(state.chart.sections.map((s) => s.id)).toEqual(['A'])
+    expect(state.chart.form).toEqual(['A'])
+    expect(expandChartBars(state.chart)).toHaveLength(2)
+  })
+
   it('rejects deleting the last remaining section', () => {
     let state = createEditorState(createAutumnPracticeChart())
     state = removeSelectedSection(state)

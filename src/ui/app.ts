@@ -1004,13 +1004,17 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
         setPersistStatus(next.error)
         return
       }
-      const apply = (): void => {
-        setEditor(next)
-        setPersistStatus(`Form ${next.chart.form.join('')}.`)
+      // Commit state immediately so a pending toolbar click (e.g. Delete)
+      // does not race a deferred setEditor snapshot.
+      editor = next
+      const applyUi = (): void => {
+        refreshChart()
+        syncPracticeLoop()
+        setPersistStatus(`Form ${editor.chart.form.join('')}.`)
       }
       // Defer DOM rebuild on blur so a pending click on another control can land.
-      if (opts.deferRebuild) setTimeout(apply, 0)
-      else apply()
+      if (opts.deferRebuild) setTimeout(applyUi, 0)
+      else applyUi()
     }
     formInput?.addEventListener('change', () => commitForm({ deferRebuild: true }))
     formInput?.addEventListener('keydown', (event) => {
@@ -1028,12 +1032,14 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
         setPersistStatus(next.error)
         return
       }
-      const apply = (): void => {
-        setEditor(next)
-        setPersistStatus(`Section ${selectedSectionLabel(next)}.`)
+      editor = next
+      const applyUi = (): void => {
+        refreshChart()
+        syncPracticeLoop()
+        setPersistStatus(`Section ${selectedSectionLabel(editor)}.`)
       }
-      if (opts.deferRebuild) setTimeout(apply, 0)
-      else apply()
+      if (opts.deferRebuild) setTimeout(applyUi, 0)
+      else applyUi()
     }
     sectionLabelInput?.addEventListener('change', () => commitSectionLabel({ deferRebuild: true }))
     sectionLabelInput?.addEventListener('keydown', (event) => {
