@@ -17,8 +17,8 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M0 | PWA scaffold | done | Vite + TS + PWA, CI, Pages deploy, app shell + transport stub |
 | M1 | Music model | done | Chords, bars, forms, chart JSON schema + parse/serialize + tests |
 | M2 | Chart editor | done | iReal-like bar grid editor (select, navigate, chord entry); multi-slot duration editing deferred |
-| M3 | Audio clock | in progress | Web Audio transport, metronome, lookahead scheduler |
-| M4 | Jazz swing style | planned | Walking bass + piano comp + kit pattern for swing |
+| M3 | Audio clock | done | Web Audio transport, metronome, lookahead scheduler |
+| M4 | Jazz swing style | in progress | Walking bass + piano comp + kit pattern for swing |
 | M5 | Style pack | planned | Bossa, ballad, Latin/salsa-lite; style picker |
 | M6 | Tune library | planned | Built-in standards/progressions + search/tags |
 | M7 | Persistence | planned | Local save/load charts (IndexedDB), import/export JSON |
@@ -62,6 +62,15 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Tempo / meter changes apply without resetting musical position mid-phrase incorrectly
 - [x] Transport UI bar/beat synced from scheduled audio time
 - [x] Unit tests for scheduler, metronome, and transport (mocked AudioContext)
+
+## M4 acceptance
+
+- [x] Style engine interface (`realizeBar` → timed notes)
+- [x] Jazz swing walking bass (root / chord tones / approach)
+- [x] Piano guide-tone comps on 2 & 4
+- [x] Swing ride + hat + kick pattern
+- [x] Synth voices scheduled from the audio transport
+- [x] Unit tests for style realization + synth scheduling
 
 ## Process notes
 

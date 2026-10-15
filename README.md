@@ -6,7 +6,7 @@ Automatic musical accompaniment as a **client-side TypeScript PWA** — chord ch
 
 ## Status
 
-Milestone **M3** — Web Audio transport clock and metronome on top of the chart editor. See [ROADMAP.md](./ROADMAP.md).
+Milestone **M4** — jazz swing accompaniment (walking bass, piano comps, swing ride) on the Web Audio clock. See [ROADMAP.md](./ROADMAP.md).
 
 ## Chart format (preview)
 

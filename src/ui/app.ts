@@ -1,5 +1,6 @@
 import { createAutumnPracticeChart } from '../data/autumnPractice'
 import { APP_VERSION } from '../lib/version'
+import { createJazzSwingStyle } from '../style'
 import {
   addBarAfterSelection,
   beginEdit,
@@ -35,7 +36,7 @@ export function mountApp(root: HTMLElement): () => void {
             <h2 id="chart-heading" class="panel__title">Chart</h2>
             <p class="panel__copy">
               Click a bar to select, Enter to edit the chord, arrows to move.
-              Add or remove bars from the toolbar.
+              Press Play for jazz swing backing (bass, piano, drums).
             </p>
             <div class="chart-stage" role="group" aria-label="Editable chord chart" id="chart-stage">
               ${chartStageInner(editor)}
@@ -46,7 +47,7 @@ export function mountApp(root: HTMLElement): () => void {
             <h2 id="status-heading" class="panel__title">Session</h2>
             <p class="panel__copy" id="session-status">
               <span class="status-dot" id="status-dot" aria-hidden="true"></span>
-              Ready — press Play for a Web Audio metronome.
+              Ready — press Play for jazz swing accompaniment.
             </p>
           </section>
         </main>
@@ -133,11 +134,12 @@ export function mountApp(root: HTMLElement): () => void {
     barReadout.textContent = String(state.bar)
     beatReadout.textContent = String(state.beat)
     statusDot.classList.toggle('status-dot--live', state.playing)
+    const styleName = state.styleId === 'jazz-swing' ? 'Jazz Swing' : 'accompaniment'
     const label = state.playing
-      ? 'Metronome running — style engines arrive in later milestones.'
+      ? `${styleName} running — walking bass, piano comps, swing ride.`
       : state.audioReady
-        ? 'Ready — press Play for a Web Audio metronome.'
-        : 'Ready — press Play to unlock audio and start the metronome.'
+        ? `Ready — press Play for ${styleName.toLowerCase()}.`
+        : `Ready — press Play to unlock audio and start ${styleName.toLowerCase()}.`
     sessionStatus.lastChild!.textContent = ` ${label}`
   }
 
@@ -156,6 +158,9 @@ export function mountApp(root: HTMLElement): () => void {
     transport = new TransportController({
       onChange: renderTransport,
       beatsPerBar: editor.chart.timeSignature.numerator,
+      style: createJazzSwingStyle(),
+      getChart: () => editor.chart,
+      metronomeEnabled: false,
     })
     transport.setTempo(editor.chart.defaultTempoBpm)
 
