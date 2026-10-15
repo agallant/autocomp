@@ -4,6 +4,7 @@ import { expandChartBars } from '../../src/music'
 import { buildStyleBarContextFromBars, createJazzSwingStyle } from '../../src/style'
 import {
   applyVariation,
+  chartLayoutKey,
   createVariedStyle,
   seedFromString,
   type VariationOptions,
@@ -48,5 +49,37 @@ describe('applyVariation / createVariedStyle', () => {
     const base = createJazzSwingStyle()
     const varied = createVariedStyle(base, { ...opts, humanize: false })
     expect(varied.realizeBar(midCtx)).toEqual(base.realizeBar(midCtx))
+  })
+
+  it('invalidates fill boundaries when form layout changes in place', () => {
+    const mutable = structuredClone(chart)
+    const base = createJazzSwingStyle()
+    const varied = createVariedStyle(base, { ...opts, humanize: false })
+    const beforeKey = chartLayoutKey(mutable)
+    // Warm the cache on the original layout.
+    const warmBars = expandChartBars(mutable)
+    const warmCtx = buildStyleBarContextFromBars(mutable, warmBars, warmBars.length - 1, {
+      wrapNext: false,
+    })!
+    expect(varied.realizeBar(warmCtx).some((n) => n.drum === 'snare')).toBe(true)
+
+    // Mutate the same object: append a bar so the previous last bar is no longer a boundary.
+    mutable.sections[0]!.bars.push({
+      slots: [{ chord: null, durationBeats: 4 }],
+    })
+    expect(chartLayoutKey(mutable)).not.toBe(beforeKey)
+    const nextBars = expandChartBars(mutable)
+    const oldEnd = buildStyleBarContextFromBars(mutable, nextBars, warmBars.length - 1, {
+      wrapNext: false,
+    })!
+    const newEnd = buildStyleBarContextFromBars(mutable, nextBars, nextBars.length - 1, {
+      wrapNext: false,
+    })!
+    const oldEndNotes = varied.realizeBar(oldEnd)
+    const newEndNotes = varied.realizeBar(newEnd)
+    // Old end should no longer get a fill; the new last bar should.
+    const oldFillSnares = oldEndNotes.filter((n) => n.voice === 'drums' && n.drum === 'snare')
+    const newFillSnares = newEndNotes.filter((n) => n.voice === 'drums' && n.drum === 'snare')
+    expect(newFillSnares.length).toBeGreaterThan(oldFillSnares.length)
   })
 })
