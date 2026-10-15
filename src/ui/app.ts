@@ -108,6 +108,10 @@ export function mountApp(root: HTMLElement): () => void {
   const setEditor = (next: ChartEditorState): void => {
     editor = next
     refreshChart()
+    if (next.editing) {
+      // Keep typing after a failed commit (innerHTML replaces the focused input).
+      focusChordInput({ selectAll: next.error === null })
+    }
   }
 
   let transport: TransportController | null = null
@@ -169,21 +173,18 @@ export function mountApp(root: HTMLElement): () => void {
         el.addEventListener('click', () => {
           if (editor.selectedBarIndex === index && !editor.editing) {
             setEditor(beginEdit(editor))
-            focusChordInput()
           } else {
             setEditor(selectBar(editor, index))
           }
         })
         el.addEventListener('dblclick', () => {
           setEditor(beginEdit(selectBar(editor, index)))
-          focusChordInput()
         })
       }
     })
 
     root.querySelector('#edit-chord')?.addEventListener('click', () => {
       setEditor(beginEdit(editor))
-      focusChordInput()
     })
     root.querySelector('#add-bar')?.addEventListener('click', () => {
       setEditor(addBarAfterSelection(editor))
@@ -219,17 +220,28 @@ export function mountApp(root: HTMLElement): () => void {
     })
   }
 
-  const focusChordInput = (): void => {
+  const focusChordInput = (opts: { selectAll?: boolean } = {}): void => {
+    const selectAll = opts.selectAll !== false
     queueMicrotask(() => {
       const input = root.querySelector<HTMLInputElement>('#chord-input')
-      input?.focus()
-      input?.select()
+      if (!input) return
+      input.focus()
+      if (selectAll) {
+        input.select()
+      } else {
+        const end = input.value.length
+        input.setSelectionRange(end, end)
+      }
     })
   }
 
   const onKeyDown = (event: KeyboardEvent): void => {
     const target = event.target
     if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {
+      return
+    }
+    // Let Enter activate focused buttons (toolbar, transport, bar cells).
+    if (event.key === 'Enter' && target instanceof HTMLButtonElement) {
       return
     }
     if (editor.editing) return
@@ -243,7 +255,6 @@ export function mountApp(root: HTMLElement): () => void {
     } else if (event.key === 'Enter') {
       event.preventDefault()
       setEditor(beginEdit(editor))
-      focusChordInput()
     } else if (event.key === 'Backspace' || event.key === 'Delete') {
       event.preventDefault()
       setEditor(removeSelectedBar(editor))

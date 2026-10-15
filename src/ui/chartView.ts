@@ -39,7 +39,7 @@ export function renderEditableBars(state: ChartEditorState): string {
           data-bar="${i + 1}"
           data-index="${i}"
           aria-pressed="${selected}"
-          aria-label="Bar ${i + 1}, ${label === '·' ? 'empty' : label}"
+          aria-label="Bar ${i + 1}, ${escapeAttr(label === '·' ? 'empty' : label)}"
         >
           <span class="bar__chord">${escapeHtml(label)}</span>
           <span class="bar__beat">|</span>

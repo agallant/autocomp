@@ -77,9 +77,10 @@ export function setDraftSymbol(state: ChartEditorState, draftSymbol: string): Ch
 /** Commit draft symbol into the selected bar (whole-bar chord). Empty clears the bar. */
 export function commitEdit(state: ChartEditorState): ChartEditorState {
   const symbol = state.draftSymbol.trim()
+  const existing = selectedBar(state)
   if (symbol === '') {
     return {
-      ...updateBarAt(state, state.selectedBarIndex, emptyBar(state.chart)),
+      ...updateBarAt(state, state.selectedBarIndex, emptyBar(state.chart, existing)),
       editing: false,
       draftSymbol: '',
       error: null,
@@ -89,7 +90,10 @@ export function commitEdit(state: ChartEditorState): ChartEditorState {
     return { ...state, error: `Invalid chord “${symbol}”` }
   }
   const chord = parseChordSymbol(symbol)
-  const bar = barFromSymbols([formatChord(chord)], state.chart.timeSignature)
+  const meter = existing?.timeSignature ?? state.chart.timeSignature
+  const bar = barFromSymbols([formatChord(chord)], meter)
+  if (existing?.timeSignature !== undefined) bar.timeSignature = existing.timeSignature
+  if (existing?.rehearsalMark !== undefined) bar.rehearsalMark = existing.rehearsalMark
   return {
     ...updateBarAt(state, state.selectedBarIndex, bar),
     editing: false,
@@ -108,7 +112,7 @@ export function addBarAfterSelection(state: ChartEditorState): ChartEditorState 
   return {
     ...state,
     chart,
-    selectedBarIndex: state.selectedBarIndex + 1,
+    selectedBarIndex: expandedIndexAt(chart, loc.formIndex, loc.barInSection + 1),
     editing: false,
     draftSymbol: '',
     error: null,
@@ -122,7 +126,11 @@ export function removeSelectedBar(state: ChartEditorState): ChartEditorState {
   const loc = locateBar(state.chart, state.selectedBarIndex)
   if (!loc) return state
   const chart = cloneChart(state.chart)
-  chart.sections[loc.sectionIndex]!.bars.splice(loc.barInSection, 1)
+  const section = chart.sections[loc.sectionIndex]!
+  if (section.bars.length === 1) {
+    return { ...state, error: 'Section must keep at least one bar' }
+  }
+  section.bars.splice(loc.barInSection, 1)
   assertValidChart(chart)
   const nextIndex = Math.min(state.selectedBarIndex, expandChartBars(chart).length - 1)
   return {
@@ -141,31 +149,50 @@ export function setTitle(state: ChartEditorState, title: string): ChartEditorSta
   return { ...state, chart, error: null }
 }
 
-function emptyBar(chart: Chart): Bar {
-  return {
-    slots: [{ chord: null, durationBeats: beatsPerBar(chart.timeSignature) }],
+function emptyBar(chart: Chart, preserve?: Bar | null): Bar {
+  const meter = preserve?.timeSignature ?? chart.timeSignature
+  const bar: Bar = {
+    slots: [{ chord: null, durationBeats: beatsPerBar(meter) }],
   }
+  if (preserve?.timeSignature !== undefined) bar.timeSignature = preserve.timeSignature
+  if (preserve?.rehearsalMark !== undefined) bar.rehearsalMark = preserve.rehearsalMark
+  return bar
 }
 
 function cloneChart(chart: Chart): Chart {
   return structuredClone(chart)
 }
 
-function locateBar(
-  chart: Chart,
-  expandedIndex: number,
-): { sectionIndex: number; barInSection: number } | null {
+type BarLocation = {
+  sectionIndex: number
+  barInSection: number
+  /** Index into `chart.form` for this occurrence of the section. */
+  formIndex: number
+}
+
+function locateBar(chart: Chart, expandedIndex: number): BarLocation | null {
   let remaining = expandedIndex
-  for (const id of chart.form) {
+  for (let formIndex = 0; formIndex < chart.form.length; formIndex++) {
+    const id = chart.form[formIndex]!
     const sectionIndex = chart.sections.findIndex((s) => s.id === id)
     if (sectionIndex < 0) continue
     const section = chart.sections[sectionIndex]!
     if (remaining < section.bars.length) {
-      return { sectionIndex, barInSection: remaining }
+      return { sectionIndex, barInSection: remaining, formIndex }
     }
     remaining -= section.bars.length
   }
   return null
+}
+
+function expandedIndexAt(chart: Chart, formIndex: number, barInSection: number): number {
+  let index = 0
+  for (let fi = 0; fi < formIndex; fi++) {
+    const id = chart.form[fi]!
+    const section = chart.sections.find((s) => s.id === id)
+    if (section) index += section.bars.length
+  }
+  return index + barInSection
 }
 
 function updateBarAt(state: ChartEditorState, expandedIndex: number, bar: Bar): ChartEditorState {
