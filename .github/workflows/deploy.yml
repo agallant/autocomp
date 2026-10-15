@@ -1,0 +1,91 @@
+name: Deploy GitHub Pages
+
+on:
+  # Deploy only after CI succeeds on main (avoids publishing a broken build).
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pages-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: build-and-deploy
+    runs-on: ubuntu-latest
+    # Manual runs must target main; workflow_run runs only after a successful CI push.
+    if: |
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push')
+    steps:
+      - name: Resolve deploy ref
+        id: ref
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          WORKFLOW_SHA: ${{ github.event.workflow_run.head_sha }}
+          DISPATCH_SHA: ${{ github.sha }}
+        run: |
+          if [ "$EVENT_NAME" = "workflow_run" ]; then
+            echo "sha=$WORKFLOW_SHA" >> "$GITHUB_OUTPUT"
+          else
+            echo "sha=$DISPATCH_SHA" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.ref.outputs.sha }}
+          fetch-depth: 0
+
+      - name: Reject stale workflow_run deploys
+        if: github.event_name == 'workflow_run'
+        env:
+          DEPLOY_SHA: ${{ steps.ref.outputs.sha }}
+        run: |
+          git fetch origin main --depth=1
+          MAIN_SHA="$(git rev-parse origin/main)"
+          echo "deploy_sha=$DEPLOY_SHA"
+          echo "main_sha=$MAIN_SHA"
+          if [ "$DEPLOY_SHA" != "$MAIN_SHA" ]; then
+            echo "Skipping deploy: CI SHA is no longer the tip of main (stale race)."
+            exit 0
+          fi
+          echo "fresh=true" >> "$GITHUB_ENV"
+
+      - name: Mark manual dispatch as fresh
+        if: github.event_name == 'workflow_dispatch'
+        run: echo "fresh=true" >> "$GITHUB_ENV"
+
+      - name: Setup Node
+        if: env.fresh == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install
+        if: env.fresh == 'true'
+        run: npm ci
+
+      - name: Build
+        if: env.fresh == 'true'
+        run: npm run build
+        env:
+          VITE_BASE: /autocomp/
+
+      - name: Deploy to gh-pages
+        if: env.fresh == 'true'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          force_orphan: true
+          commit_message: 'Deploy Autocomp ${{ steps.ref.outputs.sha }}'

@@ -1,0 +1,46 @@
+:root {
+  /* Ink stage — practice-room night, chart paper, brass accent */
+  --bg-deep: #071015;
+  --bg: #0b1c24;
+  --bg-elevated: #122a34;
+  --bg-chart: #e8e0d0;
+  --bg-chart-ink: #1a2428;
+  --bg-bar: rgba(18, 42, 52, 0.72);
+
+  --text: #e7f0f3;
+  --text-muted: #8aa3ad;
+  --text-chart: #1a2428;
+  --text-chart-muted: #5a6870;
+
+  --accent: #c9852a;
+  --accent-soft: #e0a84a;
+  --accent-glow: rgba(201, 133, 42, 0.35);
+  --teal: #2f8f8a;
+  --danger: #c45c5c;
+  --ok: #4a9b6d;
+
+  --border: rgba(231, 240, 243, 0.08);
+  --border-strong: rgba(231, 240, 243, 0.16);
+  --shadow: 0 18px 48px rgba(0, 0, 0, 0.45);
+
+  --font-display: 'Fraunces', 'Palatino Linotype', Palatino, serif;
+  --font-ui: 'IBM Plex Sans', 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  --radius-sm: 6px;
+  --radius: 12px;
+  --radius-lg: 20px;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-8: 3rem;
+
+  --transport-h: 4.5rem;
+  --header-h: 3.5rem;
+
+  color-scheme: dark;
+}
