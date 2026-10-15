@@ -1,4 +1,5 @@
 import { allLibraryTags, filterTunes, type TuneEntry, type TuneTag } from '../library'
+import { escapeAttr, escapeHtml } from './html'
 
 export type LibraryViewState = {
   query: string
@@ -70,16 +71,4 @@ export function libraryControlsHtml(state: LibraryViewState): string {
       </label>
     </div>
   `
-}
-
-function escapeHtml(value: string): string {
-  return value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-}
-
-function escapeAttr(value: string): string {
-  return escapeHtml(value).replaceAll("'", '&#39;')
 }

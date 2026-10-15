@@ -20,8 +20,8 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M3 | Audio clock | done | Web Audio transport, metronome, lookahead scheduler |
 | M4 | Jazz swing style | done | Walking bass + piano comp + kit pattern for swing |
 | M5 | Style pack | done | Bossa, ballad, Latin/salsa-lite; style picker |
-| M6 | Tune library | in progress | Built-in practice progressions + search/tags |
-| M7 | Persistence | planned | Local save/load charts (IndexedDB), import/export JSON |
+| M6 | Tune library | done | Built-in practice progressions + search/tags |
+| M7 | Persistence | in progress | Local save/load charts (IndexedDB), import/export JSON |
 | M8 | MIDI I/O | planned | MIDI file export; optional WebMIDI out where supported |
 | M9 | Audio render | planned | Offline bounce to WAV/MP3 (client-side encode) |
 | M10 | Variation | planned | Fills, intros/endings, solo density, humanization |
@@ -89,6 +89,14 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Tag filter in the library UI
 - [x] Loading a tune replaces the editor chart and applies style + tempo
 - [x] Unit tests for catalog filtering and chart validity
+
+## M7 acceptance
+
+- [x] IndexedDB repository for saved charts (memory fallback)
+- [x] Save current chart / list / load / delete on device
+- [x] Export chart JSON download
+- [x] Import chart JSON file into editor (+ save)
+- [x] Unit tests for memory store and JSON round-trip
 
 ## Process notes
 
