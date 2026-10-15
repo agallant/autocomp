@@ -38,7 +38,8 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M21 | Metronome click | done | Toggle click track during playback |
 | M22 | Play from bar | done | Start playback at the selected chart bar |
 | M23 | Solo density | done | Thinner backing for solo practice |
-| M24 | Swing feel | in progress | Straight → triplet → hard shuffle amount |
+| M24 | Swing feel | done | Straight → triplet → hard shuffle amount |
+| M25 | Voice volume | in progress | Per-voice level for bass / piano / drums |
 
 ## M0 acceptance
 
@@ -195,7 +196,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Applies to live playback, MIDI export, and WAV bounce
 - [x] Unit tests for filter + muted `realizeBar`
 - [ ] Manual playback and export scenarios verified (deferred)
-- [ ] Per-voice volume / balance deferred
+- [x] Per-voice volume / balance (M25)
 
 ## M19 acceptance
 
@@ -243,6 +244,14 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Toolbar Swing range; shared live/MIDI/WAV path
 - [x] Unit tests for ratio mapping and ride skip warping
 - [ ] Per-style swing defaults deferred
+
+## M25 acceptance
+
+- [x] `applyVoiceLevels` / `createLeveledStyle` scale note velocities 0–1
+- [x] Per-voice range next to mute toggles; zero silences ringing notes
+- [x] Shared live / MIDI / WAV path via style wrap
+- [x] Unit tests for clamp, scale, and style wrap
+- [ ] Persist mix with saved charts deferred
 
 ## Process notes
 

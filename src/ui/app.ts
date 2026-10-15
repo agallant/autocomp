@@ -40,9 +40,11 @@ import {
   type Root,
 } from '../music'
 import {
+  DEFAULT_VOICE_LEVELS,
   DEFAULT_VOICE_MUTE,
   STYLE_PACK,
   STYLE_VOICES,
+  createLeveledStyle,
   createMutedStyle,
   createStyleById,
   getStyleDescriptor,
@@ -50,6 +52,7 @@ import {
   type StyleEngine,
   type StyleId,
   type StyleVoice,
+  type VoiceLevels,
   type VoiceMuteState,
 } from '../style'
 import {
@@ -125,6 +128,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
   let variationEndings = DEFAULT_VARIATION.endings
   let variationSwingFeel = DEFAULT_VARIATION.swingFeel
   let voiceEnabled: VoiceMuteState = { ...DEFAULT_VOICE_MUTE }
+  let voiceLevels: VoiceLevels = { ...DEFAULT_VOICE_LEVELS }
   let practiceLoop: PracticeLoop = { ...DEFAULT_PRACTICE_LOOP }
   const tapTempoState = createTapTempoState()
   let generateKind: ProgressionKind = styleGenerateHints(styleId).defaultKind
@@ -170,7 +174,10 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
 
   const activeStyle = (chart: Chart, tempoBpm: number): StyleEngine =>
     createMutedStyle(
-      createVariedStyle(createStyleById(styleId), variationOptions(chart, tempoBpm)),
+      createLeveledStyle(
+        createVariedStyle(createStyleById(styleId), variationOptions(chart, tempoBpm)),
+        voiceLevels,
+      ),
       voiceEnabled,
     )
 
@@ -344,14 +351,30 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
           <span class="style-picker__value" id="var-swing-readout" aria-live="polite">${variationSwingFeel}</span>
         </label>
       </div>
-      <div class="variation-toggles" role="group" aria-label="Voices">
-        ${STYLE_VOICES.map(
-          (voice) => `
-        <label class="variation-toggle" title="Uncheck to mute ${voiceToggleLabel(voice).toLowerCase()}">
-          <input type="checkbox" id="voice-${voice}"${voiceEnabled[voice] ? ' checked' : ''} />
-          <span>${voiceToggleLabel(voice)}</span>
-        </label>`,
-        ).join('')}
+      <div class="variation-toggles voice-mix" role="group" aria-label="Voices">
+        ${STYLE_VOICES.map((voice) => {
+          const pct = Math.round(voiceLevels[voice] * 100)
+          return `
+        <div class="voice-mix__row">
+          <label class="variation-toggle" title="Uncheck to mute ${voiceToggleLabel(voice).toLowerCase()}">
+            <input type="checkbox" id="voice-${voice}"${voiceEnabled[voice] ? ' checked' : ''} />
+            <span>${voiceToggleLabel(voice)}</span>
+          </label>
+          <label class="voice-mix__level" for="voice-level-${voice}" title="${voiceToggleLabel(voice)} volume">
+            <input
+              type="range"
+              id="voice-level-${voice}"
+              class="style-picker__range voice-mix__range"
+              min="0"
+              max="100"
+              step="1"
+              value="${pct}"
+              aria-label="${voiceToggleLabel(voice)} volume"
+            />
+            <span class="style-picker__value" id="voice-level-${voice}-readout" aria-live="polite">${pct}</span>
+          </label>
+        </div>`
+        }).join('')}
       </div>
       <div class="generate-controls" role="group" aria-label="Practice loop">
         <label class="variation-toggle" title="Loop form bars A through B while playing">
@@ -952,6 +975,18 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
         syncTransportStyle({ stopSources: false })
         // Immediately cut the muted voice's ringing audio + pending WebMIDI.
         if (!checked) transport?.silenceVoices([voice])
+      })
+      const levelInput = root.querySelector<HTMLInputElement>(`#voice-level-${voice}`)
+      const levelReadout = root.querySelector<HTMLElement>(`#voice-level-${voice}-readout`)
+      levelInput?.addEventListener('input', (event) => {
+        const raw = Number((event.target as HTMLInputElement).value)
+        const pct = Number.isFinite(raw) ? Math.min(100, Math.max(0, Math.round(raw))) : 100
+        const prev = voiceLevels[voice]
+        voiceLevels = { ...voiceLevels, [voice]: pct / 100 }
+        if (levelReadout) levelReadout.textContent = String(pct)
+        syncTransportStyle({ stopSources: false })
+        // Silence ringing notes when the fader hits zero (same as mute).
+        if (prev > 0 && voiceLevels[voice] <= 0) transport?.silenceVoices([voice])
       })
     }
     root.querySelector<HTMLInputElement>('#loop-enable')?.addEventListener('change', (event) => {
