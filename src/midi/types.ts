@@ -16,12 +16,16 @@ export const VOICE_PROGRAM: Record<Exclude<StyleVoice, 'drums'>, number> = {
   piano: 0, // Acoustic Grand Piano
 }
 
-/** Style note placed on an absolute beat timeline from the form start. */
+/** Style note placed on an absolute quarter-note timeline from the form start. */
 export type AbsoluteMidiNote = {
   voice: StyleVoice
   midi: number
-  /** Absolute start in beats from the first downbeat. */
+  /**
+   * Absolute start in quarter notes from the first downbeat
+   * (chart beats converted via 4/denominator).
+   */
   startBeat: number
+  /** Duration in quarter notes. */
   durationBeats: number
   /** 0–1 velocity. */
   velocity: number

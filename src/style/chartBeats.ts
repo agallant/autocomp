@@ -22,8 +22,16 @@ export function firstChord(bar: Bar): Chord | null {
   return bar.slots.find((s) => s.chord)?.chord ?? null
 }
 
-export function buildStyleBarContext(chart: Chart, barIndex: number): StyleBarContext | null {
-  const bars = expandChartBars(chart)
+/**
+ * Build a style context from an already-expanded bar list (avoids re-expanding).
+ * When `wrapNext` is false, the final bar has no approach target.
+ */
+export function buildStyleBarContextFromBars(
+  chart: Chart,
+  bars: readonly Bar[],
+  barIndex: number,
+  opts: { wrapNext?: boolean } = {},
+): StyleBarContext | null {
   const bar = bars[barIndex]
   if (!bar) return null
   const bpb = beatsPerBar(bar.timeSignature ?? chart.timeSignature)
@@ -31,7 +39,13 @@ export function buildStyleBarContext(chart: Chart, barIndex: number): StyleBarCo
   for (let b = 0; b < bpb; b++) {
     beatChords.push(chordAtBeat(bar, b))
   }
-  const next = bars[(barIndex + 1) % bars.length] ?? null
+  const wrapNext = opts.wrapNext !== false
+  let next: Bar | null = null
+  if (barIndex + 1 < bars.length) {
+    next = bars[barIndex + 1] ?? null
+  } else if (wrapNext && bars.length > 0) {
+    next = bars[0] ?? null
+  }
   return {
     chart,
     barIndex,
@@ -40,4 +54,8 @@ export function buildStyleBarContext(chart: Chart, barIndex: number): StyleBarCo
     nextBarChord: next ? firstChord(next) : null,
     beatsPerBar: bpb,
   }
+}
+
+export function buildStyleBarContext(chart: Chart, barIndex: number): StyleBarContext | null {
+  return buildStyleBarContextFromBars(chart, expandChartBars(chart), barIndex, { wrapNext: true })
 }

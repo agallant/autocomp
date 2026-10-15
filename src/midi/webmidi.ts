@@ -92,6 +92,7 @@ export function createWebMidiSink(
 
   return {
     scheduleNote(note, whenAudioTime, audioCurrentTime, secondsPerBeat) {
+      if (note.velocity <= 0) return
       sendPrograms()
       const channel = VOICE_CHANNEL[note.voice]
       const midi = Math.max(0, Math.min(127, Math.round(note.midi)))

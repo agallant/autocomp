@@ -65,6 +65,8 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
   let midiOutputs: MidiOutputInfo[] = []
   let midiOutputId = ''
   let midiSink: WebMidiSink | null = null
+  /** Bumps on each MIDI-out selection so stale async opens are ignored. */
+  let midiSelectGeneration = 0
   const webMidiAvailable = isWebMidiSupported()
   const charts = options.chartRepository ?? createDefaultChartRepository()
 
@@ -341,28 +343,37 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     }
   }
 
+  const clearMidiOutSelect = (): void => {
+    const select = root.querySelector<HTMLSelectElement>('#midi-out-select')
+    if (select) select.value = ''
+  }
+
   const applyMidiOutput = async (id: string): Promise<void> => {
+    const generation = ++midiSelectGeneration
     midiSink?.dispose()
     midiSink = null
+    transport?.setMidiSink(null)
     midiOutputId = id
     if (!id) {
-      transport?.setMidiSink(null)
       setPersistStatus('MIDI out disabled.')
       return
     }
     try {
       const output = await getMidiOutput(id)
+      if (generation !== midiSelectGeneration) return
       if (!output) {
         setPersistStatus('MIDI output not found.')
         midiOutputId = ''
-        transport?.setMidiSink(null)
+        clearMidiOutSelect()
         return
       }
       midiSink = createWebMidiSink(output)
       transport?.setMidiSink(midiSink)
       setPersistStatus(`MIDI out → ${output.name || id}.`)
     } catch {
+      if (generation !== midiSelectGeneration) return
       midiOutputId = ''
+      clearMidiOutSelect()
       transport?.setMidiSink(null)
       setPersistStatus('Could not open MIDI output.')
     }

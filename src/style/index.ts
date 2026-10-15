@@ -1,5 +1,10 @@
 export type { StyleBarContext, StyleEngine, StyleNote, StyleVoice } from './types'
-export { buildStyleBarContext, chordAtBeat, firstChord } from './chartBeats'
+export {
+  buildStyleBarContext,
+  buildStyleBarContextFromBars,
+  chordAtBeat,
+  firstChord,
+} from './chartBeats'
 export { chordBassPc, midiToFrequency, pcToMidiNear } from './midi'
 export {
   createJazzSwingStyle,

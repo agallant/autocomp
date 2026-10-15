@@ -33,6 +33,7 @@ export {
   realizeChartMidi,
 }
 export type { AbsoluteMidiNote, EncodeSmfOptions, MidiOutputInfo, WebMidiSink }
+export { chartBeatsPerQuarter, quartersPerChartBeat } from './realize'
 
 /** Realize a chart style and encode a downloadable Standard MIDI File. */
 export function chartToMidiBytes(
