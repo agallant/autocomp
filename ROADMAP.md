@@ -22,8 +22,8 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M5 | Style pack | done | Bossa, ballad, Latin/salsa-lite; style picker |
 | M6 | Tune library | done | Built-in practice progressions + search/tags |
 | M7 | Persistence | done | Local save/load charts (IndexedDB), import/export JSON |
-| M8 | MIDI I/O | in progress | MIDI file export; optional WebMIDI out where supported |
-| M9 | Audio render | planned | Offline bounce to WAV/MP3 (client-side encode) |
+| M8 | MIDI I/O | done | MIDI file export; optional WebMIDI out where supported |
+| M9 | Audio render | in progress | Offline bounce to WAV (MP3 deferred); client-side encode |
 | M10 | Variation | planned | Fills, intros/endings, solo density, humanization |
 | M11 | Generative | planned | Style-conditioned progression / reharm helpers |
 | M12 | Listen & follow | planned | Experimental mic/chord following for dynamic backing |
@@ -105,6 +105,14 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Optional WebMIDI output (feature-detected; desktop browsers)
 - [x] Export uses current transport tempo when available
 - [x] Unit tests for realize, SMF encoding, and WebMIDI sink
+
+## M9 acceptance
+
+- [x] OfflineAudioContext bounce of one form pass through the live synth path
+- [x] 16-bit PCM WAV encode + download
+- [x] Export uses current transport tempo when available
+- [x] Unit tests for duration, WAV header, and bounce scheduling
+- [ ] MP3 encode deferred (keep PR small; add when a lightweight encoder fits)
 
 ## Process notes
 

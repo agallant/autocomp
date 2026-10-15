@@ -12,6 +12,11 @@ import {
   type MidiOutputInfo,
   type WebMidiSink,
 } from '../midi'
+import {
+  chartToWavBytes,
+  wavDownloadFilename,
+  wavToDownloadBlob,
+} from '../render'
 import type { Chart } from '../music'
 import {
   STYLE_PACK,
@@ -67,6 +72,8 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
   let midiSink: WebMidiSink | null = null
   /** Bumps on each MIDI-out selection so stale async opens are ignored. */
   let midiSelectGeneration = 0
+  /** True while an offline WAV bounce is in flight (survives chart re-renders). */
+  let wavExporting = false
   const webMidiAvailable = isWebMidiSupported()
   const charts = options.chartRepository ?? createDefaultChartRepository()
 
@@ -163,6 +170,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       <button type="button" class="btn" id="save-chart">Save</button>
       <button type="button" class="btn" id="export-chart">Export JSON</button>
       <button type="button" class="btn" id="export-midi">Export MIDI</button>
+      <button type="button" class="btn" id="export-wav"${wavExporting ? ' disabled' : ''}>Export WAV</button>
       <label class="btn chart-toolbar__file">
         Import
         <input id="import-chart" class="sr-only" type="file" accept="application/json,.json" />
@@ -529,6 +537,35 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       } catch {
         setPersistStatus('Could not export MIDI.')
       }
+    })
+    root.querySelector('#export-wav')?.addEventListener('click', () => {
+      if (wavExporting) return
+      void (async () => {
+        wavExporting = true
+        const button = root.querySelector<HTMLButtonElement>('#export-wav')
+        if (button) button.disabled = true
+        const chart = editor.chart
+        const exportStyleId = styleId
+        const tempoBpm = transport?.getState().tempoBpm ?? chart.defaultTempoBpm
+        setPersistStatus('Rendering WAV…')
+        try {
+          const bytes = await chartToWavBytes(chart, createStyleById(exportStyleId), { tempoBpm })
+          const blob = wavToDownloadBlob(bytes)
+          const url = URL.createObjectURL(blob)
+          const anchor = document.createElement('a')
+          anchor.href = url
+          anchor.download = wavDownloadFilename(chart)
+          anchor.click()
+          setTimeout(() => URL.revokeObjectURL(url), 1000)
+          setPersistStatus(`Exported ${wavDownloadFilename(chart)}.`)
+        } catch {
+          setPersistStatus('Could not export WAV.')
+        } finally {
+          wavExporting = false
+          const current = root.querySelector<HTMLButtonElement>('#export-wav')
+          if (current) current.disabled = false
+        }
+      })()
     })
     root.querySelector('#midi-out-select')?.addEventListener('focus', () => {
       void refreshMidiOutputs()
