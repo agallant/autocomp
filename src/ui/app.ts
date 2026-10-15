@@ -1268,21 +1268,19 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     const practice = practiceKeyAction(event.key, {
       inFormField: false,
       editing: editor.editing,
-      enterOnButton: false,
+      spaceOnButton: target instanceof HTMLButtonElement,
     })
-    if (practice === 'toggle-play') {
+    if (practice !== null) {
+      // Prevent page scroll / browser search; ignore key-repeat holds.
       event.preventDefault()
-      transport?.toggle({ formBar: editor.selectedBarIndex + 1 })
-      return
-    }
-    if (practice === 'tap-tempo') {
-      event.preventDefault()
-      applyTapTempo()
-      return
-    }
-    if (practice === 'toggle-click') {
-      event.preventDefault()
-      toggleMetronomeClick()
+      if (event.repeat) return
+      if (practice === 'toggle-play') {
+        transport?.toggle({ formBar: editor.selectedBarIndex + 1 })
+      } else if (practice === 'tap-tempo') {
+        applyTapTempo()
+      } else {
+        toggleMetronomeClick()
+      }
       return
     }
 

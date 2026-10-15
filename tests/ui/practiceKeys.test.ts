@@ -5,7 +5,7 @@ describe('practiceKeyAction', () => {
   const free: Parameters<typeof practiceKeyAction>[1] = {
     inFormField: false,
     editing: false,
-    enterOnButton: false,
+    spaceOnButton: false,
   }
 
   it('maps Space / T / M when the chart is not being edited', () => {
@@ -21,6 +21,11 @@ describe('practiceKeyAction', () => {
     expect(practiceKeyAction(' ', { ...free, inFormField: true })).toBeNull()
     expect(practiceKeyAction('t', { ...free, editing: true })).toBeNull()
     expect(practiceKeyAction('m', { ...free, inFormField: true })).toBeNull()
+  })
+
+  it('lets Space activate a focused button instead of toggling play', () => {
+    expect(practiceKeyAction(' ', { ...free, spaceOnButton: true })).toBeNull()
+    expect(practiceKeyAction('t', { ...free, spaceOnButton: true })).toBe('tap-tempo')
   })
 
   it('leaves unrelated keys alone', () => {

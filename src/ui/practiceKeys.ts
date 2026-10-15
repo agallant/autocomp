@@ -12,8 +12,11 @@ export type PracticeKeyContext = {
   inFormField: boolean
   /** True while the chart chord draft is open. */
   editing: boolean
-  /** True when Enter should activate a focused button instead. */
-  enterOnButton: boolean
+  /**
+   * True when a button has focus — Space should activate the button, not
+   * toggle transport.
+   */
+  spaceOnButton: boolean
 }
 
 /**
@@ -26,7 +29,10 @@ export function practiceKeyAction(
 ): PracticeKeyAction | null {
   if (ctx.inFormField || ctx.editing) return null
 
-  if (key === ' ' || key === 'Spacebar') return 'toggle-play'
+  if (key === ' ' || key === 'Spacebar') {
+    if (ctx.spaceOnButton) return null
+    return 'toggle-play'
+  }
   if (key === 't' || key === 'T') return 'tap-tempo'
   if (key === 'm' || key === 'M') return 'toggle-click'
   return null
