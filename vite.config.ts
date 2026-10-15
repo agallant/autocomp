@@ -13,7 +13,7 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg'],
+      includeAssets: ['favicon.svg', 'samples/**/*.m4a', 'samples/LICENSE.md'],
       manifest: {
         name: 'Autocomp',
         short_name: 'Autocomp',
@@ -44,7 +44,7 @@ export default defineConfig(({ mode }) => ({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
+        globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2,m4a,md}'],
         navigateFallback: 'index.html',
       },
     }),

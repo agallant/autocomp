@@ -1,4 +1,5 @@
 import {
+  ensureSampleKit,
   getAudioContext,
   LookaheadScheduler,
   scheduleMetronomeClick,
@@ -145,6 +146,8 @@ export class TransportController {
     try {
       // Safari/iPad needs a silent buffer kick; resume alone is not enough.
       await unlockAudioContext(ctx)
+      // Kick off sample decode without blocking transport start (avoids Play→Stop races).
+      void ensureSampleKit(ctx).catch(() => undefined)
     } catch {
       this.starting = false
       // A newer play()/stop() may own the session — don't clobber its state.
@@ -176,7 +179,7 @@ export class TransportController {
       clearIntervalFn: this.clearIntervalFn,
       onSchedule: (beat) => this.handleScheduledBeat(ctx, beat),
     })
-    // Schedule slightly ahead so the first notes land after unlock settles.
+    // Keep the lead-in inside the scheduler's default 100ms lookahead window.
     this.scheduler.start(ctx.currentTime + 0.08)
   }
 

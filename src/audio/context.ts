@@ -37,7 +37,7 @@ export async function unlockAudioContext(ctx: AudioContext): Promise<void> {
     await ctx.resume()
   }
 
-  // Silent one-shot — primes the audio session on WebKit.
+  // Silent buffer + near-silent oscillator — WebKit often needs both.
   const sampleRate = ctx.sampleRate || 44100
   const buffer = ctx.createBuffer(1, 1, sampleRate)
   const source = ctx.createBufferSource()
@@ -47,6 +47,18 @@ export async function unlockAudioContext(ctx: AudioContext): Promise<void> {
     source.start(0)
   } catch {
     // ignore — some engines reject if the context is still closed
+  }
+
+  try {
+    const osc = ctx.createOscillator()
+    const gain = ctx.createGain()
+    gain.gain.value = 0.0001
+    osc.connect(gain)
+    gain.connect(ctx.destination)
+    osc.start(0)
+    osc.stop(ctx.currentTime + 0.02)
+  } catch {
+    // ignore — oscillators can fail if the context is still locked
   }
 
   if (audioContextNeedsResume(ctx.state)) {

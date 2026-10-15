@@ -1,4 +1,4 @@
-import { scheduleStyleNote } from '../audio'
+import { ensureSampleKit, scheduleStyleNote, type SampleKit } from '../audio'
 import { beatsPerBar, expandChartBars, type Chart } from '../music'
 import { buildStyleBarContextFromBars, type StyleEngine } from '../style'
 import { chartFormDurationSeconds } from './duration'
@@ -9,12 +9,16 @@ export type BounceOptions = {
   sampleRate?: number
   /** Extra silence after the last bar so note releases finish. */
   tailSeconds?: number
+  /** Prefetched kit (tests); otherwise loads bundled CC0 samples. */
+  sampleKit?: SampleKit | null
   /** Inject OfflineAudioContext for tests / non-browser environments. */
   createOfflineContext?: (
     numberOfChannels: number,
     length: number,
     sampleRate: number,
   ) => OfflineAudioContext
+  /** Inject fetch for sample loading in tests. */
+  fetchFn?: typeof fetch
 }
 
 const DEFAULT_SAMPLE_RATE = 44_100
@@ -42,6 +46,14 @@ export async function bounceChartToBuffer(
     ((channels: number, len: number, rate: number) => new OfflineAudioContext(channels, len, rate))
 
   const ctx = create(2, length, sampleRate)
+  let kit = options.sampleKit ?? null
+  if (kit === null && options.sampleKit === undefined) {
+    try {
+      kit = await ensureSampleKit(ctx, options.fetchFn ?? fetch)
+    } catch {
+      kit = null
+    }
+  }
   const bars = expandChartBars(chart)
   let beatCursor = 0
 
@@ -57,7 +69,7 @@ export async function bounceChartToBuffer(
     const barStart = beatCursor * secondsPerBeat
     for (const note of style.realizeBar(ctxBar)) {
       const when = barStart + note.startBeat * secondsPerBeat
-      scheduleStyleNote(ctx, note, when, secondsPerBeat)
+      scheduleStyleNote(ctx, note, when, secondsPerBeat, { kit })
     }
     beatCursor += bpb
   }

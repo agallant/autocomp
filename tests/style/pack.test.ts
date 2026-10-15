@@ -69,6 +69,12 @@ describe('style pack', () => {
     }
   })
 
+  it('latin uses clave hits in the percussion pattern', () => {
+    const ctx = buildStyleBarContext(createAutumnPracticeChart(), 0)!
+    const notes = createStyleById('latin').realizeBar(ctx)
+    expect(notes.some((n) => n.drum === 'clave')).toBe(true)
+  })
+
   it('latin anticipates bass on the and of 2/4', () => {
     const ctx = buildStyleBarContext(createAutumnPracticeChart(), 0)!
     const bass = createStyleById('latin')
