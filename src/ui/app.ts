@@ -45,8 +45,6 @@ import {
   type Root,
 } from '../music'
 import {
-  DEFAULT_VOICE_LEVELS,
-  DEFAULT_VOICE_MUTE,
   STYLE_PACK,
   STYLE_VOICES,
   createGuideMelodyStyle,
@@ -65,7 +63,6 @@ import {
   COMP_DENSITY_OPTIONS,
   COUNT_IN_BAR_OPTIONS,
   DEFAULT_SWING_FEEL,
-  DEFAULT_VARIATION,
   clampCountInBars,
   createVariedStyle,
   nextCompDensity,
@@ -77,8 +74,12 @@ import {
   chartDownloadFilename,
   chartToDownloadBlob,
   createDefaultChartRepository,
+  createLocalPrefsStorage,
+  loadPracticePrefs,
   parseChartImport,
+  savePracticePrefs,
   type ChartRepository,
+  type PrefsStorage,
   type SavedChartMeta,
 } from '../storage'
 import {
@@ -128,9 +129,14 @@ import { TransportController, type TransportState } from './transport'
 export type MountAppOptions = {
   /** Inject a chart repository (tests / non-browser). */
   chartRepository?: ChartRepository
+  /** Inject practice-prefs storage (tests / non-browser). */
+  prefsStorage?: PrefsStorage
 }
 
 export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () => void {
+  const prefsStorage = options.prefsStorage ?? createLocalPrefsStorage()
+  const savedPrefs = loadPracticePrefs(prefsStorage)
+
   let editor = createEditorState(createAutumnPracticeChart())
   let styleId: StyleId = 'jazz-swing'
   let library = createLibraryViewState('autumn-practice')
@@ -143,19 +149,19 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
   let midiSelectGeneration = 0
   /** True while an offline WAV bounce is in flight (survives chart re-renders). */
   let wavExporting = false
-  let variationFills = DEFAULT_VARIATION.fills
+  let variationFills = savedPrefs.fills
   /** Bars of metronome before the form (0 = off). */
-  let variationCountInBars = clampCountInBars(DEFAULT_VARIATION.countInBars)
+  let variationCountInBars = savedPrefs.countInBars
   /** Click track during form bars (count-in always clicks when enabled). */
-  let metronomeEnabled = false
+  let metronomeEnabled = savedPrefs.metronomeEnabled
   /** Click / count-in level 0–1. */
-  let clickLevel = DEFAULT_CLICK_LEVEL
-  let variationHumanize = DEFAULT_VARIATION.humanize
-  let variationDensity: CompDensity = DEFAULT_VARIATION.density
-  let variationEndings = DEFAULT_VARIATION.endings
-  let variationSwingFeel = DEFAULT_VARIATION.swingFeel
-  let voiceEnabled: VoiceMuteState = { ...DEFAULT_VOICE_MUTE }
-  let voiceLevels: VoiceLevels = { ...DEFAULT_VOICE_LEVELS }
+  let clickLevel = savedPrefs.clickLevel
+  let variationHumanize = savedPrefs.humanize
+  let variationDensity: CompDensity = savedPrefs.density
+  let variationEndings = savedPrefs.endings
+  let variationSwingFeel = savedPrefs.swingFeel
+  let voiceEnabled: VoiceMuteState = { ...savedPrefs.voiceEnabled }
+  let voiceLevels: VoiceLevels = { ...savedPrefs.voiceLevels }
   let practiceLoop: PracticeLoop = { ...DEFAULT_PRACTICE_LOOP }
   const tapTempoState = createTapTempoState()
   let generateKind: ProgressionKind = styleGenerateHints(styleId).defaultKind
@@ -172,6 +178,25 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
   const webMidiAvailable = isWebMidiSupported()
   const followSupported = MicCapture.isSupported()
   const charts = options.chartRepository ?? createDefaultChartRepository()
+
+  const persistPracticePrefs = (): void => {
+    savePracticePrefs(
+      {
+        version: 1,
+        voiceLevels,
+        voiceEnabled,
+        clickLevel,
+        metronomeEnabled,
+        countInBars: variationCountInBars,
+        density: variationDensity,
+        swingFeel: variationSwingFeel,
+        fills: variationFills,
+        humanize: variationHumanize,
+        endings: variationEndings,
+      },
+      prefsStorage,
+    )
+  }
 
   const GENERATE_KEYS: Root[] = [
     { letter: 'C', accidental: 0 },
@@ -911,6 +936,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     const select = root.querySelector<HTMLSelectElement>('#var-density')
     if (select) select.value = variationDensity
     syncTransportStyle({ stopSources: false })
+    persistPracticePrefs()
     const label =
       COMP_DENSITY_OPTIONS.find((o) => o.id === variationDensity)?.label ?? variationDensity
     setPersistStatus(`Density ${label}.`)
@@ -930,6 +956,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
 
   const toggleMetronomeClick = (): void => {
     metronomeEnabled = !metronomeEnabled
+    persistPracticePrefs()
     transport?.setMetronomeEnabled(metronomeEnabled)
     const input = root.querySelector<HTMLInputElement>('#var-metronome')
     if (input) input.checked = metronomeEnabled
@@ -1168,14 +1195,17 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     }
     bindVariationToggle('#var-fills', (checked) => {
       variationFills = checked
+      persistPracticePrefs()
     })
     root.querySelector<HTMLSelectElement>('#var-count-in')?.addEventListener('change', (event) => {
       variationCountInBars = clampCountInBars(Number((event.target as HTMLSelectElement).value))
       syncTransportStyle({ stopSources: false })
+      persistPracticePrefs()
     })
     root.querySelector<HTMLInputElement>('#var-metronome')?.addEventListener('change', (event) => {
       metronomeEnabled = (event.target as HTMLInputElement).checked
       transport?.setMetronomeEnabled(metronomeEnabled)
+      persistPracticePrefs()
     })
     const clickLevelInput = root.querySelector<HTMLInputElement>('#var-click-level')
     const clickLevelReadout = root.querySelector<HTMLElement>('#var-click-level-readout')
@@ -1186,12 +1216,15 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       )
       if (clickLevelReadout) clickLevelReadout.textContent = String(Math.round(clickLevel * 100))
       transport?.setClickLevel(clickLevel)
+      persistPracticePrefs()
     })
     bindVariationToggle('#var-humanize', (checked) => {
       variationHumanize = checked
+      persistPracticePrefs()
     })
     bindVariationToggle('#var-endings', (checked) => {
       variationEndings = checked
+      persistPracticePrefs()
     })
     for (const voice of STYLE_VOICES) {
       root.querySelector<HTMLInputElement>(`#voice-${voice}`)?.addEventListener('change', (event) => {
@@ -1199,6 +1232,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
         voiceEnabled = { ...voiceEnabled, [voice]: checked }
         // Keep transport running; only drop future realizations for unmuted peers.
         syncTransportStyle({ stopSources: false })
+        persistPracticePrefs()
         // Immediately cut the muted voice's ringing audio + pending WebMIDI.
         if (!checked) transport?.silenceVoices([voice])
       })
@@ -1211,6 +1245,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
         voiceLevels = { ...voiceLevels, [voice]: pct / 100 }
         if (levelReadout) levelReadout.textContent = String(pct)
         syncTransportStyle({ stopSources: false })
+        persistPracticePrefs()
         // Silence ringing notes when the fader hits zero (same as mute).
         if (prev > 0 && voiceLevels[voice] <= 0) transport?.silenceVoices([voice])
       })
@@ -1244,6 +1279,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       if (COMP_DENSITY_OPTIONS.some((o) => o.id === value)) {
         variationDensity = value
         syncTransportStyle({ stopSources: false })
+        persistPracticePrefs()
       }
     })
     const swingInput = root.querySelector<HTMLInputElement>('#var-swing')
@@ -1255,6 +1291,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
         : DEFAULT_SWING_FEEL
       if (swingReadout) swingReadout.textContent = String(variationSwingFeel)
       syncTransportStyle({ stopSources: false })
+      persistPracticePrefs()
     })
     root.querySelector<HTMLInputElement>('#var-follow')?.addEventListener('change', (event) => {
       const checked = (event.target as HTMLInputElement).checked

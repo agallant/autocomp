@@ -2,6 +2,17 @@ export { cloneChart } from './clone'
 export { createIdbChartRepository, openDb } from './idb'
 export { createMemoryChartRepository } from './memory'
 export { chartDownloadFilename, chartToDownloadBlob, parseChartImport } from './io'
+export {
+  PRACTICE_PREFS_KEY,
+  createLocalPrefsStorage,
+  createMemoryPrefsStorage,
+  defaultPracticePrefs,
+  loadPracticePrefs,
+  normalizePracticePrefs,
+  savePracticePrefs,
+  type PracticePrefs,
+  type PrefsStorage,
+} from './practicePrefs'
 export type { ChartRepository, SavedChartMeta, SavedChartRecord } from './types'
 
 import { createIdbChartRepository } from './idb'
