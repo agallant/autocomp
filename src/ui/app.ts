@@ -63,8 +63,10 @@ import {
 } from '../style'
 import {
   COMP_DENSITY_OPTIONS,
+  COUNT_IN_BAR_OPTIONS,
   DEFAULT_SWING_FEEL,
   DEFAULT_VARIATION,
+  clampCountInBars,
   createVariedStyle,
   seedFromString,
   type CompDensity,
@@ -141,7 +143,8 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
   /** True while an offline WAV bounce is in flight (survives chart re-renders). */
   let wavExporting = false
   let variationFills = DEFAULT_VARIATION.fills
-  let variationCountIn = DEFAULT_VARIATION.countInBars > 0
+  /** Bars of metronome before the form (0 = off). */
+  let variationCountInBars = clampCountInBars(DEFAULT_VARIATION.countInBars)
   /** Click track during form bars (count-in always clicks when enabled). */
   let metronomeEnabled = false
   /** Click / count-in level 0–1. */
@@ -186,7 +189,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
 
   const variationOptions = (chart: Chart, tempoBpm: number): VariationOptions => ({
     fills: variationFills,
-    countInBars: variationCountIn ? 1 : 0,
+    countInBars: variationCountInBars,
     humanize: variationHumanize,
     density: variationDensity,
     endings: variationEndings,
@@ -366,9 +369,14 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
           <input type="checkbox" id="var-fills"${variationFills ? ' checked' : ''} />
           <span>Fills</span>
         </label>
-        <label class="variation-toggle">
-          <input type="checkbox" id="var-count-in"${variationCountIn ? ' checked' : ''} />
-          <span>Count-in</span>
+        <label class="style-picker" for="var-count-in" title="Metronome bars before the form">
+          <span class="style-picker__label">Count-in</span>
+          <select id="var-count-in" class="style-picker__select" aria-label="Count-in length">
+            ${COUNT_IN_BAR_OPTIONS.map((bars) => {
+              const label = bars === 0 ? 'Off' : bars === 1 ? '1 bar' : `${bars} bars`
+              return `<option value="${bars}"${bars === variationCountInBars ? ' selected' : ''}>${label}</option>`
+            }).join('')}
+          </select>
         </label>
         <label class="variation-toggle" title="Audible click on every beat (count-in always clicks). Shortcut: M">
           <input type="checkbox" id="var-metronome"${metronomeEnabled ? ' checked' : ''} />
@@ -761,7 +769,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     const styleOpts =
       opts.stopSources === undefined ? undefined : { stopSources: opts.stopSources }
     transport.setStyle(activeStyle(editor.chart, tempoBpm), styleOpts)
-    transport.setCountInBars(variationCountIn ? 1 : 0)
+    transport.setCountInBars(variationCountInBars)
   }
 
   const applyStyle = (nextId: StyleId, opts: { adjustTempo: boolean }): void => {
@@ -870,7 +878,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       metronomeEnabled,
       clickLevel,
       midiSink,
-      countInBars: variationCountIn ? 1 : 0,
+      countInBars: variationCountInBars,
       practiceLoop,
     })
     transport.setTempo(tempoBpm)
@@ -1147,8 +1155,9 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     bindVariationToggle('#var-fills', (checked) => {
       variationFills = checked
     })
-    bindVariationToggle('#var-count-in', (checked) => {
-      variationCountIn = checked
+    root.querySelector<HTMLSelectElement>('#var-count-in')?.addEventListener('change', (event) => {
+      variationCountInBars = clampCountInBars(Number((event.target as HTMLSelectElement).value))
+      syncTransportStyle({ stopSources: false })
     })
     root.querySelector<HTMLInputElement>('#var-metronome')?.addEventListener('change', (event) => {
       metronomeEnabled = (event.target as HTMLInputElement).checked

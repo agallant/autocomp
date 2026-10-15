@@ -46,7 +46,8 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M29 | Form editor | done | Edit form order + section markers on the grid |
 | M30 | Click volume | done | Adjustable metronome / count-in click level |
 | M31 | Playhead scroll | done | Keep the sounding bar in view during playback |
-| M32 | Section ops | in progress | Rename / delete chart sections |
+| M32 | Section ops | done | Rename / delete chart sections |
+| M33 | Count-in length | in progress | Choose 0 / 1 / 2 / 4 bar count-in |
 
 ## M0 acceptance
 
@@ -316,6 +317,13 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Toolbar Section field + Delete section control
 - [x] Unit tests for rename, delete, and last-section guard
 - [ ] Reorder sections list UI deferred
+
+## M33 acceptance
+
+- [x] Count-in length select: Off / 1 / 2 / 4 bars (`clampCountInBars` 0–8)
+- [x] Shared live / MIDI / WAV path via `variationOptions.countInBars`
+- [x] Unit tests for clamp and multi-bar beat length
+- [ ] Persist count-in preference deferred
 
 ## Process notes
 
