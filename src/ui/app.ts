@@ -315,9 +315,9 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
         <span class="transpose-key" id="transpose-key" aria-live="polite">${escapeHtml(formatRoot(state.chart.key))}</span>
         <button type="button" class="btn" id="transpose-down" aria-label="Transpose down one semitone">−1</button>
         <button type="button" class="btn" id="transpose-up" aria-label="Transpose up one semitone">+1</button>
-        <label class="style-picker" for="transpose-target">
+        <label class="style-picker" for="transpose-target" data-preserve-edit>
           <span class="style-picker__label">To</span>
-          <select id="transpose-target" class="style-picker__select" aria-label="Target key">
+          <select id="transpose-target" class="style-picker__select" aria-label="Target key" data-preserve-edit>
             ${GENERATE_KEYS.map((key) => {
               const label = formatRoot(key)
               const selected = rootToPc(key) === rootToPc(state.chart.key)
@@ -991,10 +991,12 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
         setEditor(cancelEdit(editor))
       }
     })
-    chordInput?.addEventListener('blur', () => {
-      if (editor.editing) {
-        setEditor(commitEdit(editor))
-      }
+    chordInput?.addEventListener('blur', (event: FocusEvent) => {
+      if (!editor.editing) return
+      const related = event.relatedTarget
+      // Keep the draft when focus moves to transpose target (select rebuild would kill it).
+      if (related instanceof Element && related.closest('[data-preserve-edit]')) return
+      setEditor(commitEdit(editor))
     })
   }
 

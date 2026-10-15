@@ -171,7 +171,11 @@ function sameRoot(a: Root, b: Root): boolean {
 export function transposeChartToKey(chart: Chart, targetKey: Root): Chart {
   const semitones = semitonesToKey(chart.key, targetKey)
   if (semitones === 0 && sameRoot(chart.key, targetKey)) return chart
-  const preferSharps = preferSharpsFromRoot(targetKey)
+  // Naturals follow the chart’s major/minor context; explicit ♯/♭ roots win.
+  const preferSharps =
+    targetKey.accidental === 0
+      ? preferSharpsForKeyPc(rootToPc(targetKey), chartLooksMinor(chart))
+      : preferSharpsFromRoot(targetKey)
   const next =
     semitones === 0
       ? {

@@ -159,4 +159,22 @@ describe('transposeChartToKey', () => {
     const chart = createAutumnPracticeChart()
     expect(transposeChartToKey(chart, chart.key)).toBe(chart)
   })
+
+  it('uses minor-aware flats when jumping a minor chart to a natural key', () => {
+    const chart: Chart = {
+      version: 1,
+      id: 'a-minor-turn',
+      title: 'A Minor Turn',
+      key: { letter: 'A', accidental: 0 },
+      timeSignature: { numerator: 4, denominator: 4 },
+      defaultTempoBpm: 100,
+      form: ['A'],
+      sections: [sectionFromBarSymbols('A', 'A', [['Am7'], ['G7'], ['Cmaj7'], ['Fmaj7']])],
+    }
+    assertValidChart(chart)
+    const next = transposeChartToKey(chart, { letter: 'C', accidental: 0 })
+    // Am→C (+3): G7 → Bb7 (not A#7) under minor-aware flat preference.
+    expect(formatRoot(next.key)).toBe('C')
+    expect(chartBarSymbols(next)[1]).toBe('Bb7')
+  })
 })
