@@ -75,14 +75,17 @@ import {
 } from '../storage'
 import {
   addBarAfterSelection,
+  addSection,
   beginEdit,
   cancelEdit,
   commitEdit,
   createEditorState,
+  formDraftString,
   moveSelection,
   removeSelectedBar,
   selectBar,
   setDraftSymbol,
+  setFormOrder,
   setTitle,
   type ChartEditorState,
 } from './chartEditor'
@@ -286,6 +289,19 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       <button type="button" class="btn" id="edit-chord">Edit chord</button>
       <button type="button" class="btn" id="add-bar">Add bar</button>
       <button type="button" class="btn" id="remove-bar">Remove bar</button>
+      <label class="style-picker form-editor" for="form-input" title="Space-separated section ids (e.g. A A B A)">
+        <span class="style-picker__label">Form</span>
+        <input
+          id="form-input"
+          class="style-picker__select form-editor__input"
+          type="text"
+          value="${escapeAttr(formDraftString(state.chart))}"
+          spellcheck="false"
+          autocomplete="off"
+          aria-label="Form order (space-separated section ids)"
+        />
+      </label>
+      <button type="button" class="btn" id="add-section" title="Append a new empty section to the form">Add section</button>
       <button type="button" class="btn" id="save-chart">Save</button>
       <button type="button" class="btn" id="export-chart">Export JSON</button>
       <button type="button" class="btn" id="export-midi">Export MIDI</button>
@@ -896,6 +912,28 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     })
     root.querySelector('#remove-bar')?.addEventListener('click', () => {
       setEditor(removeSelectedBar(editor))
+    })
+    root.querySelector('#add-section')?.addEventListener('click', () => {
+      const next = addSection(editor)
+      setEditor(next)
+      const added = next.chart.sections.at(-1)?.id
+      setPersistStatus(added ? `Added section ${added}.` : 'Added section.')
+    })
+    const formInput = root.querySelector<HTMLInputElement>('#form-input')
+    const commitForm = (): void => {
+      if (!formInput) return
+      const next = setFormOrder(editor, formInput.value)
+      setEditor(next)
+      if (next.error) setPersistStatus(next.error)
+      else setPersistStatus(`Form ${next.chart.form.join('')}.`)
+    }
+    formInput?.addEventListener('change', commitForm)
+    formInput?.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault()
+        commitForm()
+        formInput.blur()
+      }
     })
     root.querySelector('#save-chart')?.addEventListener('click', () => {
       void (async () => {

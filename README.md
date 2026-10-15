@@ -6,7 +6,7 @@ Automatic musical accompaniment as a **client-side TypeScript PWA** — chord ch
 
 ## Status
 
-Milestone **M28** — play-from-here marker and live chart playhead. See [ROADMAP.md](./ROADMAP.md) and [sample credits](./public/samples/LICENSE.md).
+Milestone **M29** — chart form editor (order + section markers). See [ROADMAP.md](./ROADMAP.md) and [sample credits](./public/samples/LICENSE.md).
 
 ## Chart format (preview)
 
