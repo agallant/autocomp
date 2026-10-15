@@ -10,7 +10,9 @@ import {
   preferSharpsForKeyPc,
   rootToPc,
   sectionFromBarSymbols,
+  semitonesToKey,
   transposeChart,
+  transposeChartToKey,
   transposeChord,
   type Chart,
 } from '../../src/music'
@@ -134,5 +136,27 @@ describe('transposeChart', () => {
 
   it('rejects non-integer semitone deltas', () => {
     expect(() => transposeChart(createAutumnPracticeChart(), 1.5)).toThrow(/integer/)
+  })
+})
+
+describe('transposeChartToKey', () => {
+  it('computes shortest signed distance', () => {
+    const c = { letter: 'C' as const, accidental: 0 as const }
+    const bb = { letter: 'B' as const, accidental: -1 as const }
+    expect(semitonesToKey(c, bb)).toBe(-2)
+    expect(semitonesToKey(bb, c)).toBe(2)
+  })
+
+  it('jumps a chart to a target key in one step', () => {
+    const chart = createAutumnPracticeChart()
+    const next = transposeChartToKey(chart, { letter: 'B', accidental: -1 })
+    assertValidChart(next)
+    expect(formatRoot(next.key)).toBe('Bb')
+    expect(chartBarSymbols(next).slice(0, 3)).toEqual(['Cm7', 'F7', 'Bbmaj7'])
+  })
+
+  it('is a no-op when already on the target spelling', () => {
+    const chart = createAutumnPracticeChart()
+    expect(transposeChartToKey(chart, chart.key)).toBe(chart)
   })
 })

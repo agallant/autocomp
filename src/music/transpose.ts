@@ -1,4 +1,4 @@
-import { normalizePc, rootToPc, transposeRoot } from './pitch'
+import { normalizePc, pcToRoot, rootToPc, transposeRoot } from './pitch'
 import type {
   Chart,
   Chord,
@@ -127,4 +127,68 @@ export function transposeChart(
       transposeSection(section, semitones, useSharps),
     ),
   }
+}
+
+/** Accidental preference when the user picks an explicit target root. */
+export function preferSharpsFromRoot(root: Root): boolean {
+  if (root.accidental < 0) return false
+  if (root.accidental > 0) return true
+  return preferSharpsForKey(root)
+}
+
+/**
+ * Shortest signed semitone distance from `from` to `to` in [-6, 6].
+ * Ties at a tritone prefer the upward (+6) direction.
+ */
+export function semitonesToKey(from: Root, to: Root): number {
+  const delta = normalizePc(rootToPc(to) - rootToPc(from))
+  return delta > 6 ? delta - 12 : delta
+}
+
+/** Re-spell a chord's root/bass without changing pitch classes. */
+export function respellChord(chord: Chord, preferSharps: boolean): Chord {
+  const next: Chord = {
+    ...chord,
+    root: pcToRoot(rootToPc(chord.root), preferSharps),
+    extensions: [...chord.extensions],
+    alterations: [...chord.alterations],
+  }
+  if (chord.bass) {
+    next.bass = pcToRoot(rootToPc(chord.bass), preferSharps)
+  }
+  delete next.symbol
+  return next
+}
+
+function sameRoot(a: Root, b: Root): boolean {
+  return a.letter === b.letter && a.accidental === b.accidental
+}
+
+/**
+ * Transpose the chart so its concert key matches `targetKey` (spelling included).
+ * No-op when already on that pitch class with the same root spelling.
+ */
+export function transposeChartToKey(chart: Chart, targetKey: Root): Chart {
+  const semitones = semitonesToKey(chart.key, targetKey)
+  if (semitones === 0 && sameRoot(chart.key, targetKey)) return chart
+  const preferSharps = preferSharpsFromRoot(targetKey)
+  const next =
+    semitones === 0
+      ? {
+          ...chart,
+          sections: chart.sections.map((section) => ({
+            ...section,
+            bars: section.bars.map((bar) => ({
+              ...bar,
+              slots: bar.slots.map((slot) =>
+                slot.chord
+                  ? { ...slot, chord: respellChord(slot.chord, preferSharps) }
+                  : { ...slot, chord: null },
+              ),
+              ...(bar.timeSignature ? { timeSignature: { ...bar.timeSignature } } : {}),
+            })),
+          })),
+        }
+      : transposeChart(chart, semitones, preferSharps)
+  return { ...next, key: { letter: targetKey.letter, accidental: targetKey.accidental } }
 }

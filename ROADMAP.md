@@ -27,7 +27,8 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M10 | Variation | done | Fills, intros/endings, solo density, humanization |
 | M11 | Generative | done | Style-conditioned progression / reharm helpers |
 | M12 | Listen & follow | in progress | Experimental mic/chord following for dynamic backing |
-| M13 | Transpose | in progress | Full-chart transpose (±semitone) with key-aware spelling |
+| M13 | Transpose | done | Full-chart transpose (±semitone) with key-aware spelling |
+| M14 | Jump to key | in progress | Transpose to a selected concert key in one step |
 
 ## M0 acceptance
 
@@ -145,7 +146,14 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] `transposeChart` / `transposeChord` with destination-key sharp/flat spelling
 - [x] Toolbar ±1 semitone controls; chart meta shows concert key
 - [x] Unit tests for chord, flat-key spelling, and octave round-trip
-- [ ] Jump-to-key picker deferred (semitone steps cover practice use)
+- [x] Jump-to-key picker (M14)
+
+## M14 acceptance
+
+- [x] `transposeChartToKey` / `semitonesToKey` (shortest signed distance)
+- [x] Toolbar target-key select + Go (pointer + keyboard safe)
+- [x] Unit tests for jump and no-op
+- [ ] Enharmonic respell-only picker (F#↔Gb) deferred
 
 ## Process notes
 

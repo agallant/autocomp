@@ -34,7 +34,11 @@ export {
   chartLooksMinor,
   preferSharpsForKey,
   preferSharpsForKeyPc,
+  preferSharpsFromRoot,
+  respellChord,
+  semitonesToKey,
   transposeChart,
+  transposeChartToKey,
   transposeChord,
 } from './transpose'
 
