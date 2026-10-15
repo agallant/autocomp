@@ -19,6 +19,8 @@ describe('variation rng', () => {
 
   it('mixes integer parts', () => {
     expect(hashSeed(1, 2, 3)).toBe(hashSeed(1, 2, 3))
+    expect(hashSeed(1, 2, 3)).not.toBe(hashSeed(2, 2, 3))
+    expect(hashSeed(1, 2, 3)).not.toBe(hashSeed(1, 3, 3))
     expect(hashSeed(1, 2, 3)).not.toBe(hashSeed(1, 2, 4))
   })
 })

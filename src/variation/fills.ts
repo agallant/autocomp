@@ -26,12 +26,14 @@ export function sectionFillNotes(ctx: StyleBarContext): StyleNote[] {
     })
   }
 
-  // Kick on the last eighth of the bar for a landing.
+  // Kick on the last eighth of the bar (chart-beat units depend on denominator).
+  const ts = ctx.bar.timeSignature ?? ctx.chart.timeSignature
+  const eighthBeats = ts.denominator / 8
   notes.push({
     voice: 'drums',
     midi: 36,
     drum: 'kick',
-    startBeat: Math.max(start, ctx.beatsPerBar - 0.5),
+    startBeat: Math.max(start, ctx.beatsPerBar - eighthBeats),
     durationBeats: 0.15,
     velocity: 0.7,
   })

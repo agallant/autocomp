@@ -320,6 +320,8 @@
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
+  min-height: 2.25rem;
+  padding: 0.2rem 0;
   cursor: pointer;
   user-select: none;
 }

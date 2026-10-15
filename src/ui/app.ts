@@ -349,10 +349,12 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     sessionStatus.lastChild!.textContent = ` ${label}`
   }
 
-  const syncTransportStyle = (): void => {
+  const syncTransportStyle = (opts: { stopSources?: boolean } = {}): void => {
     if (!transport) return
     const tempoBpm = transport.getState().tempoBpm
-    transport.setStyle(activeStyle(editor.chart, tempoBpm))
+    const styleOpts =
+      opts.stopSources === undefined ? undefined : { stopSources: opts.stopSources }
+    transport.setStyle(activeStyle(editor.chart, tempoBpm), styleOpts)
     transport.setCountInBars(variationCountIn ? 1 : 0)
   }
 
@@ -362,7 +364,8 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     if (opts.adjustTempo && transport) {
       transport.setTempo(desc.suggestedTempoBpm)
     }
-    syncTransportStyle()
+    // Style picker changes should cut the previous engine's ringing notes.
+    syncTransportStyle({ stopSources: true })
     // Keep the select in sync when the chart stage is not rebuilt.
     const select = root.querySelector<HTMLSelectElement>('#style-select')
     if (select && select.value !== nextId) select.value = nextId
@@ -458,12 +461,12 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     tempoDown?.addEventListener('click', () => {
       if (!transport) return
       transport.setTempo(transport.getState().tempoBpm - 10)
-      syncTransportStyle()
+      syncTransportStyle({ stopSources: false })
     })
     tempoUp?.addEventListener('click', () => {
       if (!transport) return
       transport.setTempo(transport.getState().tempoBpm + 10)
-      syncTransportStyle()
+      syncTransportStyle({ stopSources: false })
     })
   }
 
@@ -627,7 +630,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     ): void => {
       root.querySelector<HTMLInputElement>(id)?.addEventListener('change', (event) => {
         apply((event.target as HTMLInputElement).checked)
-        syncTransportStyle()
+        syncTransportStyle({ stopSources: false })
       })
     }
     bindVariationToggle('#var-fills', (checked) => {

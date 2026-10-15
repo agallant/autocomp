@@ -46,5 +46,8 @@ export function chartToMidiBytes(
   const { countInBars, ...smfOptions } = options ?? {}
   const realizeOpts =
     countInBars === undefined ? undefined : { countInBars }
-  return encodeSmf(chart, realizeChartMidi(chart, style, realizeOpts), smfOptions)
+  return encodeSmf(chart, realizeChartMidi(chart, style, realizeOpts), {
+    ...smfOptions,
+    ...(countInBars === undefined ? {} : { countInBars }),
+  })
 }

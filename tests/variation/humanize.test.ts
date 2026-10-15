@@ -37,12 +37,26 @@ describe('humanizeNotes', () => {
   })
 
   it('keeps notes inside the bar', () => {
-    const out = humanizeNotes(base, 12345, 2, 40, 4)
+    const nearEnd: StyleNote[] = [
+      ...base,
+      {
+        voice: 'drums',
+        midi: 51,
+        drum: 'ride',
+        startBeat: 3.95,
+        durationBeats: 0.1,
+        velocity: 0.4,
+      },
+    ]
+    const out = humanizeNotes(nearEnd, 12345, 2, 40, 4)
     for (const note of out) {
       expect(note.startBeat).toBeGreaterThanOrEqual(0)
       expect(note.startBeat).toBeLessThan(4)
       expect(note.velocity).toBeGreaterThanOrEqual(0.05)
       expect(note.velocity).toBeLessThanOrEqual(1)
     }
+    const late = out.find((n) => n.midi === 51 && n.startBeat > 3)
+    expect(late).toBeTruthy()
+    expect(late!.startBeat).toBeLessThan(4)
   })
 })

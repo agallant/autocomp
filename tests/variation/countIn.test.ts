@@ -11,6 +11,8 @@ describe('count-in lead-in', () => {
   it('counts one bar of beats from the opening meter', () => {
     expect(countInBeats(chart, 1)).toBe(4)
     expect(countInBeats(chart, 0)).toBe(0)
+    expect(countInBeats(chart, Number.NaN)).toBe(0)
+    expect(countInBeats(chart, Number.POSITIVE_INFINITY)).toBe(0)
   })
 
   it('extends form duration and shifts MIDI note starts', () => {

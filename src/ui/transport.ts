@@ -73,6 +73,8 @@ export class TransportController {
   private getChart: (() => Chart) | null
   private midiSink: WebMidiSink | null
   private countInBars: number
+  /** Count-in changes while playing apply on the next `play()`. */
+  private pendingCountInBars: number | null = null
   private readonly injectedContext: AudioContext | undefined
 
   private ctx: AudioContext | null = null
@@ -112,10 +114,16 @@ export class TransportController {
     this.defaultBeatsPerBar = Math.max(1, Math.round(beats))
   }
 
-  setStyle(style: StyleEngine | null): void {
-    // Drop in-flight notes from the previous style so long ballad tones don't overlap.
-    this.stopAudioSources()
-    this.midiSink?.clear()
+  setStyle(
+    style: StyleEngine | null,
+    options: { /** When false, keep ringing notes (tempo / variation tweaks). */ stopSources?: boolean } = {},
+  ): void {
+    const stopSources = options.stopSources !== false
+    if (stopSources) {
+      // Drop in-flight notes from the previous style so long ballad tones don't overlap.
+      this.stopAudioSources()
+      this.midiSink?.clear()
+    }
     this.style = style
     this.state = { ...this.state, styleId: style?.id ?? null }
     this.emit()
@@ -135,7 +143,14 @@ export class TransportController {
   }
 
   setCountInBars(bars: number): void {
-    this.countInBars = Math.max(0, Math.floor(bars))
+    const next = Number.isFinite(bars) ? Math.max(0, Math.floor(bars)) : 0
+    // Mid-playback changes would rematerialize the form offset under the scheduler.
+    if (this.state.playing || this.starting) {
+      this.pendingCountInBars = next
+      return
+    }
+    this.countInBars = next
+    this.pendingCountInBars = null
   }
 
   getCountInBars(): number {
@@ -171,6 +186,11 @@ export class TransportController {
     if (generation !== this.playGeneration) {
       this.starting = false
       return
+    }
+
+    if (this.pendingCountInBars !== null) {
+      this.countInBars = this.pendingCountInBars
+      this.pendingCountInBars = null
     }
 
     this.state = {

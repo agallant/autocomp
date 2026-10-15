@@ -28,7 +28,14 @@ describe('section fills', () => {
     const start = fillStartBeat(ctx.beatsPerBar)
     const lateDrums = filled.filter((n) => n.voice === 'drums' && n.startBeat >= start)
     expect(lateDrums.some((n) => n.drum === 'snare')).toBe(true)
-    expect(lateDrums.some((n) => n.drum === 'kick')).toBe(true)
+    const eighthBeats =
+      (ctx.bar.timeSignature ?? ctx.chart.timeSignature).denominator / 8
+    expect(
+      lateDrums.some(
+        (n) => n.drum === 'kick' && Math.abs(n.startBeat - (ctx.beatsPerBar - eighthBeats)) < 1e-9,
+      ),
+    ).toBe(true)
+    expect(lateDrums.every((n) => n.drum === 'snare' || n.drum === 'kick')).toBe(true)
     // Early swing ride/kick pattern should remain.
     expect(filled.some((n) => n.voice === 'drums' && n.startBeat < start)).toBe(true)
     expect(filled.some((n) => n.voice === 'bass')).toBe(true)
