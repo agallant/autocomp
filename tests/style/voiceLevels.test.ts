@@ -26,6 +26,7 @@ describe('voice levels', () => {
       bass: 0.5,
       piano: 1,
       drums: 1,
+      melody: 1,
     })
   })
 
@@ -34,6 +35,7 @@ describe('voice levels', () => {
       bass: 0.5,
       piano: 0,
       drums: 0.25,
+      melody: 1,
     })
     expect(out.map((n) => n.voice)).toEqual(['bass', 'drums'])
     expect(out[0]!.velocity).toBeCloseTo(0.4, 9)
@@ -53,6 +55,7 @@ describe('voice levels', () => {
       bass: 0.5,
       piano: 0.25,
       drums: 0.4,
+      melody: 1,
     }).realizeBar(ctx)
 
     const baseBass = base.filter((n) => n.voice === 'bass')

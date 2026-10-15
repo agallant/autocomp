@@ -18,13 +18,15 @@ describe('voice mute', () => {
   ]
 
   it('filters muted voices', () => {
-    const enabled: VoiceMuteState = { bass: true, piano: false, drums: true }
+    const enabled: VoiceMuteState = { bass: true, piano: false, drums: true, melody: false }
     const out = filterMutedVoices(sample, enabled)
     expect(out.map((n) => n.voice)).toEqual(['bass', 'drums'])
   })
 
   it('keeps all voices when nothing is muted', () => {
-    expect(filterMutedVoices(sample, { bass: true, piano: true, drums: true })).toHaveLength(3)
+    expect(
+      filterMutedVoices(sample, { bass: true, piano: true, drums: true, melody: true }),
+    ).toHaveLength(3)
   })
 
   it('wraps realizeBar so muted voices are absent', () => {
@@ -39,6 +41,7 @@ describe('voice mute', () => {
       bass: true,
       piano: false,
       drums: false,
+      melody: false,
     }).realizeBar(ctx)
     expect(muted.every((n) => n.voice === 'bass')).toBe(true)
     expect(muted.length).toBeGreaterThan(0)

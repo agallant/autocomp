@@ -39,7 +39,8 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M22 | Play from bar | done | Start playback at the selected chart bar |
 | M23 | Solo density | done | Thinner backing for solo practice |
 | M24 | Swing feel | done | Straight → triplet → hard shuffle amount |
-| M25 | Voice volume | in progress | Per-voice level for bass / piano / drums |
+| M25 | Voice volume | done | Per-voice level for bass / piano / drums |
+| M26 | Guide melody | in progress | Generative guide-tone practice line |
 
 ## M0 acceptance
 
@@ -142,7 +143,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Reharm helpers on selected bar: ii-before-V and tritone substitute (dominant bars)
 - [x] UI: Generate kind/key → loads chart via existing apply path; Reharm applies to selection
 - [x] Unit tests for generators + reharm; charts validate
-- [ ] Generative melody deferred
+- [x] Generative guide melody (M26)
 
 ## M12 acceptance
 
@@ -252,6 +253,14 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Shared live / MIDI / WAV path via style wrap
 - [x] Unit tests for clamp, scale, and style wrap
 - [ ] Persist mix with saved charts deferred
+
+## M26 acceptance
+
+- [x] `realizeGuideMelody` quarter-note guide-tone line with voice leading
+- [x] New `melody` voice (opt-in mute; Flute GM / piano samples)
+- [x] `createGuideMelodyStyle` on the live / MIDI / WAV path
+- [x] Unit tests for tones, realization, and mute default
+- [ ] Phrase-level / style-conditioned solo lines deferred
 
 ## Process notes
 

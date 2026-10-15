@@ -44,6 +44,7 @@ import {
   DEFAULT_VOICE_MUTE,
   STYLE_PACK,
   STYLE_VOICES,
+  createGuideMelodyStyle,
   createLeveledStyle,
   createMutedStyle,
   createStyleById,
@@ -175,14 +176,22 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
   const activeStyle = (chart: Chart, tempoBpm: number): StyleEngine =>
     createMutedStyle(
       createLeveledStyle(
-        createVariedStyle(createStyleById(styleId), variationOptions(chart, tempoBpm)),
+        createGuideMelodyStyle(
+          createVariedStyle(createStyleById(styleId), variationOptions(chart, tempoBpm)),
+        ),
         voiceLevels,
       ),
       voiceEnabled,
     )
 
   const voiceToggleLabel = (voice: StyleVoice): string =>
-    voice === 'bass' ? 'Bass' : voice === 'piano' ? 'Piano' : 'Drums'
+    voice === 'bass'
+      ? 'Bass'
+      : voice === 'piano'
+        ? 'Piano'
+        : voice === 'drums'
+          ? 'Drums'
+          : 'Guide'
 
   const renderShell = (): void => {
     root.innerHTML = `

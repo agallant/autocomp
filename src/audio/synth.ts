@@ -31,6 +31,7 @@ export function scheduleStyleNote(
   if (note.voice === 'bass') {
     return scheduleBass(ctx, note.midi, when, duration, note.velocity, kit)
   }
+  // Piano + guide melody share the piano sample/synth path.
   return schedulePiano(ctx, note.midi, when, duration, note.velocity, kit)
 }
 

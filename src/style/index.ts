@@ -15,6 +15,7 @@ export {
   voiceLevelsAreDefault,
   type VoiceLevels,
 } from './voiceLevels'
+export { createGuideMelodyStyle } from './guideMelody'
 export {
   buildStyleBarContext,
   buildStyleBarContextFromBars,

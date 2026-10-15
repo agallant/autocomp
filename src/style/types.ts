@@ -1,6 +1,6 @@
 import type { Bar, Chart, Chord } from '../music'
 
-export type StyleVoice = 'bass' | 'piano' | 'drums'
+export type StyleVoice = 'bass' | 'piano' | 'drums' | 'melody'
 
 /** One synthesized hit relative to the start of a bar (or beat). */
 export type StyleNote = {

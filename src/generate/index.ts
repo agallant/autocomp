@@ -8,6 +8,12 @@ export type {
 
 export { degreeChord, degreeRoot, dominantOf, samePc, tritoneRoot } from './degree'
 export {
+  GUIDE_MELODY_CENTER,
+  guideTonePcs,
+  nearestGuideMidi,
+  realizeGuideMelody,
+} from './melody'
+export {
   PROGRESSION_CATALOG,
   generateProgression,
 } from './progressions'

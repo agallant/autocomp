@@ -7,9 +7,11 @@ export const DEFAULT_VOICE_MUTE: VoiceMuteState = {
   bass: true,
   piano: true,
   drums: true,
+  /** Guide melody is opt-in so the default mix stays accompaniment-only. */
+  melody: false,
 }
 
-export const STYLE_VOICES: readonly StyleVoice[] = ['bass', 'piano', 'drums']
+export const STYLE_VOICES: readonly StyleVoice[] = ['bass', 'piano', 'drums', 'melody']
 
 /** Drop notes whose voice is muted (false in `enabled`). */
 export function filterMutedVoices(
