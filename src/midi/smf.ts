@@ -26,7 +26,7 @@ type TrackEvent = {
 
 /**
  * Encode realized accompaniment notes as a Format-1 Standard MIDI File.
- * Track 0 = tempo/meter; tracks 1–3 = bass, piano, drums.
+ * Track 0 = tempo/meter; tracks 1–4 = bass, piano, guide, drums.
  * Notes must be timed in quarter notes (see `realizeChartMidi`).
  */
 export function encodeSmf(

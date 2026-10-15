@@ -9,8 +9,11 @@ export type {
 export { degreeChord, degreeRoot, dominantOf, samePc, tritoneRoot } from './degree'
 export {
   GUIDE_MELODY_CENTER,
+  chartBeatsPerQuarter,
   guideTonePcs,
   nearestGuideMidi,
+  pickGuideMidi,
+  preferredGuidePcs,
   realizeGuideMelody,
 } from './melody'
 export {

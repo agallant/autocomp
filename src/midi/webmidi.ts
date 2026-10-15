@@ -105,7 +105,7 @@ export function createWebMidiSink(
       timers.clearTimeoutFn(entry.timer)
     }
     pending.clear()
-    allNotesOff(['bass', 'piano', 'drums'])
+    allNotesOff(['bass', 'piano', 'melody', 'drums'])
   }
 
   return {
