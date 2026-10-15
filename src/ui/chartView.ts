@@ -2,7 +2,8 @@ import { formatChord, type Bar, type Chart } from '../music'
 
 function slotLabel(bar: Bar): string {
   const chords = bar.slots.filter((s) => s.chord).map((s) => formatChord(s.chord!))
-  return chords[0] ?? '·'
+  if (chords.length === 0) return '·'
+  return chords.join(' ')
 }
 
 export function renderChartBars(chart: Chart): string {

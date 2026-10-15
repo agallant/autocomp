@@ -35,7 +35,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] CI: lint, typecheck, test, build
 - [x] Deploy workflow publishes `dist/` to `gh-pages`
 - [x] App shell with brand, demo chart, transport stub
-- [x] Live at https://agallant.github.io/autocomp/ after merge
+- [x] Live at https://agallant.github.io/autocomp/ after merge (verified; published via direct `gh-pages` push after `GITHUB_TOKEN` automerge skipped Actions)
 
 ## M1 acceptance
 

@@ -100,17 +100,47 @@ const ALTERATION_TOKENS: Array<{ token: string; alt: ChordAlteration }> = [
   { token: '♯5', alt: '#5' },
 ]
 
+function assertBalancedParens(text: string, symbol: string): void {
+  let depth = 0
+  for (const ch of text) {
+    if (ch === '(') depth += 1
+    if (ch === ')') {
+      depth -= 1
+      if (depth < 0) throw new ChordParseError(symbol, 'unbalanced parentheses')
+    }
+  }
+  if (depth !== 0) throw new ChordParseError(symbol, 'unbalanced parentheses')
+}
+
 function splitSlash(symbol: string): { body: string; bass: Root | null } {
   const idx = symbol.lastIndexOf('/')
   if (idx <= 0) return { body: symbol, bass: null }
+
+  // Exempt only the slash inside a trailing "6/9" quality, not a later bass slash.
+  // e.g. "C6/9" → no bass; "C6/9/E" → bass E, body C6/9
+  const before = symbol.slice(0, idx)
   const bassText = symbol.slice(idx + 1)
-  // Avoid treating 6/9 as a slash bass
-  if (symbol.includes('6/9')) return { body: symbol, bass: null }
+  if (before.endsWith('6') && bassText.startsWith('9')) {
+    // This slash is the 6/9 separator (possibly with more after "9")
+    const afterNine = bassText.slice(1)
+    if (afterNine === '') {
+      return { body: symbol, bass: null }
+    }
+    if (afterNine.startsWith('/')) {
+      const realBassText = afterNine.slice(1)
+      const bass = parseRoot(realBassText)
+      if (!bass || formatRootLength(bass) !== realBassText.length) {
+        return { body: symbol, bass: null }
+      }
+      return { body: `${before}/9`, bass }
+    }
+  }
+
   const bass = parseRoot(bassText)
   if (!bass || formatRootLength(bass) !== bassText.length) {
     return { body: symbol, bass: null }
   }
-  return { body: symbol.slice(0, idx), bass }
+  return { body: before, bass }
 }
 
 function formatRootLength(root: Root): number {
@@ -123,10 +153,12 @@ function formatRootLength(root: Root): number {
   return 1 + acc
 }
 
-function parseQualityTail(tail: string): QualityParse {
+function parseQualityTail(tail: string, symbol: string): QualityParse {
   if (tail === '' || tail === 'maj' || tail === 'ma') {
     return { quality: 'maj', extensions: [], alterations: [] }
   }
+
+  assertBalancedParens(tail, symbol)
 
   let rest = tail
   let quality: ChordQuality = 'maj'
@@ -145,12 +177,10 @@ function parseQualityTail(tail: string): QualityParse {
     }
   }
 
-  // Bare "-" minor already handled; leading "−" unicode
   if (!matchedQuality && (rest.startsWith('−') || rest.startsWith('–'))) {
     quality = 'min'
     rest = rest.slice(1)
     matchedQuality = true
-    // optional 7 after minus: -7
     if (rest.startsWith('7')) {
       quality = 'min7'
       rest = rest.slice(1)
@@ -158,16 +188,20 @@ function parseQualityTail(tail: string): QualityParse {
   }
 
   if (!matchedQuality && rest.length > 0) {
-    throw new ChordParseError(tail, `unknown quality "${tail}"`)
+    throw new ChordParseError(symbol, `unknown quality "${tail}"`)
   }
 
-  // Upgrade bare minor + trailing 7 (e.g. quality token "-" then "7")
   if (quality === 'min' && rest.startsWith('7')) {
     quality = 'min7'
     rest = rest.slice(1)
   }
 
-  // Additional alterations / parentheses content: 7(b9,#11) or 7b9
+  // Optional add9 after a quality (e.g. m7add9)
+  if (rest.startsWith('add9')) {
+    extensions.push('add9')
+    rest = rest.slice(4)
+  }
+
   rest = rest.replace(/[()]/g, '')
   while (rest.length > 0) {
     let hit = false
@@ -180,16 +214,14 @@ function parseQualityTail(tail: string): QualityParse {
       }
     }
     if (!hit) {
-      // comma / whitespace separators
       if (rest.startsWith(',') || rest.startsWith(' ')) {
         rest = rest.slice(1)
         continue
       }
-      throw new ChordParseError(tail, `unparsed suffix "${rest}"`)
+      throw new ChordParseError(symbol, `unparsed suffix "${rest}"`)
     }
   }
 
-  // Dominant with alt often written "7alt"
   if (alterations.includes('alt') && quality === 'maj') {
     quality = 'dom7'
   }
@@ -199,11 +231,13 @@ function parseQualityTail(tail: string): QualityParse {
 
 /**
  * Parse a lead-sheet chord symbol (iReal / jazz shorthand).
- * Examples: `Dm7`, `G7b9`, `Cmaj7`, `F#m7b5`, `Bb7alt`, `C/E`
+ * Examples: `Dm7`, `G7b9`, `Cmaj7`, `F#m7b5`, `Bb7alt`, `C/E`, `C6/9/E`
  */
 export function parseChordSymbol(symbol: string): Chord {
   const trimmed = symbol.trim()
   if (!trimmed) throw new ChordParseError(symbol, 'empty symbol')
+
+  assertBalancedParens(trimmed, trimmed)
 
   const { body, bass } = splitSlash(trimmed)
   const root = parseRoot(body)
@@ -211,7 +245,7 @@ export function parseChordSymbol(symbol: string): Chord {
 
   const rootLen = formatRootLength(root)
   const tail = body.slice(rootLen)
-  const { quality, extensions, alterations } = parseQualityTail(tail)
+  const { quality, extensions, alterations } = parseQualityTail(tail, trimmed)
 
   const chord: Chord = {
     root,

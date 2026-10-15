@@ -17,6 +17,7 @@ export type {
 
 export {
   formatRoot,
+  isPitchClass,
   normalizePc,
   parseRoot,
   pcToRoot,
@@ -27,7 +28,7 @@ export {
 export { chordTonePcs, isDominantFamily } from './chordTones'
 
 export { ChordParseError, parseChordSymbol, tryParseChordSymbol } from './parseChord'
-export { formatChord, formatChordCanonical } from './formatChord'
+export { formatChord, formatChordCanonical, normalizeExtensions } from './formatChord'
 
 export {
   assertValidChart,

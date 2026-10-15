@@ -60,13 +60,16 @@ function applyAlteration(tones: number[], alt: ChordAlteration): number[] {
 
 function applyExtension(tones: number[], ext: Chord['extensions'][number]): number[] {
   const set = new Set(tones.map(normalizePc))
-  if (ext === 'add9') {
-    set.add(2)
-  } else if (ext === 9) {
+  if (ext === 'add9' || ext === 9) {
     set.add(2)
   } else if (ext === 11) {
+    // Stacked 11th includes the 9th
+    set.add(2)
     set.add(5)
   } else if (ext === 13) {
+    // Stacked 13th includes 9th and 11th
+    set.add(2)
+    set.add(5)
     set.add(9)
   }
   return [...set].sort((a, b) => a - b)
@@ -82,7 +85,9 @@ export function chordTonePcs(chord: Chord): PitchClass[] {
     intervals = applyAlteration(intervals, alt)
   }
   const rootPc = rootToPc(chord.root)
-  return intervals.map((i) => normalizePc(rootPc + i))
+  return intervals
+    .map((i) => normalizePc(rootPc + i))
+    .sort((a, b) => a - b)
 }
 
 export function isDominantFamily(chord: Chord): boolean {

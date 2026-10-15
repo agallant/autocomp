@@ -1,4 +1,4 @@
-import { formatChord } from './formatChord'
+import { formatChordCanonical } from './formatChord'
 import { formatRoot, parseRoot } from './pitch'
 import { parseChordSymbol } from './parseChord'
 import type {
@@ -9,6 +9,10 @@ import type {
   Section,
   TimeSignature,
 } from './types'
+
+function isPositiveFinite(n: unknown): n is number {
+  return typeof n === 'number' && Number.isFinite(n) && n > 0
+}
 
 export function beatsPerBar(ts: TimeSignature): number {
   // Treat denominator as beat unit for chart purposes (4/4 → 4, 3/4 → 3, 6/8 → 6).
@@ -30,12 +34,19 @@ export function validateChart(chart: Chart): ChartValidationIssue[] {
   if (chart.version !== 1) {
     issues.push({ path: 'version', message: `unsupported chart version ${String(chart.version)}` })
   }
-  if (!chart.id.trim()) issues.push({ path: 'id', message: 'id is required' })
-  if (!chart.title.trim()) issues.push({ path: 'title', message: 'title is required' })
-  if (chart.defaultTempoBpm < 20 || chart.defaultTempoBpm > 400) {
-    issues.push({ path: 'defaultTempoBpm', message: 'tempo out of range (20–400)' })
+  if (typeof chart.id !== 'string' || !chart.id.trim()) {
+    issues.push({ path: 'id', message: 'id is required' })
   }
-  if (chart.timeSignature.numerator < 1 || chart.timeSignature.denominator < 1) {
+  if (typeof chart.title !== 'string' || !chart.title.trim()) {
+    issues.push({ path: 'title', message: 'title is required' })
+  }
+  if (!isPositiveFinite(chart.defaultTempoBpm) || chart.defaultTempoBpm < 20 || chart.defaultTempoBpm > 400) {
+    issues.push({ path: 'defaultTempoBpm', message: 'tempo must be a finite number in range 20–400' })
+  }
+  if (
+    !isPositiveFinite(chart.timeSignature?.numerator) ||
+    !isPositiveFinite(chart.timeSignature?.denominator)
+  ) {
     issues.push({ path: 'timeSignature', message: 'invalid time signature' })
   }
 
@@ -55,25 +66,32 @@ export function validateChart(chart: Chart): ChartValidationIssue[] {
     }
     for (const [bi, bar] of section.bars.entries()) {
       const expected = barBeats(bar, chart.timeSignature)
-      const sum = slotBeatSum(bar.slots)
       if (bar.slots.length === 0) {
         issues.push({
           path: `sections[${si}].bars[${bi}].slots`,
           message: 'bar has no slots',
         })
-      } else if (Math.abs(sum - expected) > 1e-6) {
+        continue
+      }
+
+      let sum = 0
+      let durationsOk = true
+      for (const [qi, slot] of bar.slots.entries()) {
+        if (!isPositiveFinite(slot.durationBeats)) {
+          durationsOk = false
+          issues.push({
+            path: `sections[${si}].bars[${bi}].slots[${qi}]`,
+            message: 'durationBeats must be a finite positive number',
+          })
+        } else {
+          sum += slot.durationBeats
+        }
+      }
+      if (durationsOk && Math.abs(sum - expected) > 1e-6) {
         issues.push({
           path: `sections[${si}].bars[${bi}].slots`,
           message: `slot beats sum to ${sum}, expected ${expected}`,
         })
-      }
-      for (const [qi, slot] of bar.slots.entries()) {
-        if (slot.durationBeats <= 0) {
-          issues.push({
-            path: `sections[${si}].bars[${bi}].slots[${qi}]`,
-            message: 'durationBeats must be positive',
-          })
-        }
       }
     }
   }
@@ -108,7 +126,7 @@ export function chartBarSymbols(chart: Chart): string[] {
   return expandChartBars(chart).map((bar) =>
     bar.slots
       .filter((s) => s.chord)
-      .map((s) => formatChord(s.chord!))
+      .map((s) => formatChordCanonical(s.chord!))
       .join(' '),
   )
 }
@@ -121,8 +139,12 @@ export function barFromSymbols(
   if (symbols.length === 0) {
     return { slots: [{ chord: null, durationBeats: beats }] }
   }
+  if (symbols.length > beats) {
+    throw new Error(
+      `More chord symbols (${symbols.length}) than beats in bar (${beats})`,
+    )
+  }
   if (beats % symbols.length !== 0) {
-    // Uneven: give remainder beats to the last slot
     const base = Math.floor(beats / symbols.length)
     let used = 0
     const slots: ChordSlot[] = symbols.map((sym, i) => {
@@ -195,7 +217,7 @@ export function chartToJson(chart: Chart): ChartJson {
       bars: section.bars.map((bar) => {
         const out: ChartJson['sections'][number]['bars'][number] = {
           slots: bar.slots.map((slot) => ({
-            chord: slot.chord ? formatChord(slot.chord) : null,
+            chord: slot.chord ? formatChordCanonical(slot.chord) : null,
             durationBeats: slot.durationBeats,
           })),
         }
@@ -217,8 +239,23 @@ export function chartFromJson(input: unknown): Chart {
   }
   const data = input as ChartJson
   if (data.version !== 1) throw new Error('Unsupported chart JSON version')
+  if (typeof data.key !== 'string') throw new Error('Invalid key')
   const key = parseRoot(data.key)
-  if (!key) throw new Error(`Invalid key "${data.key}"`)
+  if (!key || formatRoot(key) !== data.key.trim()) {
+    throw new Error(`Invalid key "${String(data.key)}"`)
+  }
+  if (!Array.isArray(data.sections) || !Array.isArray(data.form)) {
+    throw new Error('Chart JSON requires form and sections arrays')
+  }
+  if (!isPositiveFinite(data.defaultTempoBpm)) {
+    throw new Error('defaultTempoBpm must be a finite positive number')
+  }
+  if (
+    !isPositiveFinite(data.timeSignature?.numerator) ||
+    !isPositiveFinite(data.timeSignature?.denominator)
+  ) {
+    throw new Error('Invalid timeSignature')
+  }
 
   const chart: Chart = {
     version: 1,
@@ -233,10 +270,21 @@ export function chartFromJson(input: unknown): Chart {
       label: section.label,
       bars: section.bars.map((bar) => {
         const out: Bar = {
-          slots: bar.slots.map((slot) => ({
-            chord: slot.chord ? parseChordSymbol(slot.chord) : null,
-            durationBeats: slot.durationBeats,
-          })),
+          slots: bar.slots.map((slot) => {
+            if (!isPositiveFinite(slot.durationBeats)) {
+              throw new Error('Slot durationBeats must be a finite positive number')
+            }
+            if (slot.chord === null) {
+              return { chord: null, durationBeats: slot.durationBeats }
+            }
+            if (typeof slot.chord !== 'string') {
+              throw new Error('Slot chord must be a string or null')
+            }
+            return {
+              chord: parseChordSymbol(slot.chord),
+              durationBeats: slot.durationBeats,
+            }
+          }),
         }
         if (bar.rehearsalMark) out.rehearsalMark = bar.rehearsalMark
         if (bar.timeSignature) out.timeSignature = bar.timeSignature

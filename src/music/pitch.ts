@@ -13,20 +13,26 @@ const LETTER_PC: Record<NoteLetter, PitchClass> = {
 const PC_TO_LETTER: NoteLetter[] = ['C', 'C', 'D', 'D', 'E', 'F', 'F', 'G', 'G', 'A', 'A', 'B']
 const PC_ACCIDENTAL: Accidental[] = [0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0]
 
+export function isPitchClass(value: number): value is PitchClass {
+  return Number.isInteger(value) && value >= 0 && value <= 11
+}
+
 export function normalizePc(pc: number): PitchClass {
-  return ((pc % 12) + 12) % 12
+  if (!Number.isFinite(pc) || !Number.isInteger(pc)) {
+    throw new Error(`Pitch class must be a finite integer (got ${String(pc)})`)
+  }
+  return (((pc % 12) + 12) % 12) as PitchClass
 }
 
 export function rootToPc(root: Root): PitchClass {
   return normalizePc(LETTER_PC[root.letter] + root.accidental)
 }
 
-export function pcToRoot(pc: PitchClass, preferSharps = true): Root {
+export function pcToRoot(pc: number, preferSharps = true): Root {
   const n = normalizePc(pc)
   if (preferSharps) {
     return { letter: PC_TO_LETTER[n]!, accidental: PC_ACCIDENTAL[n]! }
   }
-  // Flat spellings for black keys
   const flats: Record<number, Root> = {
     1: { letter: 'D', accidental: -1 },
     3: { letter: 'E', accidental: -1 },
@@ -63,5 +69,8 @@ export function parseRoot(text: string): Root | null {
 
 /** Transpose a root by semitone delta. */
 export function transposeRoot(root: Root, semitones: number, preferSharps = true): Root {
+  if (!Number.isInteger(semitones)) {
+    throw new Error(`Transpose semitones must be an integer (got ${String(semitones)})`)
+  }
   return pcToRoot(rootToPc(root) + semitones, preferSharps)
 }

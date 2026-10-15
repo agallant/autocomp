@@ -51,4 +51,6 @@ Successful **CI on `main`** triggers [`.github/workflows/deploy.yml`](./.github/
 
 ### Important: auto-merge token
 
-GitHub does **not** start new workflows from events authored by `GITHUB_TOKEN`. The automerge Action therefore should use a PAT stored as repo secret `AUTO_MERGE_TOKEN` (fine-grained: Contents + Pull requests write on this repo). Without it, merges still work, but CI/deploy on `main` will not run until something else pushes or you re-run workflows.
+GitHub does **not** start new workflows from events authored by `GITHUB_TOKEN`. The automerge Action therefore should use a PAT stored as repo secret `AUTO_MERGE_TOKEN` (fine-grained: Contents + Pull requests write on this repo). Without it, merges still work, but CI/deploy on `main` will not run automatically.
+
+**Recovery without the secret:** in the Actions tab, manually **Run workflow** for **CI** on `main`, then (after it succeeds) **Run workflow** for **Deploy GitHub Pages** on `main`. Re-running a pull-request CI job is not enough — deploy only accepts successful `push` CI runs or a main `workflow_dispatch`.
