@@ -88,7 +88,11 @@ import {
   formDraftString,
   moveSelection,
   removeSelectedBar,
+  removeSelectedSection,
+  renameSelectedSection,
   selectBar,
+  selectedSectionId,
+  selectedSectionLabel,
   setDraftSymbol,
   setFormOrder,
   setTitle,
@@ -316,6 +320,30 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
         />
       </label>
       <button type="button" class="btn" id="add-section" title="Append a new empty section to the form">Add section</button>
+      <label
+        class="style-picker form-editor"
+        for="section-label-input"
+        title="Rename the section that owns the selected bar"
+      >
+        <span class="style-picker__label">Section</span>
+        <input
+          id="section-label-input"
+          class="style-picker__select form-editor__input"
+          type="text"
+          value="${escapeAttr(selectedSectionLabel(state))}"
+          data-section-id="${escapeAttr(selectedSectionId(state) ?? '')}"
+          spellcheck="false"
+          autocomplete="off"
+          aria-label="Selected section label"
+        />
+      </label>
+      <button
+        type="button"
+        class="btn"
+        id="remove-section"
+        title="Delete the section that owns the selected bar"
+        ${state.chart.sections.length <= 1 ? ' disabled' : ''}
+      >Delete section</button>
       <button type="button" class="btn" id="save-chart">Save</button>
       <button type="button" class="btn" id="export-chart">Export JSON</button>
       <button type="button" class="btn" id="export-midi">Export MIDI</button>
@@ -976,13 +1004,17 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
         setPersistStatus(next.error)
         return
       }
-      const apply = (): void => {
-        setEditor(next)
-        setPersistStatus(`Form ${next.chart.form.join('')}.`)
+      // Commit state immediately so a pending toolbar click (e.g. Delete)
+      // does not race a deferred setEditor snapshot.
+      editor = next
+      const applyUi = (): void => {
+        refreshChart()
+        syncPracticeLoop()
+        setPersistStatus(`Form ${editor.chart.form.join('')}.`)
       }
       // Defer DOM rebuild on blur so a pending click on another control can land.
-      if (opts.deferRebuild) setTimeout(apply, 0)
-      else apply()
+      if (opts.deferRebuild) setTimeout(applyUi, 0)
+      else applyUi()
     }
     formInput?.addEventListener('change', () => commitForm({ deferRebuild: true }))
     formInput?.addEventListener('keydown', (event) => {
@@ -991,6 +1023,38 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
         commitForm()
         formInput.blur()
       }
+    })
+    const sectionLabelInput = root.querySelector<HTMLInputElement>('#section-label-input')
+    const commitSectionLabel = (opts: { deferRebuild?: boolean } = {}): void => {
+      if (!sectionLabelInput) return
+      const next = renameSelectedSection(editor, sectionLabelInput.value)
+      if (next.error) {
+        setPersistStatus(next.error)
+        return
+      }
+      editor = next
+      const applyUi = (): void => {
+        refreshChart()
+        syncPracticeLoop()
+        setPersistStatus(`Section ${selectedSectionLabel(editor)}.`)
+      }
+      if (opts.deferRebuild) setTimeout(applyUi, 0)
+      else applyUi()
+    }
+    sectionLabelInput?.addEventListener('change', () => commitSectionLabel({ deferRebuild: true }))
+    sectionLabelInput?.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault()
+        commitSectionLabel()
+        sectionLabelInput.blur()
+      }
+    })
+    root.querySelector('#remove-section')?.addEventListener('click', () => {
+      const id = selectedSectionId(editor)
+      const next = removeSelectedSection(editor)
+      setEditor(next)
+      if (next.error) setPersistStatus(next.error)
+      else setPersistStatus(id ? `Deleted section ${id}.` : 'Deleted section.')
     })
     root.querySelector('#save-chart')?.addEventListener('click', () => {
       void (async () => {

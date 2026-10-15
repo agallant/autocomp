@@ -237,14 +237,40 @@ export function setFormOrder(state: ChartEditorState, draft: string): ChartEdito
     }
     return { ...state, error: `Unknown section “${token}”` }
   }
+  const prevLoc = locateBar(state.chart, state.selectedBarIndex)
+  const prevSectionId = prevLoc
+    ? state.chart.sections[prevLoc.sectionIndex]!.id
+    : null
+  const prevBarInSection = prevLoc?.barInSection ?? 0
+
   const chart = cloneChart(state.chart)
   chart.form = form
   assertValidChart(chart)
-  const nextIndex = Math.min(state.selectedBarIndex, expandChartBars(chart).length - 1)
+
+  // Keep the same section under the caret across form reorders so a deferred
+  // UI rebuild + Delete cannot target a different section than the highlight.
+  let selectedBarIndex = Math.min(
+    state.selectedBarIndex,
+    Math.max(0, expandChartBars(chart).length - 1),
+  )
+  if (prevSectionId && chart.sections.some((s) => s.id === prevSectionId)) {
+    let index = 0
+    for (const id of chart.form) {
+      const section = chart.sections.find((s) => s.id === id)
+      if (!section) continue
+      if (id === prevSectionId) {
+        selectedBarIndex =
+          index + Math.min(prevBarInSection, section.bars.length - 1)
+        break
+      }
+      index += section.bars.length
+    }
+  }
+
   return {
     ...state,
     chart,
-    selectedBarIndex: Math.max(0, nextIndex),
+    selectedBarIndex,
     editing: false,
     draftSymbol: '',
     error: null,
@@ -270,6 +296,67 @@ export function addSection(state: ChartEditorState): ChartEditorState {
     ...state,
     chart,
     selectedBarIndex,
+    editing: false,
+    draftSymbol: '',
+    error: null,
+  }
+}
+
+/** Section id for the selected expanded bar, if any. */
+export function selectedSectionId(state: ChartEditorState): string | null {
+  const loc = locateBar(state.chart, state.selectedBarIndex)
+  if (!loc) return null
+  return state.chart.sections[loc.sectionIndex]?.id ?? null
+}
+
+/** Display label for the selected section (falls back to id). */
+export function selectedSectionLabel(state: ChartEditorState): string {
+  const loc = locateBar(state.chart, state.selectedBarIndex)
+  if (!loc) return ''
+  const section = state.chart.sections[loc.sectionIndex]
+  if (!section) return ''
+  return section.label.trim() || section.id
+}
+
+/** Rename the selected section’s display label (id / form tokens unchanged). */
+export function renameSelectedSection(
+  state: ChartEditorState,
+  labelDraft: string,
+): ChartEditorState {
+  const loc = locateBar(state.chart, state.selectedBarIndex)
+  if (!loc) return { ...state, error: 'No section selected' }
+  const trimmed = labelDraft.trim()
+  if (!trimmed) return { ...state, error: 'Section label required' }
+  const chart = cloneChart(state.chart)
+  chart.sections[loc.sectionIndex]!.label = trimmed
+  assertValidChart(chart)
+  return { ...state, chart, error: null }
+}
+
+/**
+ * Remove the selected section from the chart and strip it from the form.
+ * Keeps at least one section; if the form would be empty, defaults to the
+ * first remaining section once.
+ */
+export function removeSelectedSection(state: ChartEditorState): ChartEditorState {
+  if (state.chart.sections.length <= 1) {
+    return { ...state, error: 'Chart must keep at least one section' }
+  }
+  const loc = locateBar(state.chart, state.selectedBarIndex)
+  if (!loc) return { ...state, error: 'No section selected' }
+  const sectionId = state.chart.sections[loc.sectionIndex]!.id
+  const chart = cloneChart(state.chart)
+  chart.sections = chart.sections.filter((s) => s.id !== sectionId)
+  chart.form = chart.form.filter((id) => id !== sectionId)
+  if (chart.form.length === 0) {
+    chart.form = [chart.sections[0]!.id]
+  }
+  assertValidChart(chart)
+  const nextIndex = Math.min(state.selectedBarIndex, expandChartBars(chart).length - 1)
+  return {
+    ...state,
+    chart,
+    selectedBarIndex: Math.max(0, nextIndex),
     editing: false,
     draftSymbol: '',
     error: null,
