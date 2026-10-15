@@ -6,7 +6,7 @@ Automatic musical accompaniment as a **client-side TypeScript PWA** — chord ch
 
 ## Status
 
-Milestone **M7** — local chart save/load (IndexedDB) plus JSON import/export, on top of the practice library and style pack. See [ROADMAP.md](./ROADMAP.md).
+Milestone **M8** — MIDI file export of the realized accompaniment, plus optional WebMIDI out where the browser supports it. See [ROADMAP.md](./ROADMAP.md).
 
 ## Chart format (preview)
 
@@ -40,7 +40,7 @@ VITE_BASE=/ npm run build && npx vite preview --base /
 
 - **Chart model** — bars, chords, form, metadata (JSON)
 - **Style engines** — generate bass / comping / drums from a chart + tempo
-- **Audio engine** — Web Audio scheduler (MIDI out optional via WebMIDI)
+- **Audio engine** — Web Audio scheduler + MIDI file export / optional WebMIDI out
 - **UI** — chart editor + transport + library (iReal-like)
 
 Everything runs on-device; GitHub Pages only hosts static assets.

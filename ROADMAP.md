@@ -21,8 +21,8 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M4 | Jazz swing style | done | Walking bass + piano comp + kit pattern for swing |
 | M5 | Style pack | done | Bossa, ballad, Latin/salsa-lite; style picker |
 | M6 | Tune library | done | Built-in practice progressions + search/tags |
-| M7 | Persistence | in progress | Local save/load charts (IndexedDB), import/export JSON |
-| M8 | MIDI I/O | planned | MIDI file export; optional WebMIDI out where supported |
+| M7 | Persistence | done | Local save/load charts (IndexedDB), import/export JSON |
+| M8 | MIDI I/O | in progress | MIDI file export; optional WebMIDI out where supported |
 | M9 | Audio render | planned | Offline bounce to WAV/MP3 (client-side encode) |
 | M10 | Variation | planned | Fills, intros/endings, solo density, humanization |
 | M11 | Generative | planned | Style-conditioned progression / reharm helpers |
@@ -97,6 +97,14 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Export chart JSON download
 - [x] Import chart JSON file into editor (+ save)
 - [x] Unit tests for memory store and JSON round-trip
+
+## M8 acceptance
+
+- [x] Offline style realization into absolute-beat MIDI notes
+- [x] Standard MIDI File (Format 1) export download
+- [x] Optional WebMIDI output (feature-detected; desktop browsers)
+- [x] Export uses current transport tempo when available
+- [x] Unit tests for realize, SMF encoding, and WebMIDI sink
 
 ## Process notes
 
