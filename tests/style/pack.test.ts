@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { createAutumnPracticeChart } from '../../src/data/autumnPractice'
+import { parseChordSymbol } from '../../src/music'
 import {
   STYLE_PACK,
   buildStyleBarContext,
@@ -38,9 +39,34 @@ describe('style pack', () => {
     const piano = createStyleById('ballad')
       .realizeBar(ctx)
       .filter((n) => n.voice === 'piano')
-    const first = piano.find((n) => n.startBeat === 0)!
-    expect(first.durationBeats).toBeLessThan(2.1)
-    expect(first.startBeat + first.durationBeats).toBeLessThanOrEqual(2)
+    for (const note of piano) {
+      const nextHit = note.startBeat < 2 ? 2 : ctx.beatsPerBar
+      expect(note.startBeat + note.durationBeats).toBeLessThanOrEqual(nextHit)
+    }
+  })
+
+  it('bossa piano comps end before the next chord slot', () => {
+    const chart = createAutumnPracticeChart()
+    // Four one-beat slots so a long shell would bleed into the next chord.
+    chart.sections[0]!.bars[0] = {
+      ...chart.sections[0]!.bars[0]!,
+      slots: [
+        { chord: parseChordSymbol('Cmaj7'), durationBeats: 1 },
+        { chord: parseChordSymbol('Am7'), durationBeats: 1 },
+        { chord: parseChordSymbol('Dm7'), durationBeats: 1 },
+        { chord: parseChordSymbol('G7'), durationBeats: 1 },
+      ],
+    }
+    const ctx = buildStyleBarContext(chart, 0)!
+    const piano = createStyleById('bossa')
+      .realizeBar(ctx)
+      .filter((n) => n.voice === 'piano')
+    expect(piano.length).toBeGreaterThan(0)
+    for (const note of piano) {
+      const slotBeat = Math.floor(note.startBeat)
+      const slotEnd = slotBeat + 1
+      expect(note.startBeat + note.durationBeats).toBeLessThanOrEqual(slotEnd)
+    }
   })
 
   it('latin anticipates bass on the and of 2/4', () => {

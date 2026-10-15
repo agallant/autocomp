@@ -37,6 +37,17 @@ function realizeBossaBass(ctx: StyleBarContext): StyleNote[] {
   return notes
 }
 
+/** End of the chord slot that contains `startBeat` (bar end if none). */
+function chordSlotEnd(ctx: StyleBarContext, startBeat: number): number {
+  let cursor = 0
+  for (const slot of ctx.bar.slots) {
+    const end = cursor + slot.durationBeats
+    if (startBeat >= cursor && startBeat < end) return end
+    cursor = end
+  }
+  return ctx.beatsPerBar
+}
+
 function realizeBossaPiano(ctx: StyleBarContext): StyleNote[] {
   const notes: StyleNote[] = []
   // Soft comps on the "&" of selected beats — sparse in short meters.
@@ -49,7 +60,7 @@ function realizeBossaPiano(ctx: StyleBarContext): StyleNote[] {
     if (!chord) continue
     const start = beat + 0.5
     if (start >= ctx.beatsPerBar) continue
-    const durationBeats = Math.min(1.2, ctx.beatsPerBar - start)
+    const durationBeats = Math.min(1.2, chordSlotEnd(ctx, start) - start)
     for (const midi of shellVoicing(chord)) {
       notes.push({
         voice: 'piano',
