@@ -33,11 +33,11 @@ describe('voice levels', () => {
     const out = applyVoiceLevels(sample, {
       bass: 0.5,
       piano: 0,
-      drums: 1,
+      drums: 0.25,
     })
     expect(out.map((n) => n.voice)).toEqual(['bass', 'drums'])
     expect(out[0]!.velocity).toBeCloseTo(0.4, 9)
-    expect(out[1]!.velocity).toBe(0.6)
+    expect(out[1]!.velocity).toBeCloseTo(0.15, 9)
   })
 
   it('is a no-op at default levels', () => {
@@ -52,7 +52,7 @@ describe('voice levels', () => {
     const leveled = createLeveledStyle(createJazzSwingStyle(), {
       bass: 0.5,
       piano: 0.25,
-      drums: 1,
+      drums: 0.4,
     }).realizeBar(ctx)
 
     const baseBass = base.filter((n) => n.voice === 'bass')
@@ -63,5 +63,10 @@ describe('voice levels', () => {
     const basePiano = base.filter((n) => n.voice === 'piano')
     const leveledPiano = leveled.filter((n) => n.voice === 'piano')
     expect(leveledPiano[0]!.velocity).toBeCloseTo(basePiano[0]!.velocity * 0.25, 9)
+
+    const baseDrums = base.filter((n) => n.voice === 'drums')
+    const leveledDrums = leveled.filter((n) => n.voice === 'drums')
+    expect(leveledDrums).toHaveLength(baseDrums.length)
+    expect(leveledDrums[0]!.velocity).toBeCloseTo(baseDrums[0]!.velocity * 0.4, 9)
   })
 })
