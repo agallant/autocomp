@@ -94,6 +94,7 @@ import {
   type PracticeLoop,
 } from './practiceLoop'
 import { savedListHtml } from './savedView'
+import { createTapTempoState, tapTempo } from './tapTempo'
 import { TransportController, type TransportState } from './transport'
 
 export type MountAppOptions = {
@@ -121,6 +122,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
   let variationEndings = DEFAULT_VARIATION.endings
   let voiceEnabled: VoiceMuteState = { ...DEFAULT_VOICE_MUTE }
   let practiceLoop: PracticeLoop = { ...DEFAULT_PRACTICE_LOOP }
+  const tapTempoState = createTapTempoState()
   let generateKind: ProgressionKind = styleGenerateHints(styleId).defaultKind
   let generateKey: Root = { letter: 'C', accidental: 0 }
   let reharmMode: ReharmMode = 'ii-before-v'
@@ -230,6 +232,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
             </button>
             <button type="button" class="btn" id="tempo-down" aria-label="Decrease tempo">−10</button>
             <button type="button" class="btn" id="tempo-up" aria-label="Increase tempo">+10</button>
+            <button type="button" class="btn" id="tempo-tap" aria-label="Tap tempo">Tap</button>
           </div>
           <div class="transport__readout">
             <span>Tempo <strong id="tempo-readout">${editor.chart.defaultTempoBpm}</strong> BPM</span>
@@ -684,6 +687,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     playLabel = playToggle?.querySelector('span') ?? null
     const tempoDown = root.querySelector<HTMLButtonElement>('#tempo-down')
     const tempoUp = root.querySelector<HTMLButtonElement>('#tempo-up')
+    const tempoTap = root.querySelector<HTMLButtonElement>('#tempo-tap')
     tempoReadout = root.querySelector('#tempo-readout')
     barReadout = root.querySelector('#bar-readout')
     beatReadout = root.querySelector('#beat-readout')
@@ -717,6 +721,17 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       if (!transport) return
       transport.setTempo(transport.getState().tempoBpm + 10)
       syncTransportStyle({ stopSources: false })
+    })
+    tempoTap?.addEventListener('click', () => {
+      if (!transport) return
+      const bpm = tapTempo(tapTempoState, performance.now())
+      if (bpm === null) {
+        setPersistStatus('Tap again to set tempo…')
+        return
+      }
+      transport.setTempo(bpm)
+      syncTransportStyle({ stopSources: false })
+      setPersistStatus(`Tempo ${bpm} BPM (tap).`)
     })
   }
 
