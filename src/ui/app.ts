@@ -1,6 +1,17 @@
 import { createAutumnPracticeChart } from '../data/practiceCharts'
 import { APP_VERSION } from '../lib/version'
 import { TUNE_LIBRARY, getTuneById, type TuneTag } from '../library'
+import {
+  chartToMidiBytes,
+  createWebMidiSink,
+  getMidiOutput,
+  isWebMidiSupported,
+  listMidiOutputs,
+  midiDownloadFilename,
+  midiToDownloadBlob,
+  type MidiOutputInfo,
+  type WebMidiSink,
+} from '../midi'
 import type { Chart } from '../music'
 import {
   STYLE_PACK,
@@ -51,6 +62,12 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
   let library = createLibraryViewState('autumn-practice')
   let savedCharts: SavedChartMeta[] = []
   let persistStatus = ''
+  let midiOutputs: MidiOutputInfo[] = []
+  let midiOutputId = ''
+  let midiSink: WebMidiSink | null = null
+  /** Bumps on each MIDI-out selection so stale async opens are ignored. */
+  let midiSelectGeneration = 0
+  const webMidiAvailable = isWebMidiSupported()
   const charts = options.chartRepository ?? createDefaultChartRepository()
 
   const renderShell = (): void => {
@@ -144,7 +161,8 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       <button type="button" class="btn" id="add-bar">Add bar</button>
       <button type="button" class="btn" id="remove-bar">Remove bar</button>
       <button type="button" class="btn" id="save-chart">Save</button>
-      <button type="button" class="btn" id="export-chart">Export</button>
+      <button type="button" class="btn" id="export-chart">Export JSON</button>
+      <button type="button" class="btn" id="export-midi">Export MIDI</button>
       <label class="btn chart-toolbar__file">
         Import
         <input id="import-chart" class="sr-only" type="file" accept="application/json,.json" />
@@ -158,6 +176,22 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
           ).join('')}
         </select>
       </label>
+      ${
+        webMidiAvailable
+          ? `<label class="style-picker" for="midi-out-select">
+        <span class="style-picker__label">MIDI out</span>
+        <select id="midi-out-select" class="style-picker__select" aria-label="MIDI output device">
+          <option value="">None (audio only)</option>
+          ${midiOutputs
+            .map(
+              (out) =>
+                `<option value="${escapeAttr(out.id)}"${out.id === midiOutputId ? ' selected' : ''}>${escapeHtml(out.name)}</option>`,
+            )
+            .join('')}
+        </select>
+      </label>`
+          : ''
+      }
     </div>
     <p class="chart-error" id="chart-error" role="status">${escapeHtml(state.error ?? persistStatus)}</p>
     <div class="bars" id="bars">
@@ -284,6 +318,67 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     if (select && select.value !== nextId) select.value = nextId
   }
 
+  const refreshMidiOutputs = async (): Promise<void> => {
+    if (!webMidiAvailable) return
+    try {
+      midiOutputs = await listMidiOutputs()
+      const select = root.querySelector<HTMLSelectElement>('#midi-out-select')
+      if (!select) return
+      const previous = select.value
+      select.innerHTML = `<option value="">None (audio only)</option>${midiOutputs
+        .map(
+          (out) =>
+            `<option value="${escapeAttr(out.id)}">${escapeHtml(out.name)}</option>`,
+        )
+        .join('')}`
+      const keep =
+        previous && midiOutputs.some((out) => out.id === previous)
+          ? previous
+          : midiOutputId && midiOutputs.some((out) => out.id === midiOutputId)
+            ? midiOutputId
+            : ''
+      select.value = keep
+    } catch {
+      setPersistStatus('Could not access MIDI devices.')
+    }
+  }
+
+  const clearMidiOutSelect = (): void => {
+    const select = root.querySelector<HTMLSelectElement>('#midi-out-select')
+    if (select) select.value = ''
+  }
+
+  const applyMidiOutput = async (id: string): Promise<void> => {
+    const generation = ++midiSelectGeneration
+    midiSink?.dispose()
+    midiSink = null
+    transport?.setMidiSink(null)
+    midiOutputId = id
+    if (!id) {
+      setPersistStatus('MIDI out disabled.')
+      return
+    }
+    try {
+      const output = await getMidiOutput(id)
+      if (generation !== midiSelectGeneration) return
+      if (!output) {
+        setPersistStatus('MIDI output not found.')
+        midiOutputId = ''
+        clearMidiOutSelect()
+        return
+      }
+      midiSink = createWebMidiSink(output)
+      transport?.setMidiSink(midiSink)
+      setPersistStatus(`MIDI out → ${output.name || id}.`)
+    } catch {
+      if (generation !== midiSelectGeneration) return
+      midiOutputId = ''
+      clearMidiOutSelect()
+      transport?.setMidiSink(null)
+      setPersistStatus('Could not open MIDI output.')
+    }
+  }
+
   const bindTransport = (): void => {
     playToggle = root.querySelector('#play-toggle')
     playLabel = playToggle?.querySelector('span') ?? null
@@ -303,6 +398,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       style: createStyleById(styleId),
       getChart: () => editor.chart,
       metronomeEnabled: false,
+      midiSink,
     })
     transport.setTempo(editor.chart.defaultTempoBpm || desc.suggestedTempoBpm)
 
@@ -418,6 +514,29 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
         setPersistStatus('Could not export chart.')
       }
     })
+    root.querySelector('#export-midi')?.addEventListener('click', () => {
+      try {
+        const tempoBpm = transport?.getState().tempoBpm ?? editor.chart.defaultTempoBpm
+        const bytes = chartToMidiBytes(editor.chart, createStyleById(styleId), { tempoBpm })
+        const blob = midiToDownloadBlob(bytes)
+        const url = URL.createObjectURL(blob)
+        const anchor = document.createElement('a')
+        anchor.href = url
+        anchor.download = midiDownloadFilename(editor.chart)
+        anchor.click()
+        setTimeout(() => URL.revokeObjectURL(url), 1000)
+        setPersistStatus(`Exported ${midiDownloadFilename(editor.chart)}.`)
+      } catch {
+        setPersistStatus('Could not export MIDI.')
+      }
+    })
+    root.querySelector('#midi-out-select')?.addEventListener('focus', () => {
+      void refreshMidiOutputs()
+    })
+    root.querySelector('#midi-out-select')?.addEventListener('change', (event) => {
+      const value = (event.target as HTMLSelectElement).value
+      void applyMidiOutput(value)
+    })
     root.querySelector<HTMLInputElement>('#import-chart')?.addEventListener('change', (event) => {
       const input = event.target as HTMLInputElement
       const file = input.files?.[0]
@@ -526,6 +645,8 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
   return () => {
     window.removeEventListener('keydown', onKeyDown)
     transport?.dispose()
+    midiSink?.dispose()
+    midiSink = null
   }
 }
 

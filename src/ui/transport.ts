@@ -7,6 +7,7 @@ import {
   type ScheduledBeat,
   type ScheduledSource,
 } from '../audio'
+import type { WebMidiSink } from '../midi'
 import { beatsPerBar, expandChartBars, type Chart } from '../music'
 import { buildStyleBarContext, type StyleEngine } from '../style'
 
@@ -39,6 +40,8 @@ export type TransportOptions = TransportCallbacks & {
   style?: StyleEngine | null
   /** Live chart provider used by the style engine. */
   getChart?: () => Chart
+  /** Optional WebMIDI sink mirroring scheduled style notes. */
+  midiSink?: WebMidiSink | null
 }
 
 /**
@@ -65,6 +68,7 @@ export class TransportController {
   private metronomeEnabled: boolean
   private style: StyleEngine | null
   private getChart: (() => Chart) | null
+  private midiSink: WebMidiSink | null
   private readonly injectedContext: AudioContext | undefined
 
   private ctx: AudioContext | null = null
@@ -86,6 +90,7 @@ export class TransportController {
     this.clearIntervalFn = options.clearIntervalFn ?? clearInterval
     this.style = options.style ?? null
     this.getChart = options.getChart ?? null
+    this.midiSink = options.midiSink ?? null
     this.metronomeEnabled =
       options.metronomeEnabled !== undefined
         ? options.metronomeEnabled
@@ -105,6 +110,7 @@ export class TransportController {
   setStyle(style: StyleEngine | null): void {
     // Drop in-flight notes from the previous style so long ballad tones don't overlap.
     this.stopAudioSources()
+    this.midiSink?.clear()
     this.style = style
     this.state = { ...this.state, styleId: style?.id ?? null }
     this.emit()
@@ -112,6 +118,11 @@ export class TransportController {
 
   setChartProvider(getChart: () => Chart): void {
     this.getChart = getChart
+  }
+
+  setMidiSink(sink: WebMidiSink | null): void {
+    this.midiSink?.clear()
+    this.midiSink = sink
   }
 
   setMetronomeEnabled(enabled: boolean): void {
@@ -176,6 +187,7 @@ export class TransportController {
     this.scheduler = null
     this.clearUiTimers()
     this.stopAudioSources()
+    this.midiSink?.clear()
     this.state = { ...this.state, playing: false, bar: 1, beat: 1 }
     this.emit()
   }
@@ -237,6 +249,7 @@ export class TransportController {
       for (const source of scheduleStyleNote(ctx, note, when, secondsPerBeat)) {
         this.trackAudioSource(source)
       }
+      this.midiSink?.scheduleNote(note, when, ctx.currentTime, secondsPerBeat)
     }
   }
 
