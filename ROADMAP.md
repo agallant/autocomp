@@ -50,6 +50,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M33 | Count-in length | done | Choose 0 / 1 / 2 / 4 bar count-in |
 | M34 | Tempo shortcuts | done | Keyboard tempo ±10 ([ ] / - =) |
 | M35 | Density shortcut | done | D cycles Solo → Sparse → Normal → Dense |
+| M36 | Practice prefs | in progress | Persist mix / click / count-in / density locally |
 
 ## M0 acceptance
 
@@ -261,7 +262,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Per-voice range next to mute toggles; zero silences ringing notes
 - [x] Shared live / MIDI / WAV path via style wrap
 - [x] Unit tests for clamp, scale, and style wrap
-- [ ] Persist mix with saved charts deferred
+- [x] Persist mix locally (M36); per-chart mix deferred
 
 ## M26 acceptance
 
@@ -303,7 +304,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Toolbar Click lvl range; live updates without restart
 - [x] Zero level schedules no click oscillators
 - [x] Unit tests for clamp, scaling, and silence
-- [ ] Persist click level with saved charts deferred
+- [x] Persist click level locally (M36); per-chart deferred
 
 ## M31 acceptance
 
@@ -326,7 +327,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Count-in length select: Off / 1 / 2 / 4 bars (`clampCountInBars` 0–8)
 - [x] Shared live / MIDI / WAV path via `variationOptions.countInBars`
 - [x] Unit tests for clamp and multi-bar beat length
-- [ ] Persist count-in preference deferred
+- [x] Persist count-in preference locally (M36)
 
 ## M34 acceptance
 
@@ -341,6 +342,13 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Updates density select + live style wrap
 - [x] Unit tests for key map and cycle order
 - [ ] Direct density number keys deferred
+
+## M36 acceptance
+
+- [x] `localStorage` practice prefs: voice mix/mute, click level, metronome, count-in, density, swing, fills, humanize, endings
+- [x] Load on mount; save on change (injectable storage for tests)
+- [x] Unit tests for normalize / round-trip / corrupt payloads
+- [ ] Per-chart prefs deferred
 
 ## Process notes
 
