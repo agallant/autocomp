@@ -6,7 +6,7 @@ Automatic musical accompaniment as a **client-side TypeScript PWA** — chord ch
 
 ## Status
 
-Milestone **M10** — section fills, optional count-in, and seeded humanization on a bundled sample kit (see `public/samples/LICENSE.md`). See [ROADMAP.md](./ROADMAP.md).
+Milestone **M11** — style-conditioned progression generation and selected-bar reharmonization helpers. See [ROADMAP.md](./ROADMAP.md).
 
 ## Chart format (preview)
 
