@@ -717,7 +717,10 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     })
     transport.setTempo(tempoBpm)
 
-    playToggle?.addEventListener('click', () => transport?.toggle())
+    playToggle?.addEventListener('click', () => {
+      // Start from the selected chart bar (iReal-like); Stop still via toggle.
+      transport?.toggle({ formBar: editor.selectedBarIndex + 1 })
+    })
     tempoDown?.addEventListener('click', () => {
       if (!transport) return
       transport.setTempo(transport.getState().tempoBpm - 10)

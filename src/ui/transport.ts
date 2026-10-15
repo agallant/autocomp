@@ -90,6 +90,11 @@ export class TransportController {
   /** Count-in changes while playing apply on the next `play()`. */
   private pendingCountInBars: number | null = null
   private practiceLoop: PracticeLoop
+  /**
+   * Added to the post-count-in pass index so Play can start mid-form.
+   * Cleared on stop / Follow seek.
+   */
+  private startFormOffset = 0
   private readonly injectedContext: AudioContext | undefined
 
   private ctx: AudioContext | null = null
@@ -204,15 +209,19 @@ export class TransportController {
     this.midiSink?.clearVoices(voices)
   }
 
-  toggle(): void {
+  toggle(options: { formBar?: number } = {}): void {
     if (this.state.playing || this.starting) {
       this.stop()
     } else {
-      void this.play()
+      void this.play(options)
     }
   }
 
-  async play(): Promise<void> {
+  /**
+   * Start playback. Optional `formBar` (1-based) starts after count-in at that
+   * chart bar (clamped into an active A–B loop). Defaults to bar 1.
+   */
+  async play(options: { formBar?: number } = {}): Promise<void> {
     if (this.state.playing || this.starting) return
     this.starting = true
     const generation = ++this.playGeneration
@@ -240,10 +249,21 @@ export class TransportController {
       this.pendingCountInBars = null
     }
 
+    const chart = this.getChart?.()
+    const total = chart ? expandChartBars(chart).length : 0
+    const requested = options.formBar ?? 1
+    const { formBar: startBar, passIndex } = passIndexForFormBar(
+      requested,
+      total,
+      this.practiceLoop,
+    )
+    this.startFormOffset = Math.max(0, passIndex - 1)
+
     this.state = {
       ...this.state,
       playing: true,
-      bar: 1,
+      // Count-in shows as bar 0; otherwise land on the play-from target immediately.
+      bar: this.countInBars > 0 ? 0 : startBar,
       beat: 1,
       audioReady: true,
     }
@@ -270,6 +290,7 @@ export class TransportController {
     this.clearUiTimers()
     this.stopAudioSources()
     this.midiSink?.clear()
+    this.startFormOffset = 0
     this.state = { ...this.state, playing: false, bar: 1, beat: 1 }
     this.emit()
   }
@@ -299,6 +320,8 @@ export class TransportController {
     this.stopAudioSources()
     this.midiSink?.clear()
     this.clearUiTimers()
+    // Absolute pass — drop any play-from offset so Follow lands correctly.
+    this.startFormOffset = 0
     const schedulerBar = passIndex + this.countInBars
     this.scheduler.seek(schedulerBar, 1)
     this.state = { ...this.state, bar: target, beat: 1 }
@@ -332,7 +355,7 @@ export class TransportController {
 
   /** 1-based chart form bar for a scheduler bar after count-in. */
   private formBarForSchedulerBar(schedulerBar: number, totalBars: number): number {
-    const pass = schedulerBar - this.countInBars
+    const pass = schedulerBar - this.countInBars + this.startFormOffset
     return resolveLoopedFormBar(pass, totalBars, this.practiceLoop)
   }
 
