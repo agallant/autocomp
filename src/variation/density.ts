@@ -9,8 +9,9 @@ function denseExtraBeats(beatsPerBar: number): number[] {
 }
 
 /**
- * Thin or thicken piano/drum texture without rewriting style engines.
- * Bass lines are always preserved.
+ * Thin or thicken accompaniment without rewriting style engines.
+ * - solo: no piano, half-time bass, kick+ride only (room to practice)
+ * - sparse/dense: piano/drum texture; bass preserved
  */
 export function applyCompDensity(
   ctx: StyleBarContext,
@@ -18,6 +19,25 @@ export function applyCompDensity(
   density: CompDensity,
 ): StyleNote[] {
   if (density === 'normal') return notes
+
+  if (density === 'solo') {
+    return notes
+      .filter((n) => {
+        if (n.voice === 'piano') return false
+        if (n.voice === 'bass') {
+          // Keep integer even beats (0, 2, …) for a lighter walk.
+          const beat = Math.round(n.startBeat)
+          return Math.abs(n.startBeat - beat) <= 1e-9 && beat % 2 === 0
+        }
+        if (n.voice === 'drums') {
+          return n.drum === 'kick' || n.drum === 'ride'
+        }
+        return true
+      })
+      .map((n) =>
+        n.voice === 'bass' ? { ...n, velocity: Math.min(n.velocity, 0.52) } : n,
+      )
+  }
 
   if (density === 'sparse') {
     const pianoStarts = notes.filter((n) => n.voice === 'piano').map((n) => n.startBeat)

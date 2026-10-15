@@ -18,6 +18,17 @@ describe('applyCompDensity', () => {
     expect(applyCompDensity(ctx, base, 'normal')).toEqual(base)
   })
 
+  it('removes piano and thins bass/drums for solo practice', () => {
+    const solo = applyCompDensity(ctx, base, 'solo')
+    expect(solo.some((n) => n.voice === 'piano')).toBe(false)
+    expect(solo.some((n) => n.voice === 'drums' && n.drum === 'hat')).toBe(false)
+    expect(solo.some((n) => n.voice === 'drums' && n.drum === 'snare')).toBe(false)
+    const bass = solo.filter((n) => n.voice === 'bass')
+    expect(bass.length).toBeGreaterThan(0)
+    expect(bass.length).toBeLessThan(base.filter((n) => n.voice === 'bass').length)
+    expect(bass.every((n) => Math.round(n.startBeat) % 2 === 0)).toBe(true)
+  })
+
   it('keeps the earliest piano onset and drops hats when sparse', () => {
     const sparse = applyCompDensity(ctx, base, 'sparse')
     const pianoStarts = [

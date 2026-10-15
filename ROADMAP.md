@@ -36,7 +36,8 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M19 | Practice loop | done | A–B form-bar loop for focused practice |
 | M20 | Tap tempo | done | Tap to set tempo from a beat pulse |
 | M21 | Metronome click | done | Toggle click track during playback |
-| M22 | Play from bar | in progress | Start playback at the selected chart bar |
+| M22 | Play from bar | done | Start playback at the selected chart bar |
+| M23 | Solo density | in progress | Thinner backing for solo practice |
 
 ## M0 acceptance
 
@@ -226,6 +227,13 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Unit test for mid-form start
 - [ ] Visual “playhead from here” affordance deferred
 - [ ] Manual playback checks (mid-form start, restart from top, loop clamp) deferred
+
+## M23 acceptance
+
+- [x] `solo` density: no piano, even-beat bass, kick+ride only
+- [x] Density picker includes Solo; shared live/MIDI/WAV path
+- [x] Unit tests for solo thinning
+- [ ] Per-voice solo mix deferred
 
 ## Process notes
 
