@@ -12,6 +12,11 @@ import {
   type MidiOutputInfo,
   type WebMidiSink,
 } from '../midi'
+import {
+  chartToWavBytes,
+  wavDownloadFilename,
+  wavToDownloadBlob,
+} from '../render'
 import type { Chart } from '../music'
 import {
   STYLE_PACK,
@@ -163,6 +168,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       <button type="button" class="btn" id="save-chart">Save</button>
       <button type="button" class="btn" id="export-chart">Export JSON</button>
       <button type="button" class="btn" id="export-midi">Export MIDI</button>
+      <button type="button" class="btn" id="export-wav">Export WAV</button>
       <label class="btn chart-toolbar__file">
         Import
         <input id="import-chart" class="sr-only" type="file" accept="application/json,.json" />
@@ -529,6 +535,30 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       } catch {
         setPersistStatus('Could not export MIDI.')
       }
+    })
+    root.querySelector('#export-wav')?.addEventListener('click', () => {
+      const button = root.querySelector<HTMLButtonElement>('#export-wav')
+      if (button?.disabled) return
+      void (async () => {
+        if (button) button.disabled = true
+        setPersistStatus('Rendering WAV…')
+        try {
+          const tempoBpm = transport?.getState().tempoBpm ?? editor.chart.defaultTempoBpm
+          const bytes = await chartToWavBytes(editor.chart, createStyleById(styleId), { tempoBpm })
+          const blob = wavToDownloadBlob(bytes)
+          const url = URL.createObjectURL(blob)
+          const anchor = document.createElement('a')
+          anchor.href = url
+          anchor.download = wavDownloadFilename(editor.chart)
+          anchor.click()
+          setTimeout(() => URL.revokeObjectURL(url), 1000)
+          setPersistStatus(`Exported ${wavDownloadFilename(editor.chart)}.`)
+        } catch {
+          setPersistStatus('Could not export WAV.')
+        } finally {
+          if (button) button.disabled = false
+        }
+      })()
     })
     root.querySelector('#midi-out-select')?.addEventListener('focus', () => {
       void refreshMidiOutputs()

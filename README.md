@@ -6,7 +6,7 @@ Automatic musical accompaniment as a **client-side TypeScript PWA** — chord ch
 
 ## Status
 
-Milestone **M8** — MIDI file export of the realized accompaniment, plus optional WebMIDI out where the browser supports it. See [ROADMAP.md](./ROADMAP.md).
+Milestone **M9** — offline bounce of the accompaniment to a WAV download (same synth path as live Play). See [ROADMAP.md](./ROADMAP.md).
 
 ## Chart format (preview)
 
