@@ -1,10 +1,12 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { createAutumnPracticeChart } from '../../src/data/autumnPractice'
 import { createRhythmLabChart } from '../../src/data/practiceCharts'
 import { createEditorState, selectBar } from '../../src/ui/chartEditor'
 import {
   chartMetaLine,
   expandBarMeta,
+  INITIAL_PLAYHEAD_SCROLL,
+  nextPlayheadScroll,
   renderEditableBars,
   syncBarPlayhead,
 } from '../../src/ui/chartView'
@@ -56,6 +58,7 @@ describe('chartView', () => {
     const makeBar = (index: number) => {
       const classes = new Set<string>(['bar'])
       const attrs = new Map<string, string>()
+      const scrollIntoView = vi.fn()
       return {
         dataset: { index: String(index) },
         classList: {
@@ -73,8 +76,10 @@ describe('chartView', () => {
         removeAttribute: (name: string) => {
           attrs.delete(name)
         },
+        scrollIntoView,
         hasClass: (name: string) => classes.has(name),
         hasAttr: (name: string) => attrs.has(name),
+        scrollCalls: scrollIntoView.mock.calls as unknown[][],
       }
     }
     const barEls = [0, 1, 2].map(makeBar)
@@ -90,6 +95,28 @@ describe('chartView', () => {
     expect(barEls[2]!.hasClass('bar--playhead')).toBe(true)
     expect(barEls[0]!.hasClass('bar--play-from')).toBe(false)
     expect(barEls[2]!.hasAttr('aria-current')).toBe(true)
+    expect(barEls[2]!.scrollCalls).toHaveLength(0)
+
+    syncBarPlayhead(barsRoot, {
+      selectedBarIndex: 0,
+      playheadBarIndex: 2,
+      playing: true,
+      scrollIntoView: true,
+    })
+    expect(barEls[2]!.scrollCalls).toEqual([
+      [{ block: 'nearest', inline: 'nearest', behavior: 'smooth' }],
+    ])
+
+    syncBarPlayhead(barsRoot, {
+      selectedBarIndex: 0,
+      playheadBarIndex: 1,
+      playing: true,
+      scrollIntoView: true,
+      reduceMotion: true,
+    })
+    expect(barEls[1]!.scrollCalls).toEqual([
+      [{ block: 'nearest', inline: 'nearest', behavior: 'auto' }],
+    ])
 
     syncBarPlayhead(barsRoot, {
       selectedBarIndex: 1,
@@ -139,6 +166,24 @@ describe('chartView', () => {
     expect(html).toMatch(/data-index="24"[^>]*data-section="A"/)
     expect(html).toContain('bar__section')
     expect(chartMetaLine(chart)).toContain('Form AABA')
+  })
+
+  it('re-arms playhead scroll on beat-1 wrap for a one-bar loop', () => {
+    let mem = INITIAL_PLAYHEAD_SCROLL
+    let step = nextPlayheadScroll(mem, 3, 1, true)
+    expect(step.scroll).toBe(true)
+    mem = step.memory
+    step = nextPlayheadScroll(mem, 3, 1, true)
+    expect(step.scroll).toBe(false)
+    mem = step.memory
+    step = nextPlayheadScroll(mem, 3, 2, true)
+    expect(step.scroll).toBe(false)
+    mem = step.memory
+    step = nextPlayheadScroll(mem, 3, 1, true)
+    expect(step.scroll).toBe(true)
+    mem = step.memory
+    step = nextPlayheadScroll(mem, 4, 1, true)
+    expect(step.scroll).toBe(true)
   })
 
   it('falls back to section id when the label is empty', () => {

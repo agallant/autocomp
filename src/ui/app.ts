@@ -94,7 +94,14 @@ import {
   setTitle,
   type ChartEditorState,
 } from './chartEditor'
-import { chartMetaLine, renderEditableBars, syncBarPlayhead } from './chartView'
+import {
+  chartMetaLine,
+  INITIAL_PLAYHEAD_SCROLL,
+  nextPlayheadScroll,
+  renderEditableBars,
+  syncBarPlayhead,
+  type PlayheadScrollMemory,
+} from './chartView'
 import {
   createLibraryViewState,
   libraryControlsHtml,
@@ -616,6 +623,8 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
   let beatReadout: HTMLElement | null = null
   let statusDot: HTMLElement | null = null
   let sessionStatus: HTMLElement | null = null
+  /** Playhead scroll arming (re-scrolls on beat-1 wrap for A–B loops). */
+  let playheadScroll: PlayheadScrollMemory = INITIAL_PLAYHEAD_SCROLL
 
   const renderTransport = (state: TransportState): void => {
     if (!playToggle || !playLabel || !tempoReadout || !barReadout || !beatReadout || !statusDot || !sessionStatus) {
@@ -642,10 +651,23 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     if (barsRoot) {
       const playheadBarIndex =
         state.playing && state.bar >= 1 ? state.bar - 1 : null
+      const scrollDecision = nextPlayheadScroll(
+        playheadScroll,
+        playheadBarIndex,
+        state.beat,
+        state.playing,
+      )
+      playheadScroll = scrollDecision.memory
+      const reduceMotion =
+        typeof window !== 'undefined' &&
+        typeof window.matchMedia === 'function' &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches
       syncBarPlayhead(barsRoot, {
         selectedBarIndex: editor.selectedBarIndex,
         playheadBarIndex,
         playing: state.playing,
+        scrollIntoView: scrollDecision.scroll,
+        reduceMotion,
       })
     }
   }
