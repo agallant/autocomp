@@ -6,11 +6,7 @@ Automatic musical accompaniment as a **client-side TypeScript PWA** — chord ch
 
 ## Status
 
-<<<<<<< HEAD
-Live / WAV playback uses a small bundled sample kit (CC0 drums/bass + public-domain piano) under `public/samples/` — see `public/samples/LICENSE.md`. See [ROADMAP.md](./ROADMAP.md).
-=======
-Milestone **M10** — section fills, optional count-in, and seeded humanization (shared live / MIDI / WAV path). See [ROADMAP.md](./ROADMAP.md).
->>>>>>> 39518ff (M10: Section fills, count-in, and seeded humanization)
+Milestone **M10** — section fills, optional count-in, and seeded humanization on a bundled sample kit (CC0 drums/bass + public-domain piano; see `public/samples/LICENSE.md`). See [ROADMAP.md](./ROADMAP.md).
 
 ## Chart format (preview)
 
