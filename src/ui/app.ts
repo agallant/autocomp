@@ -9,7 +9,9 @@ import {
   type ProgressionKind,
   type ReharmMode,
 } from '../generate'
+import { FollowEngine, MicCapture, type FollowSnapshot } from '../listen'
 import { APP_VERSION } from '../lib/version'
+import { getAudioContext, unlockAudioContext } from '../audio'
 import { TUNE_LIBRARY, getTuneById, type TuneTag } from '../library'
 import {
   chartToMidiBytes,
@@ -97,7 +99,16 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
   let generateKind: ProgressionKind = styleGenerateHints(styleId).defaultKind
   let generateKey: Root = { letter: 'C', accidental: 0 }
   let reharmMode: ReharmMode = 'ii-before-v'
+  let followEnabled = false
+  let followEngine: FollowEngine | null = null
+  let followSnapshot: FollowSnapshot = {
+    match: null,
+    locked: false,
+    status: 'idle',
+    message: 'Follow off',
+  }
   const webMidiAvailable = isWebMidiSupported()
+  const followSupported = MicCapture.isSupported()
   const charts = options.chartRepository ?? createDefaultChartRepository()
 
   const GENERATE_KEYS: Root[] = [
@@ -245,6 +256,16 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
         <label class="variation-toggle">
           <input type="checkbox" id="var-humanize"${variationHumanize ? ' checked' : ''} />
           <span>Humanize</span>
+        </label>
+        <label class="variation-toggle" title="${
+          followSupported
+            ? 'Listen on the mic and seek accompaniment to matching chart chords'
+            : 'Microphone not available in this browser'
+        }">
+          <input type="checkbox" id="var-follow"${followEnabled ? ' checked' : ''}${
+            followSupported ? '' : ' disabled'
+          } />
+          <span>Follow</span>
         </label>
       </div>
       <div class="generate-controls" role="group" aria-label="Generate progression">
@@ -401,14 +422,71 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     tempoReadout.textContent = String(state.tempoBpm)
     barReadout.textContent = String(state.bar)
     beatReadout.textContent = String(state.beat)
-    statusDot.classList.toggle('status-dot--live', state.playing)
+    statusDot.classList.toggle('status-dot--live', state.playing || followSnapshot.status === 'listening')
     const desc = getStyleDescriptor(state.styleId ?? styleId)
-    const label = state.playing
+    let label = state.playing
       ? `${desc.label} running — ${desc.blurb}.`
       : state.audioReady
         ? `Ready — press Play for ${desc.label}.`
         : `Ready — tap Play to unlock audio (required on iOS/Safari) and start ${desc.label}.`
+    if (followEnabled && followSnapshot.status !== 'idle') {
+      label = `${label} Follow: ${followSnapshot.message}`
+    }
     sessionStatus.lastChild!.textContent = ` ${label}`
+  }
+
+  const stopFollow = (): void => {
+    followEngine?.stop()
+    followEngine = null
+    followSnapshot = {
+      match: null,
+      locked: false,
+      status: 'idle',
+      message: 'Follow off',
+    }
+  }
+
+  const startFollow = async (): Promise<void> => {
+    stopFollow()
+    try {
+      const ctx = getAudioContext()
+      await unlockAudioContext(ctx).catch(() => undefined)
+      followEngine = new FollowEngine({
+        getChart: () => editor.chart,
+        getCurrentBarIndex: () => {
+          const bar = transport?.getState().bar ?? editor.selectedBarIndex + 1
+          // Transport uses 0 during count-in; clamp to 0-based form index.
+          return Math.max(0, bar - 1)
+        },
+        audioContext: ctx,
+        onChange: (snapshot) => {
+          followSnapshot = snapshot
+          if (transport) renderTransport(transport.getState())
+          else if (sessionStatus?.lastChild) {
+            sessionStatus.lastChild.textContent = ` Follow: ${snapshot.message}`
+          }
+        },
+        onSeekBar: (formBar) => {
+          if (transport?.getState().playing) {
+            transport.seekToFormBar(formBar)
+          } else {
+            setEditor(selectBar(editor, formBar - 1))
+          }
+        },
+      })
+      await followEngine.start()
+    } catch {
+      followEnabled = false
+      followSnapshot = {
+        match: null,
+        locked: false,
+        status: 'error',
+        message: 'Could not start Follow.',
+      }
+      const toggle = root.querySelector<HTMLInputElement>('#var-follow')
+      if (toggle) toggle.checked = false
+      setPersistStatus('Could not start Follow.')
+    }
   }
 
   const syncTransportStyle = (opts: { stopSources?: boolean } = {}): void => {
@@ -711,6 +789,16 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     bindVariationToggle('#var-humanize', (checked) => {
       variationHumanize = checked
     })
+    root.querySelector<HTMLInputElement>('#var-follow')?.addEventListener('change', (event) => {
+      const checked = (event.target as HTMLInputElement).checked
+      followEnabled = checked
+      if (checked) {
+        void startFollow()
+      } else {
+        stopFollow()
+        if (transport) renderTransport(transport.getState())
+      }
+    })
     root.querySelector<HTMLSelectElement>('#generate-kind')?.addEventListener('change', (event) => {
       const value = (event.target as HTMLSelectElement).value as ProgressionKind
       if (PROGRESSION_KINDS.includes(value)) generateKind = value
@@ -867,6 +955,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
 
   return () => {
     window.removeEventListener('keydown', onKeyDown)
+    stopFollow()
     transport?.dispose()
     midiSink?.dispose()
     midiSink = null

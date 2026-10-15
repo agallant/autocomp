@@ -233,6 +233,25 @@ export class TransportController {
     this.emit()
   }
 
+  /**
+   * Seek to a 1-based form bar while playing (experimental Follow).
+   * No-ops when stopped. Count-in offset is applied internally.
+   */
+  seekToFormBar(formBar: number): void {
+    if (!this.state.playing || !this.scheduler) return
+    const chart = this.getChart?.()
+    const total = chart ? expandChartBars(chart).length : 0
+    if (total <= 0) return
+    const clamped = Math.min(total, Math.max(1, Math.floor(formBar)))
+    this.stopAudioSources()
+    this.midiSink?.clear()
+    this.clearUiTimers()
+    const schedulerBar = clamped + this.countInBars
+    this.scheduler.seek(schedulerBar, 1)
+    this.state = { ...this.state, bar: clamped, beat: 1 }
+    this.emit()
+  }
+
   dispose(): void {
     this.stop()
   }

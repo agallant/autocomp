@@ -38,6 +38,28 @@ describe('LookaheadScheduler', () => {
     expect(scheduler.isRunning()).toBe(false)
   })
 
+  it('seek jumps the musical cursor while running', () => {
+    const clock = new FakeClock()
+    const scheduled: ScheduledBeat[] = []
+    const scheduler = new LookaheadScheduler({
+      clock,
+      getTempoBpm: () => 120,
+      getBeatsPerBar: () => 4,
+      scheduleAheadTime: 0.1,
+      lookaheadMs: 25,
+      setIntervalFn: vi.fn(() => 1 as unknown as ReturnType<typeof setInterval>),
+      clearIntervalFn: vi.fn(),
+      onSchedule: (beat) => scheduled.push(beat),
+    })
+    scheduler.start(0)
+    clock.currentTime = 0.2
+    scheduler.seek(3, 1)
+    scheduled.length = 0
+    scheduler.tick()
+    expect(scheduled[0]).toMatchObject({ bar: 3, beat: 1 })
+    scheduler.stop()
+  })
+
   it('uses beats-per-bar when wrapping', () => {
     const clock = new FakeClock()
     const scheduled: ScheduledBeat[] = []
