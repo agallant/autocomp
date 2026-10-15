@@ -55,31 +55,61 @@ describe('swingFeel', () => {
     const bars = expandChartBars(chart)
     const ctx = buildStyleBarContextFromBars(chart, bars, 0, { wrapNext: false })!
     const base = createJazzSwingStyle().realizeBar(ctx)
-    const straight = applyVariation(ctx, base, {
+    const opts = {
       fills: false,
       countInBars: 0,
       humanize: false,
-      density: 'normal',
-      endings: false,
-      swingFeel: 0,
-      seed: seedFromString(chart.id),
-      tempoBpm: 120,
-    })
-    const swung = applyVariation(ctx, base, {
-      fills: false,
-      countInBars: 0,
-      humanize: false,
-      density: 'normal',
+      density: 'normal' as const,
       endings: false,
       swingFeel: DEFAULT_SWING_FEEL,
       seed: seedFromString(chart.id),
       tempoBpm: 120,
-    })
+    }
+    const straight = applyVariation(ctx, base, { ...opts, swingFeel: 0 }, { styleId: 'jazz-swing' })
+    const swung = applyVariation(ctx, base, opts, { styleId: 'jazz-swing' })
     const straightSkip = straight.filter((n) => n.drum === 'ride' && Math.abs(n.startBeat - 1.5) < 1e-9)
     const swungSkip = swung.filter(
       (n) => n.drum === 'ride' && Math.abs(n.startBeat - (1 + swingFeelToRatio(DEFAULT_SWING_FEEL))) < 1e-6,
     )
     expect(straightSkip.length).toBeGreaterThan(0)
     expect(swungSkip.length).toBeGreaterThan(0)
+  })
+
+  it('does not warp bossa/Latin even-eighth syncopation at default feel', () => {
+    const chart = createAutumnPracticeChart()
+    const bars = expandChartBars(chart)
+    const ctx = buildStyleBarContextFromBars(chart, bars, 0, { wrapNext: false })!
+    const syncopated = [
+      {
+        voice: 'piano' as const,
+        midi: 60,
+        startBeat: 0.5,
+        durationBeats: 0.5,
+        velocity: 0.4,
+      },
+      {
+        voice: 'bass' as const,
+        midi: 40,
+        startBeat: 1.5,
+        durationBeats: 0.5,
+        velocity: 0.5,
+      },
+    ]
+    const viaBossa = applyVariation(
+      ctx,
+      syncopated,
+      {
+        fills: false,
+        countInBars: 0,
+        humanize: false,
+        density: 'normal',
+        endings: false,
+        swingFeel: DEFAULT_SWING_FEEL,
+        seed: seedFromString(chart.id),
+        tempoBpm: 120,
+      },
+      { styleId: 'bossa' },
+    )
+    expect(viaBossa.map((n) => n.startBeat)).toEqual([0.5, 1.5])
   })
 })

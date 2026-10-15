@@ -40,7 +40,8 @@ export function createVariedStyle(base: StyleEngine, opts: VariationOptions): St
         sectionBoundaries: boolean[]
         formPenultimate?: boolean[]
         formFinal?: boolean[]
-      } = { sectionBoundaries: boundaries }
+        styleId: string
+      } = { sectionBoundaries: boundaries, styleId: base.id }
       if (formPenultimate) applyCtx.formPenultimate = formPenultimate
       if (formFinal) applyCtx.formFinal = formFinal
       return applyVariation(ctx, base.realizeBar(ctx), opts, applyCtx)
