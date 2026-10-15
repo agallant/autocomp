@@ -1,4 +1,14 @@
 import { createAutumnPracticeChart } from '../data/practiceCharts'
+import {
+  PROGRESSION_CATALOG,
+  PROGRESSION_KINDS,
+  REHARM_CATALOG,
+  generateProgression,
+  reharmBar,
+  styleGenerateHints,
+  type ProgressionKind,
+  type ReharmMode,
+} from '../generate'
 import { APP_VERSION } from '../lib/version'
 import { TUNE_LIBRARY, getTuneById, type TuneTag } from '../library'
 import {
@@ -17,7 +27,7 @@ import {
   wavDownloadFilename,
   wavToDownloadBlob,
 } from '../render'
-import type { Chart } from '../music'
+import { formatRoot, parseRoot, type Chart, type Root } from '../music'
 import {
   STYLE_PACK,
   createStyleById,
@@ -84,8 +94,26 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
   let variationFills = DEFAULT_VARIATION.fills
   let variationCountIn = DEFAULT_VARIATION.countInBars > 0
   let variationHumanize = DEFAULT_VARIATION.humanize
+  let generateKind: ProgressionKind = styleGenerateHints(styleId).defaultKind
+  let generateKey: Root = { letter: 'C', accidental: 0 }
+  let reharmMode: ReharmMode = 'ii-before-v'
   const webMidiAvailable = isWebMidiSupported()
   const charts = options.chartRepository ?? createDefaultChartRepository()
+
+  const GENERATE_KEYS: Root[] = [
+    { letter: 'C', accidental: 0 },
+    { letter: 'D', accidental: -1 },
+    { letter: 'D', accidental: 0 },
+    { letter: 'E', accidental: -1 },
+    { letter: 'E', accidental: 0 },
+    { letter: 'F', accidental: 0 },
+    { letter: 'F', accidental: 1 },
+    { letter: 'G', accidental: 0 },
+    { letter: 'A', accidental: -1 },
+    { letter: 'A', accidental: 0 },
+    { letter: 'B', accidental: -1 },
+    { letter: 'B', accidental: 0 },
+  ]
 
   const variationOptions = (chart: Chart, tempoBpm: number): VariationOptions => ({
     fills: variationFills,
@@ -218,6 +246,40 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
           <input type="checkbox" id="var-humanize"${variationHumanize ? ' checked' : ''} />
           <span>Humanize</span>
         </label>
+      </div>
+      <div class="generate-controls" role="group" aria-label="Generate progression">
+        <label class="style-picker" for="generate-kind">
+          <span class="style-picker__label">Generate</span>
+          <select id="generate-kind" class="style-picker__select" aria-label="Progression kind">
+            ${PROGRESSION_KINDS.map((kind) => {
+              const desc = PROGRESSION_CATALOG.find((p) => p.id === kind)!
+              return `<option value="${kind}"${kind === generateKind ? ' selected' : ''}>${escapeHtml(desc.label)}</option>`
+            }).join('')}
+          </select>
+        </label>
+        <label class="style-picker" for="generate-key">
+          <span class="style-picker__label">Key</span>
+          <select id="generate-key" class="style-picker__select" aria-label="Progression key">
+            ${GENERATE_KEYS.map((key) => {
+              const label = formatRoot(key)
+              const selected = formatRoot(generateKey) === label
+              return `<option value="${escapeAttr(label)}"${selected ? ' selected' : ''}>${escapeHtml(label)}</option>`
+            }).join('')}
+          </select>
+        </label>
+        <button type="button" class="btn" id="generate-run">New chart</button>
+      </div>
+      <div class="generate-controls" role="group" aria-label="Reharmonize selection">
+        <label class="style-picker" for="reharm-mode">
+          <span class="style-picker__label">Reharm</span>
+          <select id="reharm-mode" class="style-picker__select" aria-label="Reharmonization">
+            ${REHARM_CATALOG.map(
+              (mode) =>
+                `<option value="${mode.id}"${mode.id === reharmMode ? ' selected' : ''}>${escapeHtml(mode.label)}</option>`,
+            ).join('')}
+          </select>
+        </label>
+        <button type="button" class="btn" id="reharm-run">Apply to bar</button>
       </div>
       ${
         webMidiAvailable
@@ -360,6 +422,13 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
 
   const applyStyle = (nextId: StyleId, opts: { adjustTempo: boolean }): void => {
     styleId = nextId
+    // Only reset Generate kind when the user changes the style picker (adjustTempo),
+    // not when applyChart re-applies the same style after Generate.
+    if (opts.adjustTempo) {
+      generateKind = styleGenerateHints(nextId).defaultKind
+      const kindSelect = root.querySelector<HTMLSelectElement>('#generate-kind')
+      if (kindSelect) kindSelect.value = generateKind
+    }
     const desc = getStyleDescriptor(nextId)
     if (opts.adjustTempo && transport) {
       transport.setTempo(desc.suggestedTempoBpm)
@@ -641,6 +710,48 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     })
     bindVariationToggle('#var-humanize', (checked) => {
       variationHumanize = checked
+    })
+    root.querySelector<HTMLSelectElement>('#generate-kind')?.addEventListener('change', (event) => {
+      const value = (event.target as HTMLSelectElement).value as ProgressionKind
+      if (PROGRESSION_KINDS.includes(value)) generateKind = value
+    })
+    root.querySelector<HTMLSelectElement>('#generate-key')?.addEventListener('change', (event) => {
+      const parsed = parseRoot((event.target as HTMLSelectElement).value)
+      if (parsed) generateKey = parsed
+    })
+    root.querySelector('#generate-run')?.addEventListener('click', () => {
+      try {
+        const chart = generateProgression({
+          kind: generateKind,
+          key: generateKey,
+          styleId,
+        })
+        applyChart(chart, { styleId, activeTuneId: chart.id })
+        setPersistStatus(`Generated “${chart.title}”.`)
+      } catch {
+        setPersistStatus('Could not generate progression.')
+      }
+    })
+    root.querySelector<HTMLSelectElement>('#reharm-mode')?.addEventListener('change', (event) => {
+      const value = (event.target as HTMLSelectElement).value as ReharmMode
+      if (REHARM_CATALOG.some((m) => m.id === value)) reharmMode = value
+    })
+    root.querySelector('#reharm-run')?.addEventListener('click', () => {
+      try {
+        const barIndex = editor.selectedBarIndex
+        const next = reharmBar(editor.chart, barIndex, reharmMode)
+        const changed =
+          JSON.stringify(next.sections) !== JSON.stringify(editor.chart.sections)
+        setEditor(selectBar(createEditorState(next), barIndex))
+        syncTransportStyle({ stopSources: false })
+        setPersistStatus(
+          changed
+            ? `Reharmonized bar ${barIndex + 1}.`
+            : 'Selected bar is not a dominant — nothing to reharm.',
+        )
+      } catch {
+        setPersistStatus('Could not reharmonize bar.')
+      }
     })
     root.querySelector('#midi-out-select')?.addEventListener('focus', () => {
       void refreshMidiOutputs()
