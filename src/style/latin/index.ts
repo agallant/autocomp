@@ -85,11 +85,11 @@ function realizeLatinDrums(ctx: StyleBarContext): StyleNote[] {
         if (Math.floor(t) === beat && t < ctx.beatsPerBar) {
           notes.push({
             voice: 'drums',
-            midi: 42,
-            drum: 'hat',
+            midi: 75,
+            drum: 'clave',
             startBeat: t,
             durationBeats: 0.08,
-            velocity: 0.45,
+            velocity: 0.55,
           })
         }
       }

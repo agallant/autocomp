@@ -14,7 +14,7 @@ export type StyleNote = {
   /** 0–1 velocity. */
   velocity: number
   /** Drum instrument when voice === 'drums'. */
-  drum?: 'kick' | 'snare' | 'hat' | 'ride'
+  drum?: 'kick' | 'snare' | 'hat' | 'ride' | 'clave'
 }
 
 export type StyleBarContext = {

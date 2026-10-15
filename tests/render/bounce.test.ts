@@ -124,6 +124,7 @@ describe('bounceChartToBuffer', () => {
     const rendered = await bounceChartToBuffer(short, createStyleById('jazz-swing'), {
       tempoBpm,
       sampleRate,
+      sampleKit: null, // exercise oscillator fallback path in CI
       createOfflineContext: (_channels, length, rate) => {
         captured = createMockOfflineContext(length, rate)
         return captured.ctx
@@ -152,6 +153,7 @@ describe('bounceChartToBuffer', () => {
     const wav = await chartToWavBytes(short, createStyleById('bossa'), {
       tempoBpm: 160,
       sampleRate,
+      sampleKit: null,
       createOfflineContext: (_channels, length, rate) =>
         createMockOfflineContext(length, rate).ctx,
     })

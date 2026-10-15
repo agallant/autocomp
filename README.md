@@ -6,7 +6,7 @@ Automatic musical accompaniment as a **client-side TypeScript PWA** — chord ch
 
 ## Status
 
-Milestone **M9** — offline bounce of the accompaniment to a WAV download (same synth path as live Play). See [ROADMAP.md](./ROADMAP.md).
+Live / WAV playback uses a small **CC0 sample kit** (drums, pizz bass, piano) bundled under `public/samples/` — see `public/samples/LICENSE.md`. See [ROADMAP.md](./ROADMAP.md).
 
 ## Chart format (preview)
 
@@ -40,7 +40,7 @@ VITE_BASE=/ npm run build && npx vite preview --base /
 
 - **Chart model** — bars, chords, form, metadata (JSON)
 - **Style engines** — generate bass / comping / drums from a chart + tempo
-- **Audio engine** — Web Audio scheduler + MIDI file export / optional WebMIDI out
+- **Audio engine** — Web Audio scheduler, CC0 sample kit, MIDI export / optional WebMIDI out
 - **UI** — chart editor + transport + library (iReal-like)
 
 Everything runs on-device; GitHub Pages only hosts static assets.

@@ -120,9 +120,14 @@ describe('TransportController', () => {
 
     await transport.play()
     expect(ctx.createOscillator).toHaveBeenCalled()
-    const osc = (ctx.createOscillator.mock.results[0]!.value as FakeOsc)
-    expect(osc.frequency.setValueAtTime).toHaveBeenCalledWith(1200, expect.any(Number))
-    expect(osc.start).toHaveBeenCalled()
+    // Unlock may create a near-silent oscillator first; find the accent click.
+    const metronomeOsc = ctx.createOscillator.mock.results
+      .map((result) => result.value as FakeOsc)
+      .find((osc) =>
+        osc.frequency.setValueAtTime.mock.calls.some((call) => call[0] === 1200),
+      )
+    expect(metronomeOsc).toBeTruthy()
+    expect(metronomeOsc!.start).toHaveBeenCalled()
 
     transport.dispose()
   })
