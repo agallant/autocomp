@@ -154,7 +154,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Chroma fold + chord-tone matching against the live chart
 - [x] Follow toggle: stable lock seeks playing transport (or selects bar when stopped)
 - [x] Unit tests for chroma, match, follow engine, scheduler seek
-- [ ] Manual microphone and playback scenarios verified
+- [ ] Manual microphone and playback scenarios verified (deferred)
 - [ ] Polyphonic pitch tracking / ML chord ID deferred
 
 ## M13 acceptance

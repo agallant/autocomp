@@ -441,7 +441,7 @@
   font-size: 0.65rem;
   font-weight: 600;
   letter-spacing: 0.06em;
-  color: var(--teal);
+  color: var(--text-chart);
   pointer-events: none;
 }
 

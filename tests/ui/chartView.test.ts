@@ -118,7 +118,7 @@ describe('chartView', () => {
     }
     const html = renderEditableBars(state)
     expect(html).toMatch(
-      /aria-label="Bar 1(?:, section A)?, C&quot; onclick=&quot;alert\(1\), play from here"/,
+      /aria-label="Bar 1, section A, C&quot; onclick=&quot;alert\(1\), play from here"/,
     )
     expect(html).not.toContain('aria-label="Bar 1, C" onclick')
   })
@@ -136,7 +136,16 @@ describe('chartView', () => {
     expect(html).toMatch(/data-index="0"[^>]*data-section="A"/)
     expect(html).toMatch(/data-index="8"[^>]*data-section="A"/)
     expect(html).toMatch(/data-index="16"[^>]*data-section="B"/)
+    expect(html).toMatch(/data-index="24"[^>]*data-section="A"/)
     expect(html).toContain('bar__section')
     expect(chartMetaLine(chart)).toContain('Form AABA')
+  })
+
+  it('falls back to section id when the label is empty', () => {
+    const state = createEditorState(createAutumnPracticeChart())
+    state.chart.sections[0]!.label = ''
+    const html = renderEditableBars(state)
+    expect(html).toMatch(/data-index="0"[^>]*data-section="A"/)
+    expect(html).toMatch(/aria-label="Bar 1, section A,/)
   })
 })

@@ -60,7 +60,9 @@ export function renderEditableBars(
       const editing = selected && state.editing
       const isPlayhead = playhead !== null && playhead !== undefined && i === playhead
       const isPlayFrom = showPlayFrom && selected && !isPlayhead && !editing
-      const sectionStart = meta[i]?.isSectionStart ? meta[i]!.sectionLabel : null
+      const sectionStart = meta[i]?.isSectionStart
+        ? meta[i]!.sectionLabel.trim() || meta[i]!.sectionId
+        : null
       const label = slotLabel(bar)
       const classes = [
         'bar',
@@ -148,7 +150,7 @@ export function syncBarPlayhead(
 
 export function chartMetaLine(chart: Chart): string {
   const style = chart.styleHint ? ` · ${capitalize(chart.styleHint)}` : ''
-  const form = chart.form.length ? ` · Form ${chart.form.join('')}` : ''
+  const form = chart.form.length ? ` · Form ${escapeHtml(chart.form.join(''))}` : ''
   return `Edit · ${formatRoot(chart.key)} · ${chart.timeSignature.numerator}/${chart.timeSignature.denominator}${style}${form}`
 }
 

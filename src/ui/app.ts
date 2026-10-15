@@ -920,14 +920,23 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       setPersistStatus(added ? `Added section ${added}.` : 'Added section.')
     })
     const formInput = root.querySelector<HTMLInputElement>('#form-input')
-    const commitForm = (): void => {
+    const commitForm = (opts: { deferRebuild?: boolean } = {}): void => {
       if (!formInput) return
       const next = setFormOrder(editor, formInput.value)
-      setEditor(next)
-      if (next.error) setPersistStatus(next.error)
-      else setPersistStatus(`Form ${next.chart.form.join('')}.`)
+      if (next.error) {
+        // Keep the draft in the input so the user can correct it.
+        setPersistStatus(next.error)
+        return
+      }
+      const apply = (): void => {
+        setEditor(next)
+        setPersistStatus(`Form ${next.chart.form.join('')}.`)
+      }
+      // Defer DOM rebuild on blur so a pending click on another control can land.
+      if (opts.deferRebuild) setTimeout(apply, 0)
+      else apply()
     }
-    formInput?.addEventListener('change', commitForm)
+    formInput?.addEventListener('change', () => commitForm({ deferRebuild: true }))
     formInput?.addEventListener('keydown', (event) => {
       if (event.key === 'Enter') {
         event.preventDefault()

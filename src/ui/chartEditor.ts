@@ -211,9 +211,15 @@ export function setFormOrder(state: ChartEditorState, draft: string): ChartEdito
     return { ...state, error: 'Form needs at least one section' }
   }
   const byId = new Map(state.chart.sections.map((s) => [s.id, s]))
+  const labelCounts = new Map<string, number>()
+  for (const section of state.chart.sections) {
+    labelCounts.set(section.label, (labelCounts.get(section.label) ?? 0) + 1)
+  }
   const byLabel = new Map<string, string>()
   for (const section of state.chart.sections) {
-    if (!byLabel.has(section.label)) byLabel.set(section.label, section.id)
+    if ((labelCounts.get(section.label) ?? 0) === 1) {
+      byLabel.set(section.label, section.id)
+    }
   }
   const form: string[] = []
   for (const token of tokens) {
@@ -225,6 +231,9 @@ export function setFormOrder(state: ChartEditorState, draft: string): ChartEdito
     if (fromLabel) {
       form.push(fromLabel)
       continue
+    }
+    if ((labelCounts.get(token) ?? 0) > 1) {
+      return { ...state, error: `Ambiguous section label “${token}” — use the section id` }
     }
     return { ...state, error: `Unknown section “${token}”` }
   }

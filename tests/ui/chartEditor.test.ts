@@ -192,6 +192,19 @@ describe('chartEditor', () => {
     expect(state.chart.form).toEqual(['A', 'B', 'A'])
   })
 
+  it('rejects ambiguous duplicated section labels', () => {
+    const chart = createAabaChart()
+    chart.sections[0]!.label = 'Part'
+    chart.sections[1]!.label = 'Part'
+    let state = createEditorState(chart)
+    state = setFormOrder(state, 'Part B')
+    expect(state.error).toMatch(/Ambiguous section label/)
+    expect(state.chart.form).toEqual(['A', 'B', 'A'])
+    state = setFormOrder(state, 'A B A')
+    expect(state.error).toBeNull()
+    expect(state.chart.form).toEqual(['A', 'B', 'A'])
+  })
+
   it('appends a new empty section to the form', () => {
     let state = createEditorState(createAabaChart())
     state = addSection(state)
