@@ -160,6 +160,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
   let variationDensity: CompDensity = savedPrefs.density
   let variationEndings = savedPrefs.endings
   let variationSwingFeel = savedPrefs.swingFeel
+  let centerPlayhead = savedPrefs.centerPlayhead
   let voiceEnabled: VoiceMuteState = { ...savedPrefs.voiceEnabled }
   let voiceLevels: VoiceLevels = { ...savedPrefs.voiceLevels }
   let practiceLoop: PracticeLoop = { ...DEFAULT_PRACTICE_LOOP }
@@ -193,6 +194,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
         fills: variationFills,
         humanize: variationHumanize,
         endings: variationEndings,
+        centerPlayhead,
       },
       prefsStorage,
     )
@@ -433,6 +435,10 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
         <label class="variation-toggle" title="Penultimate fill and held last bar at form end">
           <input type="checkbox" id="var-endings"${variationEndings ? ' checked' : ''} />
           <span>Ending</span>
+        </label>
+        <label class="variation-toggle" title="Keep the sounding bar centered while playing">
+          <input type="checkbox" id="var-center-playhead"${centerPlayhead ? ' checked' : ''} />
+          <span>Center</span>
         </label>
         <label class="variation-toggle" title="${
           followSupported
@@ -729,6 +735,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
         playheadBarIndex,
         playing: state.playing,
         scrollIntoView: scrollDecision.scroll,
+        centerPlayhead,
         reduceMotion,
       })
     }
@@ -1228,6 +1235,10 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     })
     bindVariationToggle('#var-endings', (checked) => {
       variationEndings = checked
+      persistPracticePrefs()
+    })
+    root.querySelector<HTMLInputElement>('#var-center-playhead')?.addEventListener('change', (event) => {
+      centerPlayhead = (event.target as HTMLInputElement).checked
       persistPracticePrefs()
     })
     for (const voice of STYLE_VOICES) {

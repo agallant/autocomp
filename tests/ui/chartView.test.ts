@@ -119,6 +119,17 @@ describe('chartView', () => {
     ])
 
     syncBarPlayhead(barsRoot, {
+      selectedBarIndex: 0,
+      playheadBarIndex: 0,
+      playing: true,
+      scrollIntoView: true,
+      centerPlayhead: true,
+    })
+    expect(barEls[0]!.scrollCalls).toEqual([
+      [{ block: 'center', inline: 'center', behavior: 'smooth' }],
+    ])
+
+    syncBarPlayhead(barsRoot, {
       selectedBarIndex: 1,
       playheadBarIndex: null,
       playing: false,
