@@ -1,4 +1,4 @@
-import { normalizePc } from '../../music'
+import { normalizePc, type Chord } from '../../music'
 import { chordBassPc, pcToMidiNear } from '../midi'
 import { shellVoicing } from '../swing/pianoComp'
 import type { StyleBarContext, StyleEngine, StyleNote } from '../types'
@@ -15,7 +15,6 @@ function realizeLatinBass(ctx: StyleBarContext): StyleNote[] {
     const chord = ctx.beatChords[beat]
     if (!chord) continue
     const root = pcToMidiNear(chordBassPc(chord), BASS_CENTER)
-    const fifth = pcToMidiNear(normalizePc(chordBassPc(chord) + 7), BASS_CENTER)
 
     if (beat === 0 || beat === 2) {
       notes.push({
@@ -27,9 +26,12 @@ function realizeLatinBass(ctx: StyleBarContext): StyleNote[] {
       })
     }
     if (ctx.beatsPerBar >= 4 && (beat === 1 || beat === 3)) {
+      // Anticipations target the upcoming harmony (next beat / next bar).
+      const targetChord = upcomingChord(ctx, beat + 1) ?? chord
+      const anticipate = pcToMidiNear(normalizePc(chordBassPc(targetChord) + 7), BASS_CENTER)
       notes.push({
         voice: 'bass',
-        midi: fifth,
+        midi: anticipate,
         startBeat: beat + 0.5,
         durationBeats: 0.4,
         velocity: 0.58,
@@ -39,18 +41,26 @@ function realizeLatinBass(ctx: StyleBarContext): StyleNote[] {
   return notes
 }
 
+function upcomingChord(ctx: StyleBarContext, beatIndex: number): Chord | null {
+  if (beatIndex < ctx.beatsPerBar) {
+    return ctx.beatChords[beatIndex] ?? null
+  }
+  return ctx.nextBarChord
+}
+
 function realizeLatinPiano(ctx: StyleBarContext): StyleNote[] {
   const notes: StyleNote[] = []
-  // Offbeat shells every beat for a light montuno feel.
   for (let beat = 0; beat < ctx.beatsPerBar; beat++) {
     const chord = ctx.beatChords[beat]
     if (!chord) continue
+    const start = beat + 0.5
+    if (start >= ctx.beatsPerBar) continue
     for (const midi of shellVoicing(chord)) {
       notes.push({
         voice: 'piano',
         midi,
-        startBeat: beat + 0.5,
-        durationBeats: 0.45,
+        startBeat: start,
+        durationBeats: Math.min(0.45, ctx.beatsPerBar - start),
         velocity: 0.4,
       })
     }
@@ -69,11 +79,10 @@ function realizeLatinDrums(ctx: StyleBarContext): StyleNote[] {
       durationBeats: 0.12,
       velocity: 0.35,
     })
-    // 2-3 clave-ish accents in 4/4: hits on 1, 1.5, 2.5 / 3.5, 4
     if (ctx.beatsPerBar >= 4) {
       const clave = [0, 0.5, 1.5, 3.5]
       for (const t of clave) {
-        if (Math.floor(t) === beat) {
+        if (Math.floor(t) === beat && t < ctx.beatsPerBar) {
           notes.push({
             voice: 'drums',
             midi: 42,

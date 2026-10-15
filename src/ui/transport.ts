@@ -103,6 +103,8 @@ export class TransportController {
   }
 
   setStyle(style: StyleEngine | null): void {
+    // Drop in-flight notes from the previous style so long ballad tones don't overlap.
+    this.stopAudioSources()
     this.style = style
     this.state = { ...this.state, styleId: style?.id ?? null }
     this.emit()

@@ -23,30 +23,23 @@ function realizeBalladBass(ctx: StyleBarContext): StyleNote[] {
 
 function realizeBalladPiano(ctx: StyleBarContext): StyleNote[] {
   const notes: StyleNote[] = []
-  const chord = ctx.beatChords[0]
-  if (!chord) return notes
-  for (const midi of shellVoicing(chord)) {
-    notes.push({
-      voice: 'piano',
-      midi,
-      startBeat: 0,
-      durationBeats: Math.max(2, ctx.beatsPerBar - 0.25),
-      velocity: 0.28,
-    })
-  }
-  // Optional color on beat 3
-  if (ctx.beatsPerBar >= 3) {
-    const mid = ctx.beatChords[2]
-    if (mid) {
-      for (const midi of shellVoicing(mid)) {
-        notes.push({
-          voice: 'piano',
-          midi,
-          startBeat: 2,
-          durationBeats: 1.8,
-          velocity: 0.24,
-        })
-      }
+  const hits: number[] = [0]
+  if (ctx.beatsPerBar >= 3) hits.push(2)
+
+  for (const start of hits) {
+    const chord = ctx.beatChords[start]
+    if (!chord) continue
+    const nextHit = hits.find((h) => h > start)
+    const end = nextHit ?? ctx.beatsPerBar
+    const durationBeats = Math.max(0.5, end - start - 0.05)
+    for (const midi of shellVoicing(chord)) {
+      notes.push({
+        voice: 'piano',
+        midi,
+        startBeat: start,
+        durationBeats,
+        velocity: start === 0 ? 0.28 : 0.24,
+      })
     }
   }
   return notes

@@ -281,7 +281,11 @@ export function mountApp(root: HTMLElement): () => void {
 
   const onKeyDown = (event: KeyboardEvent): void => {
     const target = event.target
-    if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {
+    if (
+      target instanceof HTMLInputElement ||
+      target instanceof HTMLTextAreaElement ||
+      target instanceof HTMLSelectElement
+    ) {
       return
     }
     // Let Enter activate focused buttons (toolbar, transport, bar cells).

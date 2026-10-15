@@ -19,15 +19,17 @@ function realizeBossaBass(ctx: StyleBarContext): StyleNote[] {
         voice: 'bass',
         midi: rootMidi,
         startBeat: beat,
-        durationBeats: 0.7,
+        durationBeats: Math.min(0.7, ctx.beatsPerBar - beat),
         velocity: 0.55,
       })
     } else {
+      const start = beat + 0.5
+      if (start >= ctx.beatsPerBar) continue
       notes.push({
         voice: 'bass',
         midi: fifthMidi,
-        startBeat: beat + 0.5,
-        durationBeats: 0.45,
+        startBeat: start,
+        durationBeats: Math.min(0.45, ctx.beatsPerBar - start),
         velocity: 0.48,
       })
     }
@@ -37,17 +39,23 @@ function realizeBossaBass(ctx: StyleBarContext): StyleNote[] {
 
 function realizeBossaPiano(ctx: StyleBarContext): StyleNote[] {
   const notes: StyleNote[] = []
-  for (let beat = 0; beat < ctx.beatsPerBar; beat++) {
-    // Soft comps on the "&" of 1 and 3 in 4/4.
-    if (ctx.beatsPerBar >= 4 && beat !== 0 && beat !== 2) continue
+  // Soft comps on the "&" of selected beats — sparse in short meters.
+  const compBeats =
+    ctx.beatsPerBar >= 4 ? [0, 2] : ctx.beatsPerBar === 3 ? [0] : [0]
+
+  for (const beat of compBeats) {
+    if (beat >= ctx.beatsPerBar) continue
     const chord = ctx.beatChords[beat]
     if (!chord) continue
+    const start = beat + 0.5
+    if (start >= ctx.beatsPerBar) continue
+    const durationBeats = Math.min(1.2, ctx.beatsPerBar - start)
     for (const midi of shellVoicing(chord)) {
       notes.push({
         voice: 'piano',
         midi,
-        startBeat: beat + 0.5,
-        durationBeats: 1.2,
+        startBeat: start,
+        durationBeats,
         velocity: 0.32,
       })
     }
@@ -66,23 +74,28 @@ function realizeBossaDrums(ctx: StyleBarContext): StyleNote[] {
       durationBeats: 0.12,
       velocity: 0.28,
     })
-    notes.push({
-      voice: 'drums',
-      midi: 42,
-      drum: 'hat',
-      startBeat: beat + 0.5,
-      durationBeats: 0.1,
-      velocity: 0.22,
-    })
-    if (beat === 0 || beat === 2) {
+    if (beat + 0.5 < ctx.beatsPerBar) {
       notes.push({
         voice: 'drums',
-        midi: 36,
-        drum: 'kick',
-        startBeat: beat + (beat === 2 ? 0.5 : 0),
-        durationBeats: 0.12,
-        velocity: 0.35,
+        midi: 42,
+        drum: 'hat',
+        startBeat: beat + 0.5,
+        durationBeats: 0.1,
+        velocity: 0.22,
       })
+    }
+    if (beat === 0 || beat === 2) {
+      const start = beat + (beat === 2 ? 0.5 : 0)
+      if (start < ctx.beatsPerBar) {
+        notes.push({
+          voice: 'drums',
+          midi: 36,
+          drum: 'kick',
+          startBeat: start,
+          durationBeats: 0.12,
+          velocity: 0.35,
+        })
+      }
     }
   }
   return notes
