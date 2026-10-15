@@ -98,7 +98,8 @@ export function realizeGuideMelody(
       voice: 'melody',
       midi,
       startBeat: beat,
-      durationBeats: duration,
+      // Stay inside the bar (compound meters can leave a short final pulse).
+      durationBeats: Math.min(duration, ctx.beatsPerBar - beat),
       velocity: beat === 0 ? 0.48 : 0.4,
     })
     prev = midi

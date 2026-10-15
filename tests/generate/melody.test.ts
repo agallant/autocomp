@@ -71,16 +71,49 @@ describe('guide melody', () => {
   })
 
   it('caches per bar so repeated realizeBar calls do not jump voice leading', () => {
-    const chart = createAutumnPracticeChart()
+    const chart = structuredClone(createAutumnPracticeChart())
+    // Multi-chord bar: voice-leading seed changes the opening pitch.
+    chart.sections[0]!.bars[0]!.slots = [
+      { chord: parseChordSymbol('Cmaj7'), durationBeats: 2 },
+      { chord: parseChordSymbol('G7'), durationBeats: 2 },
+    ]
     const bars = expandChartBars(chart)
     const ctx0 = buildStyleBarContextFromBars(chart, bars, 0)!
-    const ctx1 = buildStyleBarContextFromBars(chart, bars, 1)!
+    const fromLow = realizeGuideMelody(ctx0, { prevMidi: 48 })
+    const fromHigh = realizeGuideMelody(ctx0, { prevMidi: 96 })
+    expect(fromLow[0]!.midi).not.toBe(fromHigh[0]!.midi)
+
+    const fromCenter = realizeGuideMelody(ctx0, { prevMidi: GUIDE_MELODY_CENTER })
     const wrapped = createGuideMelodyStyle(createJazzSwingStyle())
     const first = wrapped.realizeBar(ctx0).filter((n) => n.voice === 'melody')
+    expect(first.map((n) => n.midi)).toEqual(fromCenter.map((n) => n.midi))
+    // Live calls realizeBar once per beat — cache must keep the center-seeded line.
     const again = wrapped.realizeBar(ctx0).filter((n) => n.voice === 'melody')
     expect(again).toEqual(first)
-    const next = wrapped.realizeBar(ctx1).filter((n) => n.voice === 'melody')
-    expect(next[0]!.midi).toBeDefined()
+
+    // Editing the bar invalidates the cache.
+    chart.sections[0]!.bars[0]!.slots = [
+      { chord: parseChordSymbol('Fmaj7'), durationBeats: 4 },
+    ]
+    const editedCtx = buildStyleBarContextFromBars(chart, expandChartBars(chart), 0)!
+    const afterEdit = wrapped.realizeBar(editedCtx).filter((n) => n.voice === 'melody')
+    expect(afterEdit.map((n) => n.midi)).not.toEqual(first.map((n) => n.midi))
+  })
+
+  it('caps the final pulse so duration stays inside the bar', () => {
+    const chart = structuredClone(createAutumnPracticeChart())
+    chart.timeSignature = { numerator: 7, denominator: 8 }
+    for (const section of chart.sections) {
+      for (const bar of section.bars) {
+        bar.slots = [{ chord: parseChordSymbol('Cmaj7'), durationBeats: 7 }]
+      }
+    }
+    const bars = expandChartBars(chart)
+    const ctx = buildStyleBarContextFromBars(chart, bars, 0)!
+    const notes = realizeGuideMelody(ctx)
+    for (const note of notes) {
+      expect(note.startBeat + note.durationBeats).toBeLessThanOrEqual(ctx.beatsPerBar + 1e-9)
+    }
   })
 
   it('wraps a style and stays silent until the Guide voice is enabled', () => {
