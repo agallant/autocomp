@@ -10,6 +10,8 @@ export type VariationOptions = {
   humanize: boolean
   /** Piano/drum texture density. */
   density: CompDensity
+  /** Penultimate fill + held final-bar cadence at form end. */
+  endings: boolean
   /** Deterministic RNG seed (e.g. hash of chart id). */
   seed: number
   /** Tempo used to convert humanize ms → beats. */
@@ -21,6 +23,7 @@ export const DEFAULT_VARIATION: Omit<VariationOptions, 'seed' | 'tempoBpm'> = {
   countInBars: 0,
   humanize: true,
   density: 'normal',
+  endings: false,
 }
 
 export const COMP_DENSITY_OPTIONS: ReadonlyArray<{ id: CompDensity; label: string }> = [

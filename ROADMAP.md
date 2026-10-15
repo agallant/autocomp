@@ -30,7 +30,8 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M13 | Transpose | done | Full-chart transpose (±semitone) with key-aware spelling |
 | M14 | Jump to key | done | Transpose to a selected concert key in one step |
 | M15 | Comp density | done | Sparse / normal / dense piano–drum texture |
-| M16 | Multi-slot bars | in progress | Space-separated chords → timed slots in a bar |
+| M16 | Multi-slot bars | done | Space-separated chords → timed slots in a bar |
+| M17 | Form endings | in progress | Penultimate fill + held final-bar cadence |
 
 ## M0 acceptance
 
@@ -125,7 +126,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Seeded velocity/timing humanization
 - [x] UI toggles: Fills / Count-in / Humanize
 - [ ] Solo density deferred
-- [ ] Complex endings deferred
+- [x] Complex endings (M17)
 
 ## M11 acceptance
 
@@ -171,6 +172,14 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Begin-edit loads all bar slots into the draft; display joins with spaces
 - [x] Reject more chords than beats; preserve meter/rehearsal mark
 - [ ] Explicit per-slot duration UI (e.g. 3+1) deferred
+
+## M17 acceptance
+
+- [x] Form ending flags (penultimate + final)
+- [x] Penultimate setup fill; final held piano + kick/ride
+- [x] Toolbar **Ending** toggle; shared live/MIDI/WAV path
+- [x] Unit tests for flags and ending treatment
+- [ ] Multi-chorus / tag coda form editing deferred
 
 ## Process notes
 

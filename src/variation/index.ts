@@ -1,6 +1,11 @@
 export { applyVariation } from './apply'
 export { countInBeats } from './countIn'
 export { applyCompDensity } from './density'
+export {
+  applyFinalBarEnding,
+  applyFormEnding,
+  formEndingFlags,
+} from './endings'
 export { applySectionFill, fillStartBeat, sectionFillNotes } from './fills'
 export { humanizeNotes } from './humanize'
 export { hashSeed, mulberry32, seedFromString } from './rng'
