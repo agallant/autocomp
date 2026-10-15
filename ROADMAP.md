@@ -47,7 +47,8 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M30 | Click volume | done | Adjustable metronome / count-in click level |
 | M31 | Playhead scroll | done | Keep the sounding bar in view during playback |
 | M32 | Section ops | done | Rename / delete chart sections |
-| M33 | Count-in length | in progress | Choose 0 / 1 / 2 / 4 bar count-in |
+| M33 | Count-in length | done | Choose 0 / 1 / 2 / 4 bar count-in |
+| M34 | Tempo shortcuts | in progress | Keyboard tempo ±10 ([ ] / - =) |
 
 ## M0 acceptance
 
@@ -275,7 +276,8 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] `T` taps tempo; `M` toggles metronome click
 - [x] Shortcuts ignored in form fields / chord edit
 - [x] Unit tests for `practiceKeyAction`
-- [ ] Additional shortcuts (tempo ±, density) deferred
+- [x] Tempo ±10 shortcuts (M34)
+- [ ] Density shortcuts deferred
 
 ## M28 acceptance
 
@@ -324,6 +326,13 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Shared live / MIDI / WAV path via `variationOptions.countInBars`
 - [x] Unit tests for clamp and multi-bar beat length
 - [ ] Persist count-in preference deferred
+
+## M34 acceptance
+
+- [x] `[` / `-` decrease tempo 10 BPM; `]` / `=` / `+` increase
+- [x] Same guards as other practice keys (form fields, chord edit, key-repeat)
+- [x] Unit tests for tempo key mapping
+- [ ] Hold-to-ramp tempo deferred
 
 ## Process notes
 

@@ -3,9 +3,16 @@
  * - Space: play / pause from the selected bar
  * - T: tap tempo
  * - M: toggle metronome click
+ * - [ / ]: tempo −10 / +10
+ * - - / = (and +): tempo −10 / +10
  */
 
-export type PracticeKeyAction = 'toggle-play' | 'tap-tempo' | 'toggle-click'
+export type PracticeKeyAction =
+  | 'toggle-play'
+  | 'tap-tempo'
+  | 'toggle-click'
+  | 'tempo-down'
+  | 'tempo-up'
 
 export type PracticeKeyContext = {
   /** True when a text/select field has focus. */
@@ -35,5 +42,7 @@ export function practiceKeyAction(
   }
   if (key === 't' || key === 'T') return 'tap-tempo'
   if (key === 'm' || key === 'M') return 'toggle-click'
+  if (key === '[' || key === '-') return 'tempo-down'
+  if (key === ']' || key === '=' || key === '+') return 'tempo-up'
   return null
 }

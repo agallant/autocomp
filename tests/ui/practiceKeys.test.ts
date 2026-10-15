@@ -17,15 +17,26 @@ describe('practiceKeyAction', () => {
     expect(practiceKeyAction('M', free)).toBe('toggle-click')
   })
 
+  it('maps [ / ] and - / = / + for tempo nudges', () => {
+    expect(practiceKeyAction('[', free)).toBe('tempo-down')
+    expect(practiceKeyAction('-', free)).toBe('tempo-down')
+    expect(practiceKeyAction(']', free)).toBe('tempo-up')
+    expect(practiceKeyAction('=', free)).toBe('tempo-up')
+    expect(practiceKeyAction('+', free)).toBe('tempo-up')
+  })
+
   it('ignores shortcuts in form fields or during chord edit', () => {
     expect(practiceKeyAction(' ', { ...free, inFormField: true })).toBeNull()
     expect(practiceKeyAction('t', { ...free, editing: true })).toBeNull()
     expect(practiceKeyAction('m', { ...free, inFormField: true })).toBeNull()
+    expect(practiceKeyAction('[', { ...free, editing: true })).toBeNull()
+    expect(practiceKeyAction('=', { ...free, inFormField: true })).toBeNull()
   })
 
   it('lets Space activate a focused button instead of toggling play', () => {
     expect(practiceKeyAction(' ', { ...free, spaceOnButton: true })).toBeNull()
     expect(practiceKeyAction('t', { ...free, spaceOnButton: true })).toBe('tap-tempo')
+    expect(practiceKeyAction(']', { ...free, spaceOnButton: true })).toBe('tempo-up')
   })
 
   it('leaves unrelated keys alone', () => {
