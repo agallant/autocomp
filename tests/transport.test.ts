@@ -269,4 +269,27 @@ describe('TransportController', () => {
     })
     transport.dispose()
   })
+
+  it('can enable metronome clicks after construction', async () => {
+    vi.useFakeTimers()
+    const ctx = createFakeAudioContext('running')
+    const transport = new TransportController({
+      onChange: () => undefined,
+      audioContext: ctx as unknown as AudioContext,
+      metronomeEnabled: false,
+      setIntervalFn: (fn, ms) => setInterval(fn, ms) as unknown as ReturnType<typeof setInterval>,
+      clearIntervalFn: (id) => clearInterval(id as unknown as number),
+      setTimeoutFn: (fn, ms) => setTimeout(fn, ms) as unknown as ReturnType<typeof setTimeout>,
+      clearTimeoutFn: (id) => clearTimeout(id as unknown as number),
+    })
+
+    await transport.play()
+    const before = ctx.createOscillator.mock.calls.length
+    transport.setMetronomeEnabled(true)
+    ctx.advance(0.5)
+    await vi.advanceTimersByTimeAsync(25)
+    await vi.advanceTimersByTimeAsync(500)
+    expect(ctx.createOscillator.mock.calls.length).toBeGreaterThan(before)
+    transport.dispose()
+  })
 })

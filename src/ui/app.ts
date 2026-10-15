@@ -117,6 +117,8 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
   let wavExporting = false
   let variationFills = DEFAULT_VARIATION.fills
   let variationCountIn = DEFAULT_VARIATION.countInBars > 0
+  /** Click track during form bars (count-in always clicks when enabled). */
+  let metronomeEnabled = false
   let variationHumanize = DEFAULT_VARIATION.humanize
   let variationDensity: CompDensity = DEFAULT_VARIATION.density
   let variationEndings = DEFAULT_VARIATION.endings
@@ -288,6 +290,10 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
         <label class="variation-toggle">
           <input type="checkbox" id="var-count-in"${variationCountIn ? ' checked' : ''} />
           <span>Count-in</span>
+        </label>
+        <label class="variation-toggle" title="Audible click on every beat (count-in always clicks)">
+          <input type="checkbox" id="var-metronome"${metronomeEnabled ? ' checked' : ''} />
+          <span>Click</span>
         </label>
         <label class="variation-toggle">
           <input type="checkbox" id="var-humanize"${variationHumanize ? ' checked' : ''} />
@@ -704,7 +710,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       beatsPerBar: editor.chart.timeSignature.numerator,
       style: activeStyle(editor.chart, tempoBpm),
       getChart: () => editor.chart,
-      metronomeEnabled: false,
+      metronomeEnabled,
       midiSink,
       countInBars: variationCountIn ? 1 : 0,
       practiceLoop,
@@ -903,6 +909,10 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     })
     bindVariationToggle('#var-count-in', (checked) => {
       variationCountIn = checked
+    })
+    root.querySelector<HTMLInputElement>('#var-metronome')?.addEventListener('change', (event) => {
+      metronomeEnabled = (event.target as HTMLInputElement).checked
+      transport?.setMetronomeEnabled(metronomeEnabled)
     })
     bindVariationToggle('#var-humanize', (checked) => {
       variationHumanize = checked
