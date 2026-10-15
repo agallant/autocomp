@@ -16,8 +16,8 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | --- | --- | --- | --- |
 | M0 | PWA scaffold | done | Vite + TS + PWA, CI, Pages deploy, app shell + transport stub |
 | M1 | Music model | done | Chords, bars, forms, chart JSON schema + parse/serialize + tests |
-| M2 | Chart editor | in progress | iReal-like bar grid editor (entry, navigate, quality, duration) |
-| M3 | Audio clock | planned | Web Audio transport, metronome, lookahead scheduler |
+| M2 | Chart editor | done | iReal-like bar grid editor (select, navigate, chord entry); multi-slot duration editing deferred |
+| M3 | Audio clock | in progress | Web Audio transport, metronome, lookahead scheduler |
 | M4 | Jazz swing style | planned | Walking bass + piano comp + kit pattern for swing |
 | M5 | Style pack | planned | Bossa, ballad, Latin/salsa-lite; style picker |
 | M6 | Tune library | planned | Built-in standards/progressions + search/tags |
@@ -53,6 +53,15 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Add / remove bars
 - [x] Editable chart title
 - [x] Editor unit tests
+
+## M3 acceptance
+
+- [x] Shared AudioContext lifecycle (create + resume on Play)
+- [x] Lookahead beat scheduler driven by `audioContext.currentTime`
+- [x] Metronome clicks (accent on beat 1)
+- [x] Tempo / meter changes apply without resetting musical position mid-phrase incorrectly
+- [x] Transport UI bar/beat synced from scheduled audio time
+- [x] Unit tests for scheduler, metronome, and transport (mocked AudioContext)
 
 ## Process notes
 
