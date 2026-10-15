@@ -3,13 +3,22 @@ import { createAutumnPracticeChart } from '../../src/data/practiceCharts'
 import { realizeChartMidi } from '../../src/midi'
 import { chartFormDurationSeconds } from '../../src/render'
 import { createJazzSwingStyle } from '../../src/style'
-import { countInBeats } from '../../src/variation'
+import { clampCountInBars, countInBeats } from '../../src/variation'
 
 describe('count-in lead-in', () => {
   const chart = createAutumnPracticeChart()
 
+  it('clamps count-in bars to 0–8', () => {
+    expect(clampCountInBars(-1)).toBe(0)
+    expect(clampCountInBars(1.9)).toBe(1)
+    expect(clampCountInBars(4)).toBe(4)
+    expect(clampCountInBars(99)).toBe(8)
+    expect(clampCountInBars(Number.NaN)).toBe(0)
+  })
+
   it('counts one bar of beats from the opening meter', () => {
     expect(countInBeats(chart, 1)).toBe(4)
+    expect(countInBeats(chart, 2)).toBe(8)
     expect(countInBeats(chart, 0)).toBe(0)
     expect(countInBeats(chart, Number.NaN)).toBe(0)
     expect(countInBeats(chart, Number.POSITIVE_INFINITY)).toBe(0)

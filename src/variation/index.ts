@@ -1,5 +1,10 @@
 export { applyVariation } from './apply'
-export { countInBeats } from './countIn'
+export {
+  COUNT_IN_BAR_OPTIONS,
+  MAX_COUNT_IN_BARS,
+  clampCountInBars,
+  countInBeats,
+} from './countIn'
 export { applyCompDensity } from './density'
 export {
   applyFinalBarEnding,
