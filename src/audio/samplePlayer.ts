@@ -57,6 +57,15 @@ export function playBuffer(
   return src
 }
 
+/** Max audible length per drum one-shot — prevents overlapping rides from becoming a noise wash. */
+const DRUM_MAX_SECONDS: Record<DrumSampleId, number> = {
+  kick: 0.28,
+  snare: 0.22,
+  hat: 0.12,
+  ride: 0.3,
+  clave: 0.16,
+}
+
 export function playDrumSample(
   ctx: BaseAudioContext,
   kit: SampleKit,
@@ -67,11 +76,10 @@ export function playDrumSample(
 ): ScheduledSource | null {
   const buffer = kit.drums[id]
   if (!buffer) return null
-  const gain = id === 'ride' ? 0.55 : id === 'hat' || id === 'clave' ? 0.65 : 0.85
-  // Style note durations are often 60–120ms; play the full one-shot so rides/hats ring.
+  const gain = id === 'ride' ? 0.5 : id === 'hat' ? 0.55 : id === 'clave' ? 0.75 : 0.85
   return playBuffer(ctx, buffer, {
     when,
-    duration: Number.POSITIVE_INFINITY,
+    duration: DRUM_MAX_SECONDS[id],
     velocity,
     gain,
   })

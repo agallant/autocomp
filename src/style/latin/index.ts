@@ -71,13 +71,14 @@ function realizeLatinPiano(ctx: StyleBarContext): StyleNote[] {
 function realizeLatinDrums(ctx: StyleBarContext): StyleNote[] {
   const notes: StyleNote[] = []
   for (let beat = 0; beat < ctx.beatsPerBar; beat++) {
+    // Short closed hats keep time without the long ride-cymbal wash that read as static.
     notes.push({
       voice: 'drums',
-      midi: 51,
-      drum: 'ride',
+      midi: 42,
+      drum: 'hat',
       startBeat: beat,
-      durationBeats: 0.12,
-      velocity: 0.35,
+      durationBeats: 0.08,
+      velocity: beat % 2 === 0 ? 0.32 : 0.22,
     })
     if (ctx.beatsPerBar >= 4) {
       const clave = [0, 0.5, 1.5, 3.5]
@@ -89,7 +90,7 @@ function realizeLatinDrums(ctx: StyleBarContext): StyleNote[] {
             drum: 'clave',
             startBeat: t,
             durationBeats: 0.08,
-            velocity: 0.55,
+            velocity: 0.7,
           })
         }
       }
@@ -101,7 +102,7 @@ function realizeLatinDrums(ctx: StyleBarContext): StyleNote[] {
         drum: 'kick',
         startBeat: beat,
         durationBeats: 0.12,
-        velocity: 0.5,
+        velocity: 0.55,
       })
     }
   }

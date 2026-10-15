@@ -87,8 +87,8 @@ describe('scheduleStyleNote', () => {
     expect(osc.start).not.toHaveBeenCalled()
   })
 
-  it('falls back to a short noise burst when no sample kit is loaded', () => {
-    const { ctx, bufferSource } = createFakeContext()
+  it('falls back to short tonal pings when no sample kit is loaded', () => {
+    const { ctx, osc } = createFakeContext()
     const note: StyleNote = {
       voice: 'drums',
       midi: 51,
@@ -97,10 +97,9 @@ describe('scheduleStyleNote', () => {
       durationBeats: 0.2,
       velocity: 0.5,
     }
-    scheduleStyleNote(ctx, note, 0.5, 0.5, { kit: null })
-    expect(bufferSource.start).toHaveBeenCalledWith(0.5)
-    const data = ctx.getLastBuffer()
-    expect(data).not.toBeNull()
-    expect(data!.some((sample) => sample !== 0)).toBe(true)
+    const sources = scheduleStyleNote(ctx, note, 0.5, 0.5, { kit: null })
+    expect(sources.length).toBeGreaterThan(0)
+    expect(osc.start).toHaveBeenCalledWith(0.5)
+    expect(osc.frequency.setValueAtTime).toHaveBeenCalled()
   })
 })
