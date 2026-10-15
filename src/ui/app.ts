@@ -850,8 +850,12 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     })
     const applyTranspose = (semitones: number): void => {
       try {
-        // Commit any in-progress chord edit first (mousedown can interrupt blur).
+        // Commit any in-progress chord edit first (pointerdown can interrupt blur).
         const base = editor.editing ? commitEdit(editor) : editor
+        if (editor.editing && base.error) {
+          setEditor(base)
+          return
+        }
         const next = transposeChart(base.chart, semitones)
         setEditor(selectBar(createEditorState(next), base.selectedBarIndex))
         syncTransportStyle({ stopSources: false })
@@ -860,13 +864,18 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
         setPersistStatus('Could not transpose chart.')
       }
     }
-    // pointerdown fires before input blur, so the button is not destroyed mid-click.
+    // pointerdown fires before input blur (pointer); click with detail===0 covers keyboard.
     const bindTranspose = (id: string, semitones: number): void => {
-      root.querySelector(id)?.addEventListener('pointerdown', (event: Event) => {
+      const button = root.querySelector(id)
+      button?.addEventListener('pointerdown', (event: Event) => {
         const pointer = event as PointerEvent
         if (pointer.button !== 0) return
         pointer.preventDefault()
         applyTranspose(semitones)
+      })
+      button?.addEventListener('click', (event: Event) => {
+        const mouse = event as MouseEvent
+        if (mouse.detail === 0) applyTranspose(semitones)
       })
     }
     bindTranspose('#transpose-down', -1)
