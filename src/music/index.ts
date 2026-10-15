@@ -46,6 +46,7 @@ export {
   assertValidChart,
   barFromSymbols,
   beatsPerBar,
+  distributeBeats,
   chartBarSymbols,
   chartFromJson,
   chartToJson,

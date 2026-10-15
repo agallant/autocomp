@@ -25,10 +25,10 @@ export function renderEditableBars(state: ChartEditorState): string {
               class="bar__input"
               type="text"
               value="${escapeAttr(state.draftSymbol)}"
-              placeholder="Dm7 G7"
+              placeholder="Dm7 G7 or NC G7"
               spellcheck="false"
               autocomplete="off"
-              aria-label="Chord symbols (space-separated for multiple slots)"
+              aria-label="Chord symbols (space-separated; NC for a rest slot)"
             />
             <span class="bar__beat">|</span>
           </div>`

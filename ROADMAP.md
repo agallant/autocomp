@@ -57,7 +57,6 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Add / remove bars
 - [x] Editable chart title
 - [x] Editor unit tests
-- [x] Multi-slot duration editing (M16)
 
 ## M3 acceptance
 

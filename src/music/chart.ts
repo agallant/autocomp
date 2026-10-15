@@ -147,6 +147,20 @@ export function chartBarSymbols(chart: Chart): string[] {
   )
 }
 
+/**
+ * Split `total` beats across `count` slots as evenly as possible.
+ * Remainder beats are front-loaded: 4÷3 → [2,1,1], 6÷4 → [2,2,1,1].
+ */
+export function distributeBeats(total: number, count: number): number[] {
+  if (count <= 0) throw new Error('Slot count must be positive')
+  if (total < count) {
+    throw new Error(`Cannot fit ${count} slots into ${total} beats`)
+  }
+  const base = Math.floor(total / count)
+  const rem = total - base * count
+  return Array.from({ length: count }, (_, i) => base + (i < rem ? 1 : 0))
+}
+
 export function barFromSymbols(
   symbols: string[],
   timeSignature: TimeSignature = { numerator: 4, denominator: 4 },
@@ -160,22 +174,11 @@ export function barFromSymbols(
       `More chord symbols (${symbols.length}) than beats in bar (${beats})`,
     )
   }
-  if (beats % symbols.length !== 0) {
-    const base = Math.floor(beats / symbols.length)
-    let used = 0
-    const slots: ChordSlot[] = symbols.map((sym, i) => {
-      const isLast = i === symbols.length - 1
-      const durationBeats = isLast ? beats - used : base
-      used += durationBeats
-      return { chord: parseChordSymbol(sym), durationBeats }
-    })
-    return { slots }
-  }
-  const durationBeats = beats / symbols.length
+  const durations = distributeBeats(beats, symbols.length)
   return {
-    slots: symbols.map((sym) => ({
+    slots: symbols.map((sym, i) => ({
       chord: parseChordSymbol(sym),
-      durationBeats,
+      durationBeats: durations[i]!,
     })),
   }
 }
