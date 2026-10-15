@@ -99,6 +99,7 @@ import {
   type PracticeLoop,
 } from './practiceLoop'
 import { savedListHtml } from './savedView'
+import { practiceKeyAction } from './practiceKeys'
 import { createTapTempoState, tapTempo } from './tapTempo'
 import { TransportController, type TransportState } from './transport'
 
@@ -246,14 +247,15 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
               type="button"
               class="btn btn--primary"
               id="play-toggle"
-              aria-label="Play"
+              aria-label="Play or stop (Space)"
+              title="Play / stop (Space)"
               aria-pressed="false"
             >
               <span aria-hidden="true">Play</span>
             </button>
             <button type="button" class="btn" id="tempo-down" aria-label="Decrease tempo">−10</button>
             <button type="button" class="btn" id="tempo-up" aria-label="Increase tempo">+10</button>
-            <button type="button" class="btn" id="tempo-tap" aria-label="Tap tempo">Tap</button>
+            <button type="button" class="btn" id="tempo-tap" aria-label="Tap tempo (T)" title="Tap tempo (T)">Tap</button>
           </div>
           <div class="transport__readout">
             <span>Tempo <strong id="tempo-readout">${editor.chart.defaultTempoBpm}</strong> BPM</span>
@@ -310,7 +312,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
           <input type="checkbox" id="var-count-in"${variationCountIn ? ' checked' : ''} />
           <span>Count-in</span>
         </label>
-        <label class="variation-toggle" title="Audible click on every beat (count-in always clicks)">
+        <label class="variation-toggle" title="Audible click on every beat (count-in always clicks). Shortcut: M">
           <input type="checkbox" id="var-metronome"${metronomeEnabled ? ' checked' : ''} />
           <span>Click</span>
         </label>
@@ -785,16 +787,28 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       syncTransportStyle({ stopSources: false })
     })
     tempoTap?.addEventListener('click', () => {
-      if (!transport) return
-      const bpm = tapTempo(tapTempoState, performance.now())
-      if (bpm === null) {
-        setPersistStatus('Tap again to set tempo…')
-        return
-      }
-      transport.setTempo(bpm)
-      syncTransportStyle({ stopSources: false })
-      setPersistStatus(`Tempo ${bpm} BPM (tap).`)
+      applyTapTempo()
     })
+  }
+
+  const applyTapTempo = (): void => {
+    if (!transport) return
+    const bpm = tapTempo(tapTempoState, performance.now())
+    if (bpm === null) {
+      setPersistStatus('Tap again to set tempo…')
+      return
+    }
+    transport.setTempo(bpm)
+    syncTransportStyle({ stopSources: false })
+    setPersistStatus(`Tempo ${bpm} BPM (tap).`)
+  }
+
+  const toggleMetronomeClick = (): void => {
+    metronomeEnabled = !metronomeEnabled
+    transport?.setMetronomeEnabled(metronomeEnabled)
+    const input = root.querySelector<HTMLInputElement>('#var-metronome')
+    if (input) input.checked = metronomeEnabled
+    setPersistStatus(metronomeEnabled ? 'Click on.' : 'Click off.')
   }
 
   const bindLibraryItems = (): void => {
@@ -1241,17 +1255,37 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
 
   const onKeyDown = (event: KeyboardEvent): void => {
     const target = event.target
-    if (
+    const inFormField =
       target instanceof HTMLInputElement ||
       target instanceof HTMLTextAreaElement ||
       target instanceof HTMLSelectElement
-    ) {
-      return
-    }
+    if (inFormField) return
     // Let Enter activate focused buttons (toolbar, transport, bar cells).
     if (event.key === 'Enter' && target instanceof HTMLButtonElement) {
       return
     }
+
+    const practice = practiceKeyAction(event.key, {
+      inFormField: false,
+      editing: editor.editing,
+      enterOnButton: false,
+    })
+    if (practice === 'toggle-play') {
+      event.preventDefault()
+      transport?.toggle({ formBar: editor.selectedBarIndex + 1 })
+      return
+    }
+    if (practice === 'tap-tempo') {
+      event.preventDefault()
+      applyTapTempo()
+      return
+    }
+    if (practice === 'toggle-click') {
+      event.preventDefault()
+      toggleMetronomeClick()
+      return
+    }
+
     if (editor.editing) return
 
     if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {

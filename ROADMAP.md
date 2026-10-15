@@ -40,7 +40,8 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M23 | Solo density | done | Thinner backing for solo practice |
 | M24 | Swing feel | done | Straight → triplet → hard shuffle amount |
 | M25 | Voice volume | done | Per-voice level for bass / piano / drums |
-| M26 | Guide melody | in progress | Generative guide-tone practice line |
+| M26 | Guide melody | done | Generative guide-tone practice line |
+| M27 | Keyboard shortcuts | in progress | Space play/pause, T tap, M click |
 
 ## M0 acceptance
 
@@ -213,7 +214,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Sliding-window tap-tempo estimator (40–300 BPM clamp)
 - [x] Transport **Tap** button; live style refresh on estimate
 - [x] Unit tests for estimate, reset gap, and clamp
-- [ ] Keyboard shortcut for tap deferred
+- [x] Keyboard shortcut for tap (M27)
 
 ## M21 acceptance
 
@@ -261,6 +262,14 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] `createGuideMelodyStyle` on the live / MIDI / WAV path
 - [x] Unit tests for tones, realization, and mute default
 - [ ] Phrase-level / style-conditioned solo lines deferred
+
+## M27 acceptance
+
+- [x] Space toggles play/pause from the selected bar (when not editing)
+- [x] `T` taps tempo; `M` toggles metronome click
+- [x] Shortcuts ignored in form fields / chord edit
+- [x] Unit tests for `practiceKeyAction`
+- [ ] Additional shortcuts (tempo ±, density) deferred
 
 ## Process notes
 
