@@ -28,6 +28,8 @@ export class FollowEngine {
   private stableBar: number | null = null
   private stableCount = 0
   private seekEnabled = true
+  /** Bumps on stop/restart so in-flight `mic.start()` cannot revive a stopped session. */
+  private startGeneration = 0
   private snapshot: FollowSnapshot = {
     match: null,
     locked: false,
@@ -80,6 +82,7 @@ export class FollowEngine {
       })
       return
     }
+    const generation = ++this.startGeneration
     this.emit({
       match: null,
       locked: false,
@@ -89,6 +92,10 @@ export class FollowEngine {
     try {
       await this.mic.start()
     } catch (err) {
+      if (generation !== this.startGeneration) {
+        this.mic.stop()
+        return
+      }
       const denied =
         err instanceof DOMException &&
         (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError')
@@ -100,6 +107,10 @@ export class FollowEngine {
           ? 'Microphone permission denied.'
           : 'Could not open microphone.',
       })
+      return
+    }
+    if (generation !== this.startGeneration) {
+      this.mic.stop()
       return
     }
     this.stableBar = null
@@ -114,6 +125,7 @@ export class FollowEngine {
   }
 
   stop(): void {
+    this.startGeneration += 1
     if (this.timer !== null) {
       this.clearIntervalFn(this.timer)
       this.timer = null
@@ -136,7 +148,8 @@ export class FollowEngine {
     const bars = expandChartBars(chart)
     const candidates = candidatesFromBars(bars)
     const chroma = this.mic.readChroma()
-    const match = bestChordMatch(chroma, candidates, this.minScore)
+    const current = this.getCurrentBarIndex()
+    const match = bestChordMatch(chroma, candidates, this.minScore, current)
 
     if (!match) {
       this.stableBar = null
@@ -157,7 +170,6 @@ export class FollowEngine {
       this.stableCount = 1
     }
     const locked = this.stableCount >= this.lockFrames
-    const current = this.getCurrentBarIndex()
     this.emit({
       match,
       locked,

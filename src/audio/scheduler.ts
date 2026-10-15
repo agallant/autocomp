@@ -84,6 +84,8 @@ export class LookaheadScheduler {
     const safeBeat = Math.min(beatsPerBar, Math.max(1, Math.floor(beat)))
     this.position = { bar: safeBar, beat: safeBeat }
     this.nextNoteTime = this.clock.currentTime + 0.05
+    // Schedule immediately so a delayed interval cannot skip the target beat.
+    this.tick()
   }
 
   /** Run one scheduling pass (also used by tests without waiting on the interval). */

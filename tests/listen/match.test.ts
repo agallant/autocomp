@@ -22,6 +22,11 @@ describe('chord match', () => {
     expect(cmaj).toBeGreaterThan(g7)
   })
 
+  it('rejects a single-pitch melody note as a chord match', () => {
+    const chroma = chromaWithTones([0]) // lone C
+    expect(scoreChordAgainstChroma(chroma, parseChordSymbol('Cmaj7'))).toBe(0)
+  })
+
   it('picks the best candidate bar for a dominant chroma', () => {
     const section = sectionFromBarSymbols('A', 'A', [['Dm7'], ['G7'], ['Cmaj7']])
     const candidates = candidatesFromBars(section.bars)
@@ -30,5 +35,13 @@ describe('chord match', () => {
     const match = bestChordMatch(chroma, candidates, 0.05)
     expect(match?.candidate.symbol).toBe('G7')
     expect(match?.candidate.barIndex).toBe(1)
+  })
+
+  it('breaks equal scores toward the nearer bar', () => {
+    const section = sectionFromBarSymbols('A', 'A', [['G7'], ['Cmaj7'], ['G7']])
+    const candidates = candidatesFromBars(section.bars)
+    const chroma = chromaWithTones([7, 11, 2, 5])
+    const nearEnd = bestChordMatch(chroma, candidates, 0.05, 2)
+    expect(nearEnd?.candidate.barIndex).toBe(2)
   })
 })

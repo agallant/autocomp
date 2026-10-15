@@ -1,14 +1,16 @@
 import { applyAmpEnvelope } from './envelope'
+import type { ScheduledSource } from './synth'
 
 /**
  * Schedule a short metronome click into a BaseAudioContext.
  * Accent (downbeat) is slightly louder and higher in pitch.
+ * Returns the oscillator so callers can cancel it on seek/stop.
  */
 export function scheduleMetronomeClick(
   ctx: BaseAudioContext,
   time: number,
   accent: boolean,
-): void {
+): ScheduledSource {
   const osc = ctx.createOscillator()
   const gain = ctx.createGain()
   osc.type = 'square'
@@ -20,4 +22,5 @@ export function scheduleMetronomeClick(
   gain.connect(ctx.destination)
   osc.start(time)
   osc.stop(time + 0.055)
+  return osc
 }

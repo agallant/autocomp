@@ -33,8 +33,8 @@ export function chromaFromFrequencyData(
     const hz = i * binHz
     if (hz < minHz || hz > maxHz) continue
     const db = frequencyData[i]!
-    // Convert dB to a positive linear-ish weight; floor silence.
-    const weight = Math.max(0, db + 100)
+    // Linear magnitude from dB so loud bins dominate noise floor.
+    const weight = db > -100 ? 10 ** (db / 20) : 0
     if (weight <= 0) continue
     const pc = frequencyToPc(hz)
     chroma[pc]! += weight

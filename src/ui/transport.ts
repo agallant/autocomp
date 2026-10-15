@@ -280,7 +280,7 @@ export class TransportController {
   private handleScheduledBeat(ctx: AudioContext, beat: ScheduledBeat): void {
     const inCountIn = beat.bar <= this.countInBars
     if (this.metronomeEnabled || inCountIn) {
-      scheduleMetronomeClick(ctx, beat.time, beat.accent)
+      this.trackAudioSource(scheduleMetronomeClick(ctx, beat.time, beat.accent))
     }
     this.scheduleStyleBeat(ctx, beat)
     const delayMs = Math.max(0, (beat.time - ctx.currentTime) * 1000)

@@ -12,9 +12,9 @@ function fakeMic(chroma: ChromaVector) {
 }
 
 describe('FollowEngine', () => {
-  it('locks onto a matching bar and requests a seek', async () => {
+  it('locks onto a matching bar only after stable frames, then seeks', async () => {
     const chart = createAutumnPracticeChart()
-    // Autumn practice: Dm7 G7 Cmaj7… — feed G7 chroma
+    // G7 tones: G B D F
     const chroma = new Float32Array(12) as ChromaVector
     for (const pc of [7, 11, 2, 5]) chroma[pc] = 0.25
 
@@ -38,10 +38,39 @@ describe('FollowEngine', () => {
 
     await engine.start()
     engine.tick()
+    expect(seeks).toEqual([])
+    expect(engine.getSnapshot().locked).toBe(false)
     engine.tick()
-    expect(seeks.length).toBeGreaterThanOrEqual(1)
-    expect(seeks[0]).toBe(2) // G7 is bar 2 (1-based)
-    expect(snapshots.some((m) => m.includes('G7'))).toBe(true)
+    expect(seeks).toEqual([2]) // G7 is bar 2 (1-based)
+    expect(engine.getSnapshot().locked).toBe(true)
+    expect(snapshots.some((m) => m.startsWith('Locked') && m.includes('G7'))).toBe(true)
     engine.stop()
+  })
+
+  it('cancels an in-flight mic start when stop() is called', async () => {
+    let resolveStart!: () => void
+    const startPromise = new Promise<void>((resolve) => {
+      resolveStart = resolve
+    })
+    const stop = vi.fn()
+    const mic = {
+      running: false,
+      start: vi.fn(() => startPromise),
+      stop,
+      readChroma: () => new Float32Array(12) as ChromaVector,
+    }
+    const engine = new FollowEngine({
+      getChart: () => createAutumnPracticeChart(),
+      getCurrentBarIndex: () => 0,
+      audioContext: {} as AudioContext,
+      mic: mic as never,
+      onChange: () => undefined,
+    })
+    const starting = engine.start()
+    engine.stop()
+    resolveStart()
+    await starting
+    expect(stop).toHaveBeenCalled()
+    expect(engine.getSnapshot().status).toBe('idle')
   })
 })

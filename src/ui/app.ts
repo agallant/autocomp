@@ -450,11 +450,12 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     stopFollow()
     try {
       const ctx = getAudioContext()
-      await unlockAudioContext(ctx).catch(() => undefined)
+      await unlockAudioContext(ctx)
       followEngine = new FollowEngine({
         getChart: () => editor.chart,
         getCurrentBarIndex: () => {
-          const bar = transport?.getState().bar ?? editor.selectedBarIndex + 1
+          const state = transport?.getState()
+          const bar = state?.playing ? state.bar : editor.selectedBarIndex + 1
           // Transport uses 0 during count-in; clamp to 0-based form index.
           return Math.max(0, bar - 1)
         },

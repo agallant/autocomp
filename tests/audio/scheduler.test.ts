@@ -53,9 +53,9 @@ describe('LookaheadScheduler', () => {
     })
     scheduler.start(0)
     clock.currentTime = 0.2
-    scheduler.seek(3, 1)
     scheduled.length = 0
-    scheduler.tick()
+    scheduler.seek(3, 1)
+    // seek() ticks immediately so the target beat is not skipped by a delayed interval.
     expect(scheduled[0]).toMatchObject({ bar: 3, beat: 1 })
     scheduler.stop()
   })

@@ -16,9 +16,11 @@ describe('chroma', () => {
     const sampleRate = 44100
     const data = new Float32Array(fftSize / 2)
     data.fill(-120)
-    // Peak near C4 (~261.6 Hz)
+    // Peak near C4 (~261.6 Hz); a quieter noise bin elsewhere should not win.
     const bin = Math.round((261.63 * fftSize) / sampleRate)
     data[bin] = -20
+    const noiseBin = Math.round((440 * fftSize) / sampleRate)
+    data[noiseBin] = -80
     const chroma = chromaFromFrequencyData(data, sampleRate, fftSize)
     let peakPc = 0
     let peak = -1
