@@ -24,7 +24,9 @@ export function applyVariation(
   let out = notes
   // Density before fills so Sparse does not strip section-end snare fills.
   out = applyCompDensity(ctx, out, opts.density)
-  if (opts.fills) {
+  const solo = opts.density === 'solo'
+  // Solo stays kick/ride-only — skip snare section fills.
+  if (opts.fills && !solo) {
     const flags = applyCtx.sectionBoundaries ?? sectionBoundaryFlags(ctx.chart)
     if (flags[ctx.barIndex]) {
       out = applySectionFill(ctx, out)
@@ -39,7 +41,8 @@ export function applyVariation(
       final = computed.final
     }
     out = applyFormEnding(ctx, out, {
-      penultimate: penultimate[ctx.barIndex] === true,
+      // Solo skips penultimate snare setup; still allow held final cadence.
+      penultimate: !solo && penultimate[ctx.barIndex] === true,
       final: final[ctx.barIndex] === true,
     })
   }

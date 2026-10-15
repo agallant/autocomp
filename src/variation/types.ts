@@ -1,5 +1,5 @@
-/** How busy piano/drums feel relative to the base style. */
-export type CompDensity = 'sparse' | 'normal' | 'dense'
+/** How busy the backing feels relative to the base style. */
+export type CompDensity = 'solo' | 'sparse' | 'normal' | 'dense'
 
 export type VariationOptions = {
   /** Replace late-bar drums with a fill on section boundaries. */
@@ -27,6 +27,7 @@ export const DEFAULT_VARIATION: Omit<VariationOptions, 'seed' | 'tempoBpm'> = {
 }
 
 export const COMP_DENSITY_OPTIONS: ReadonlyArray<{ id: CompDensity; label: string }> = [
+  { id: 'solo', label: 'Solo' },
   { id: 'sparse', label: 'Sparse' },
   { id: 'normal', label: 'Normal' },
   { id: 'dense', label: 'Dense' },

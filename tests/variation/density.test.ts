@@ -3,6 +3,7 @@ import { createAutumnPracticeChart } from '../../src/data/practiceCharts'
 import { expandChartBars } from '../../src/music'
 import {
   buildStyleBarContextFromBars,
+  createBalladStyle,
   createBossaStyle,
   createJazzSwingStyle,
 } from '../../src/style'
@@ -16,6 +17,45 @@ describe('applyCompDensity', () => {
 
   it('leaves notes unchanged at normal density', () => {
     expect(applyCompDensity(ctx, base, 'normal')).toEqual(base)
+  })
+
+  it('removes piano and thins bass/drums for solo practice', () => {
+    const solo = applyCompDensity(ctx, base, 'solo')
+    expect(solo.some((n) => n.voice === 'piano')).toBe(false)
+    const drums = solo.filter((n) => n.voice === 'drums')
+    expect(drums.some((n) => n.drum === 'kick')).toBe(true)
+    expect(drums.some((n) => n.drum === 'ride')).toBe(true)
+    expect(drums.every((n) => n.drum === 'kick' || n.drum === 'ride')).toBe(true)
+    const bass = solo.filter((n) => n.voice === 'bass')
+    expect(bass.length).toBeGreaterThan(0)
+    expect(bass.length).toBeLessThan(base.filter((n) => n.voice === 'bass').length)
+    expect(bass.every((n) => Math.round(n.startBeat) % 2 === 0)).toBe(true)
+  })
+
+  it('injects kick+ride for solo when the style has no drum kit', () => {
+    const ballad = createBalladStyle().realizeBar(ctx)
+    const solo = applyCompDensity(ctx, ballad, 'solo')
+    const drums = solo.filter((n) => n.voice === 'drums')
+    expect(drums.some((n) => n.drum === 'kick')).toBe(true)
+    expect(drums.some((n) => n.drum === 'ride')).toBe(true)
+  })
+
+  it('does not reintroduce snares via fills when density is solo', () => {
+    const lastCtx = buildStyleBarContextFromBars(chart, bars, bars.length - 1, {
+      wrapNext: false,
+    })!
+    const lastBase = createJazzSwingStyle().realizeBar(lastCtx)
+    const withFill = applyVariation(lastCtx, lastBase, {
+      fills: true,
+      countInBars: 0,
+      humanize: false,
+      density: 'solo',
+      endings: false,
+      seed: seedFromString(chart.id),
+      tempoBpm: 120,
+    })
+    expect(withFill.some((n) => n.voice === 'drums' && n.drum === 'snare')).toBe(false)
+    expect(withFill.some((n) => n.voice === 'piano')).toBe(false)
   })
 
   it('keeps the earliest piano onset and drops hats when sparse', () => {
