@@ -14,9 +14,15 @@ export function getAudioContext(): AudioContext {
   return sharedContext
 }
 
-/** Resume a suspended context (required after a user gesture on many browsers). */
+/** True when the context needs `resume()` before audio can play. */
+export function audioContextNeedsResume(state: string): boolean {
+  // iOS Safari may report "interrupted" after backgrounding (not in all TS libs).
+  return state === 'suspended' || state === 'interrupted'
+}
+
+/** Resume a suspended/interrupted context (required after a user gesture). */
 export async function resumeAudioContext(ctx: AudioContext): Promise<void> {
-  if (ctx.state === 'suspended') {
+  if (audioContextNeedsResume(ctx.state)) {
     await ctx.resume()
   }
 }
@@ -27,7 +33,7 @@ export async function resumeAudioContext(ctx: AudioContext): Promise<void> {
  * Safari silent even when `state` briefly reports "running".
  */
 export async function unlockAudioContext(ctx: AudioContext): Promise<void> {
-  if (ctx.state === 'suspended') {
+  if (audioContextNeedsResume(ctx.state)) {
     await ctx.resume()
   }
 
@@ -43,7 +49,7 @@ export async function unlockAudioContext(ctx: AudioContext): Promise<void> {
     // ignore — some engines reject if the context is still closed
   }
 
-  if (ctx.state === 'suspended') {
+  if (audioContextNeedsResume(ctx.state)) {
     await ctx.resume()
   }
 

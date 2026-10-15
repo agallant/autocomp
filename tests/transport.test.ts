@@ -186,6 +186,46 @@ describe('TransportController', () => {
     transport.dispose()
   })
 
+  it('does not let a stale unlock failure stop a newer play()', async () => {
+    let rejectFirst: ((err: Error) => void) | undefined
+    let resolveSecond: (() => void) | undefined
+    let resumeCalls = 0
+    const ctx = createFakeAudioContext('suspended')
+    ctx.resume = vi.fn(
+      () =>
+        new Promise<void>((resolve, reject) => {
+          resumeCalls += 1
+          if (resumeCalls === 1) {
+            rejectFirst = (err) => reject(err)
+          } else {
+            resolveSecond = () => {
+              ctx.state = 'running'
+              resolve()
+            }
+          }
+        }),
+    )
+
+    const transport = new TransportController({
+      onChange: () => undefined,
+      audioContext: ctx as unknown as AudioContext,
+      metronomeEnabled: false,
+    })
+
+    const firstPlay = transport.play()
+    transport.stop()
+    const secondPlay = transport.play()
+    resolveSecond?.()
+    await secondPlay
+    expect(transport.getState().playing).toBe(true)
+
+    rejectFirst?.(new Error('stale unlock failed'))
+    await firstPlay
+    expect(transport.getState().playing).toBe(true)
+    expect(transport.getState().audioReady).toBe(true)
+    transport.dispose()
+  })
+
   it('clamps tempo into a playable range', () => {
     const transport = new TransportController({
       onChange: () => undefined,

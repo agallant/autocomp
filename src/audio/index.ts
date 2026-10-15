@@ -1,5 +1,6 @@
 export {
   getAudioContext,
+  audioContextNeedsResume,
   resumeAudioContext,
   unlockAudioContext,
   resetAudioContextForTests,

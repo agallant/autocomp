@@ -136,6 +136,8 @@ export class TransportController {
       await unlockAudioContext(ctx)
     } catch {
       this.starting = false
+      // A newer play()/stop() may own the session — don't clobber its state.
+      if (generation !== this.playGeneration) return
       this.state = { ...this.state, playing: false, audioReady: false }
       this.emit()
       return

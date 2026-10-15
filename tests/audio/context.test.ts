@@ -39,7 +39,16 @@ describe('unlockAudioContext', () => {
     await unlockAudioContext(ctx)
     expect(raw.resume).toHaveBeenCalledTimes(1)
     expect(raw.createBufferSource).toHaveBeenCalled()
+    expect(source.buffer).not.toBeNull()
+    expect(source.connect).toHaveBeenCalledWith(raw.destination)
     expect(source.start).toHaveBeenCalledWith(0)
+    expect(raw.state).toBe('running')
+  })
+
+  it('resumes iOS interrupted contexts', async () => {
+    const { ctx, raw } = createUnlockContext('interrupted' as AudioContextState)
+    await unlockAudioContext(ctx)
+    expect(raw.resume).toHaveBeenCalled()
     expect(raw.state).toBe('running')
   })
 
