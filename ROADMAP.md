@@ -124,7 +124,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 
 ## M11 acceptance
 
-- [x] Style-aware progression factory (ii–V–I, minor ii–V–i, turnaround, blues, style vamp)
+- [x] Style-aware progression factory (ii–V–I, minor iiø–V–i, turnaround, blues, style vamp)
 - [x] Reharm helpers on selected bar: ii-before-V and tritone substitute (dominant bars)
 - [x] UI: Generate kind/key → loads chart via existing apply path; Reharm applies to selection
 - [x] Unit tests for generators + reharm; charts validate

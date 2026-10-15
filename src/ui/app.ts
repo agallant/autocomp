@@ -102,12 +102,17 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
 
   const GENERATE_KEYS: Root[] = [
     { letter: 'C', accidental: 0 },
-    { letter: 'F', accidental: 0 },
-    { letter: 'B', accidental: -1 },
-    { letter: 'E', accidental: -1 },
-    { letter: 'G', accidental: 0 },
+    { letter: 'D', accidental: -1 },
     { letter: 'D', accidental: 0 },
+    { letter: 'E', accidental: -1 },
+    { letter: 'E', accidental: 0 },
+    { letter: 'F', accidental: 0 },
+    { letter: 'F', accidental: 1 },
+    { letter: 'G', accidental: 0 },
+    { letter: 'A', accidental: -1 },
     { letter: 'A', accidental: 0 },
+    { letter: 'B', accidental: -1 },
+    { letter: 'B', accidental: 0 },
   ]
 
   const variationOptions = (chart: Chart, tempoBpm: number): VariationOptions => ({
@@ -417,7 +422,13 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
 
   const applyStyle = (nextId: StyleId, opts: { adjustTempo: boolean }): void => {
     styleId = nextId
-    generateKind = styleGenerateHints(nextId).defaultKind
+    // Only reset Generate kind when the user changes the style picker (adjustTempo),
+    // not when applyChart re-applies the same style after Generate.
+    if (opts.adjustTempo) {
+      generateKind = styleGenerateHints(nextId).defaultKind
+      const kindSelect = root.querySelector<HTMLSelectElement>('#generate-kind')
+      if (kindSelect) kindSelect.value = generateKind
+    }
     const desc = getStyleDescriptor(nextId)
     if (opts.adjustTempo && transport) {
       transport.setTempo(desc.suggestedTempoBpm)
@@ -427,8 +438,6 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     // Keep the select in sync when the chart stage is not rebuilt.
     const select = root.querySelector<HTMLSelectElement>('#style-select')
     if (select && select.value !== nextId) select.value = nextId
-    const kindSelect = root.querySelector<HTMLSelectElement>('#generate-kind')
-    if (kindSelect) kindSelect.value = generateKind
   }
 
   const refreshMidiOutputs = async (): Promise<void> => {

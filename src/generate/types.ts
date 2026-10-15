@@ -17,7 +17,7 @@ export type GenerateProgressionOptions = {
   /** Tonic of the progression (chart key). */
   key: Root
   styleId: StyleId
-  /** Prefer sharps when spelling transposed roots (default true). */
+  /** Prefer sharps when spelling non-diatonic roots; defaults to the style hint. */
   preferSharps?: boolean
 }
 

@@ -63,6 +63,26 @@ describe('generateProgression', () => {
     expect(chartBarSymbols(chart)[4]).toBe('Bb7')
   })
 
+  it('preserves flat-key diatonic spelling (Bb → Eb, not D#)', () => {
+    const chart = generateProgression({
+      kind: 'ii-v-i',
+      key: BB,
+      styleId: 'jazz-swing',
+      preferSharps: true, // must not force A# / D#
+    })
+    expect(validateChart(chart)).toEqual([])
+    const symbols = chartBarSymbols(chart)
+    expect(symbols[0]).toBe('Cm7')
+    expect(symbols[1]).toBe('F7')
+    expect(symbols[2]).toBe('Bbmaj7')
+  })
+
+  it('assigns a unique id per generation', () => {
+    const a = generateProgression({ kind: 'vamp', key: C, styleId: 'latin' })
+    const b = generateProgression({ kind: 'vamp', key: C, styleId: 'latin' })
+    expect(a.id).not.toBe(b.id)
+  })
+
   it('varies vamp harmony by style', () => {
     const styles: StyleId[] = ['jazz-swing', 'bossa', 'ballad', 'latin']
     const sets = styles.map((styleId) =>

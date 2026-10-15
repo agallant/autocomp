@@ -6,7 +6,7 @@ export type {
   ReharmMode,
 } from './types'
 
-export { degreeChord, dominantOf, samePc, tritoneRoot } from './degree'
+export { degreeChord, degreeRoot, dominantOf, samePc, tritoneRoot } from './degree'
 export {
   PROGRESSION_CATALOG,
   generateProgression,

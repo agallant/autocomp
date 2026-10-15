@@ -23,6 +23,13 @@ function slugKey(key: Root): string {
   return formatRoot(key).toLowerCase().replaceAll('#', 's')
 }
 
+let generateSeq = 0
+
+function uniqueSuffix(): string {
+  generateSeq += 1
+  return `${Date.now().toString(36)}-${generateSeq.toString(36)}`
+}
+
 function buildChart(
   id: string,
   title: string,
@@ -168,7 +175,8 @@ export function generateProgression(options: GenerateProgressionOptions): Chart 
   const hints = styleGenerateHints(options.styleId)
   const preferSharps = options.preferSharps ?? hints.preferSharps
   const bars = barsForKind(options.kind, options.key, options.styleId, preferSharps)
-  const id = `gen-${options.kind}-${slugKey(options.key)}-${options.styleId}`
+  // Unique suffix so repeated Generate + Save does not overwrite prior charts.
+  const id = `gen-${options.kind}-${slugKey(options.key)}-${options.styleId}-${uniqueSuffix()}`
   return buildChart(
     id,
     titleFor(options.kind, options.key, options.styleId),
