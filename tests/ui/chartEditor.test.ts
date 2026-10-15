@@ -1,0 +1,129 @@
+import { describe, expect, it } from 'vitest'
+import { createAutumnPracticeChart } from '../../src/data/autumnPractice'
+import {
+  assertValidChart,
+  barFromSymbols,
+  chartBarSymbols,
+  expandChartBars,
+  sectionFromBarSymbols,
+  type Chart,
+} from '../../src/music'
+import {
+  addBarAfterSelection,
+  beginEdit,
+  commitEdit,
+  createEditorState,
+  moveSelection,
+  removeSelectedBar,
+  selectBar,
+  setDraftSymbol,
+  setTitle,
+} from '../../src/ui/chartEditor'
+
+describe('chartEditor', () => {
+  it('selects and navigates bars', () => {
+    let state = createEditorState(createAutumnPracticeChart())
+    expect(state.selectedBarIndex).toBe(0)
+    state = moveSelection(state, 2)
+    expect(state.selectedBarIndex).toBe(2)
+    state = selectBar(state, 99)
+    expect(state.selectedBarIndex).toBe(7)
+  })
+
+  it('commits a valid chord edit', () => {
+    let state = createEditorState(createAutumnPracticeChart())
+    state = beginEdit(state)
+    state = setDraftSymbol(state, 'Em7')
+    state = commitEdit(state)
+    expect(state.editing).toBe(false)
+    expect(state.error).toBeNull()
+    expect(chartBarSymbols(state.chart)[0]).toBe('Em7')
+  })
+
+  it('rejects invalid chord symbols without mutating the chart', () => {
+    let state = createEditorState(createAutumnPracticeChart())
+    const before = chartBarSymbols(state.chart)
+    state = beginEdit(state)
+    state = setDraftSymbol(state, 'NotAChord')
+    state = commitEdit(state)
+    expect(state.editing).toBe(true)
+    expect(state.error).toMatch(/Invalid chord/)
+    expect(chartBarSymbols(state.chart)).toEqual(before)
+  })
+
+  it('preserves bar meter override and rehearsal mark on edit', () => {
+    const chart = createAutumnPracticeChart()
+    const waltz = barFromSymbols(['Dm7'], { numerator: 3, denominator: 4 })
+    waltz.timeSignature = { numerator: 3, denominator: 4 }
+    waltz.rehearsalMark = 'A'
+    chart.sections[0]!.bars[0] = waltz
+    assertValidChart(chart)
+
+    let state = createEditorState(chart)
+    state = beginEdit(state)
+    state = setDraftSymbol(state, 'Em7')
+    state = commitEdit(state)
+
+    const bar = expandChartBars(state.chart)[0]!
+    expect(chartBarSymbols(state.chart)[0]).toBe('Em7')
+    expect(bar.timeSignature).toEqual({ numerator: 3, denominator: 4 })
+    expect(bar.rehearsalMark).toBe('A')
+    expect(bar.slots[0]!.durationBeats).toBe(3)
+  })
+
+  it('adds and removes bars', () => {
+    let state = createEditorState(createAutumnPracticeChart())
+    expect(expandChartBars(state.chart)).toHaveLength(8)
+    state = addBarAfterSelection(state)
+    expect(expandChartBars(state.chart)).toHaveLength(9)
+    expect(state.selectedBarIndex).toBe(1)
+    state = removeSelectedBar(state)
+    expect(expandChartBars(state.chart)).toHaveLength(8)
+  })
+
+  it('selects the inserted bar when a section repeats in the form', () => {
+    const chart = createAabaChart()
+    // Expanded: A(2) + B(1) + A(2) = 5 bars. Second A starts at index 3.
+    let state = createEditorState(chart)
+    state = selectBar(state, 3)
+    state = addBarAfterSelection(state)
+    // Shared A grows; second occurrence's new bar is at index 5.
+    expect(expandChartBars(state.chart)).toHaveLength(7)
+    expect(state.selectedBarIndex).toBe(5)
+  })
+
+  it('rejects removing the last bar of a section', () => {
+    const chart = createAabaChart()
+    let state = createEditorState(chart)
+    // Section B is a single bar at expanded index 2.
+    state = selectBar(state, 2)
+    const before = expandChartBars(state.chart).length
+    state = removeSelectedBar(state)
+    expect(state.error).toMatch(/Section must keep/)
+    expect(expandChartBars(state.chart)).toHaveLength(before)
+  })
+
+  it('updates the title', () => {
+    let state = createEditorState(createAutumnPracticeChart())
+    state = setTitle(state, 'Blue Practice')
+    expect(state.chart.title).toBe('Blue Practice')
+  })
+})
+
+function createAabaChart(): Chart {
+  const chart: Chart = {
+    version: 1,
+    id: 'aaba',
+    title: 'AABA',
+    key: { letter: 'C', accidental: 0 },
+    timeSignature: { numerator: 4, denominator: 4 },
+    defaultTempoBpm: 120,
+    form: ['A', 'B', 'A'],
+    sections: [
+      sectionFromBarSymbols('A', 'A', [['Cmaj7'], ['Am7']]),
+      sectionFromBarSymbols('B', 'B', [['Dm7']]),
+    ],
+  }
+  assertValidChart(chart)
+  return chart
+}

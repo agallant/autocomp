@@ -15,8 +15,8 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | ID | Milestone | Status | Goal |
 | --- | --- | --- | --- |
 | M0 | PWA scaffold | done | Vite + TS + PWA, CI, Pages deploy, app shell + transport stub |
-| M1 | Music model | in progress | Chords, bars, forms, chart JSON schema + parse/serialize + tests |
-| M2 | Chart editor | planned | iReal-like bar grid editor (entry, navigate, quality, duration) |
+| M1 | Music model | done | Chords, bars, forms, chart JSON schema + parse/serialize + tests |
+| M2 | Chart editor | in progress | iReal-like bar grid editor (entry, navigate, quality, duration) |
 | M3 | Audio clock | planned | Web Audio transport, metronome, lookahead scheduler |
 | M4 | Jazz swing style | planned | Walking bass + piano comp + kit pattern for swing |
 | M5 | Style pack | planned | Bossa, ballad, Latin/salsa-lite; style picker |
@@ -45,6 +45,14 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] JSON serialize/deserialize round-trip
 - [x] Demo chart driven by the model in the UI shell
 - [x] Unit tests for parser + chart
+
+## M2 acceptance
+
+- [x] Select bars (click / arrow keys)
+- [x] Inline chord symbol editing with validation
+- [x] Add / remove bars
+- [x] Editable chart title
+- [x] Editor unit tests
 
 ## Process notes
 
