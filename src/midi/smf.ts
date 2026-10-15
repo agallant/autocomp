@@ -191,12 +191,25 @@ function metaTimeSignature(numerator: number, denominator: number): number[] {
 }
 
 function metaTrackName(name: string): number[] {
-  const text = textBytes(name.slice(0, 64))
-  return [0xff, 0x03, text.length, ...text]
+  // Cap by UTF-8 byte length so the meta length stays honest for multi-byte titles.
+  let text = textBytes(name)
+  if (text.length > 64) {
+    text = textBytes(name.slice(0, 64))
+    while (text.length > 64) {
+      name = name.slice(0, -1)
+      text = textBytes(name)
+    }
+  }
+  return [0xff, 0x03, ...encodeVlq(text.length), ...text]
 }
 
 function assertPowerOfTwoMeter(ts: TimeSignature, path: string): void {
-  const { denominator } = ts
+  const { numerator, denominator } = ts
+  if (!Number.isInteger(numerator) || numerator < 1 || numerator > 255) {
+    throw new Error(
+      `Unsupported meter at ${path}: numerator ${numerator} must be an integer from 1 to 255`,
+    )
+  }
   if (!Number.isInteger(denominator) || denominator < 1 || (denominator & (denominator - 1)) !== 0) {
     throw new Error(
       `Unsupported meter at ${path}: denominator ${denominator} is not a power of two (required for SMF)`,

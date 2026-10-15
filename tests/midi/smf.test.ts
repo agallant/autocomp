@@ -105,16 +105,21 @@ describe('encodeSmf / chartToMidiBytes', () => {
     expect(countNoteOns(bytes)).toBe(notes.length)
   })
 
-  it('rejects invalid PPQ and non-power-of-two meters', () => {
+  it('rejects invalid PPQ and unsupported meters', () => {
     const chart = createAutumnPracticeChart()
     const notes = realizeChartMidi(chart, createStyleById('ballad'))
     expect(() => encodeSmf(chart, notes, { ppq: 0 })).toThrow(/PPQ/)
     expect(() => encodeSmf(chart, notes, { ppq: 32768 })).toThrow(/PPQ/)
-    const badMeter = {
+    const badDenom = {
       ...chart,
       timeSignature: { numerator: 4, denominator: 3 },
     }
-    expect(() => encodeSmf(badMeter, notes)).toThrow(/power of two/)
+    expect(() => encodeSmf(badDenom, notes)).toThrow(/power of two/)
+    const badNum = {
+      ...chart,
+      timeSignature: { numerator: 300, denominator: 4 },
+    }
+    expect(() => encodeSmf(badNum, notes)).toThrow(/numerator/)
   })
 
   it('preserves non-ASCII titles as UTF-8 in track metadata', () => {
