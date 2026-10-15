@@ -48,7 +48,8 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M31 | Playhead scroll | done | Keep the sounding bar in view during playback |
 | M32 | Section ops | done | Rename / delete chart sections |
 | M33 | Count-in length | done | Choose 0 / 1 / 2 / 4 bar count-in |
-| M34 | Tempo shortcuts | in progress | Keyboard tempo ±10 ([ ] / - =) |
+| M34 | Tempo shortcuts | done | Keyboard tempo ±10 ([ ] / - =) |
+| M35 | Density shortcut | in progress | D cycles Solo → Sparse → Normal → Dense |
 
 ## M0 acceptance
 
@@ -277,7 +278,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Shortcuts ignored in form fields / chord edit
 - [x] Unit tests for `practiceKeyAction`
 - [x] Tempo ±10 shortcuts (M34)
-- [ ] Density shortcuts deferred
+- [x] Density cycle shortcut (M35)
 
 ## M28 acceptance
 
@@ -333,6 +334,13 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Same guards as other practice keys (form fields, chord edit, key-repeat)
 - [x] Unit tests for tempo key mapping
 - [ ] Hold-to-ramp tempo deferred
+
+## M35 acceptance
+
+- [x] `D` cycles Solo → Sparse → Normal → Dense
+- [x] Updates density select + live style wrap
+- [x] Unit tests for key map and cycle order
+- [ ] Direct density number keys deferred
 
 ## Process notes
 

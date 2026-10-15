@@ -7,7 +7,21 @@ import {
   createBossaStyle,
   createJazzSwingStyle,
 } from '../../src/style'
-import { applyCompDensity, applyVariation, seedFromString } from '../../src/variation'
+import {
+  applyCompDensity,
+  applyVariation,
+  nextCompDensity,
+  seedFromString,
+} from '../../src/variation'
+
+describe('nextCompDensity', () => {
+  it('cycles Solo → Sparse → Normal → Dense → Solo', () => {
+    expect(nextCompDensity('solo')).toBe('sparse')
+    expect(nextCompDensity('sparse')).toBe('normal')
+    expect(nextCompDensity('normal')).toBe('dense')
+    expect(nextCompDensity('dense')).toBe('solo')
+  })
+})
 
 describe('applyCompDensity', () => {
   const chart = createAutumnPracticeChart()

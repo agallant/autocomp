@@ -68,6 +68,7 @@ import {
   DEFAULT_VARIATION,
   clampCountInBars,
   createVariedStyle,
+  nextCompDensity,
   seedFromString,
   type CompDensity,
   type VariationOptions,
@@ -418,9 +419,9 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
           } />
           <span>Follow</span>
         </label>
-        <label class="style-picker" for="var-density">
+        <label class="style-picker" for="var-density" title="Comp density (D to cycle)">
           <span class="style-picker__label">Density</span>
-          <select id="var-density" class="style-picker__select" aria-label="Comp density">
+          <select id="var-density" class="style-picker__select" aria-label="Comp density (D to cycle)">
             ${COMP_DENSITY_OPTIONS.map(
               (opt) =>
                 `<option value="${opt.id}"${opt.id === variationDensity ? ' selected' : ''}>${escapeHtml(opt.label)}</option>`,
@@ -903,6 +904,16 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     transport.setTempo(transport.getState().tempoBpm + delta)
     syncTransportStyle({ stopSources: false })
     setPersistStatus(`Tempo ${transport.getState().tempoBpm} BPM.`)
+  }
+
+  const cycleDensity = (): void => {
+    variationDensity = nextCompDensity(variationDensity)
+    const select = root.querySelector<HTMLSelectElement>('#var-density')
+    if (select) select.value = variationDensity
+    syncTransportStyle({ stopSources: false })
+    const label =
+      COMP_DENSITY_OPTIONS.find((o) => o.id === variationDensity)?.label ?? variationDensity
+    setPersistStatus(`Density ${label}.`)
   }
 
   const applyTapTempo = (): void => {
@@ -1475,8 +1486,10 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
         toggleMetronomeClick()
       } else if (practice === 'tempo-down') {
         nudgeTempo(-10)
-      } else {
+      } else if (practice === 'tempo-up') {
         nudgeTempo(10)
+      } else {
+        cycleDensity()
       }
       return
     }
