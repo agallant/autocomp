@@ -192,13 +192,21 @@ export class TransportController {
       this.seekToFormBar(this.state.bar)
       return
     }
-    if (this.playFromFormBar !== null) {
+    if (this.playFromFormBar !== null && this.scheduler) {
       const { passIndex } = passIndexForFormBar(
         this.playFromFormBar,
         total,
         this.practiceLoop,
       )
       this.startFormOffset = Math.max(0, passIndex - 1)
+      // Lookahead may already have scheduled the first form beat under the old
+      // offset — drop pending audio/MIDI/UI and reschedule from the current
+      // count-in cursor without restarting the lead-in.
+      this.stopAudioSources()
+      this.midiSink?.clear()
+      this.clearUiTimers()
+      const pos = this.scheduler.getPosition()
+      this.scheduler.seek(pos.bar, pos.beat)
     }
   }
 
