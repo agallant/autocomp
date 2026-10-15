@@ -18,7 +18,8 @@ export type BounceOptions = {
 }
 
 const DEFAULT_SAMPLE_RATE = 44_100
-const DEFAULT_TAIL_SECONDS = 0.08
+/** Cover final-note overrun (e.g. jazz comps past the bar) down to the 40 BPM floor. */
+const DEFAULT_TAIL_SECONDS = 0.2
 
 /**
  * Offline-bounce one form pass of a chart through a style engine into an AudioBuffer.

@@ -28,6 +28,16 @@ describe('encodeWavFromChannels', () => {
     expect(view.getUint16(34, true)).toBe(16)
     expect(view.getUint32(40, true)).toBe(4 * 2 * 2) // frames * channels * bytes/sample
     expect(bytes.byteLength).toBe(44 + 16)
+
+    // Interleaved int16 PCM payload starting at byte 44.
+    expect(view.getInt16(44, true)).toBe(0) // L0
+    expect(view.getInt16(46, true)).toBe(0) // R0
+    expect(view.getInt16(48, true)).toBe(Math.round(0.5 * 0x7fff)) // L1
+    expect(view.getInt16(50, true)).toBe(Math.round(-0.25 * 0x8000)) // R1
+    expect(view.getInt16(52, true)).toBe(Math.round(-0.5 * 0x8000)) // L2
+    expect(view.getInt16(54, true)).toBe(Math.round(0.25 * 0x7fff)) // R2
+    expect(view.getInt16(56, true)).toBe(0x7fff) // L3 clipped +1
+    expect(view.getInt16(58, true)).toBe(-0x8000) // R3 clipped -1
   })
 
   it('builds a download blob and filename', () => {
