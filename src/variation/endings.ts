@@ -17,18 +17,33 @@ export function formEndingFlags(barCount: number): {
   return { penultimate, final }
 }
 
-/** Held last bar: thin texture, downbeat kick+ride, stretched piano. */
+/** Held last bar: thin texture, downbeat kick+ride, sustain only the final piano voicing. */
 export function applyFinalBarEnding(ctx: StyleBarContext, notes: StyleNote[]): StyleNote[] {
+  const pianoStarts = notes
+    .filter((n) => n.voice === 'piano')
+    .map((n) => n.startBeat)
+  const lastPianoStart =
+    pianoStarts.length > 0 ? Math.max(...pianoStarts) : null
+
   const out: StyleNote[] = []
   for (const note of notes) {
     if (note.voice === 'drums') continue
     if (note.voice === 'bass' && note.startBeat >= 1 - 1e-9) continue
     if (note.voice === 'piano') {
-      out.push({
-        ...note,
-        durationBeats: Math.max(note.durationBeats, ctx.beatsPerBar - note.startBeat),
-        velocity: Math.min(0.62, note.velocity + 0.08),
-      })
+      if (lastPianoStart !== null && Math.abs(note.startBeat - lastPianoStart) <= 1e-9) {
+        out.push({
+          ...note,
+          durationBeats: Math.max(note.durationBeats, ctx.beatsPerBar - note.startBeat),
+          velocity: Math.min(0.62, note.velocity + 0.08),
+        })
+      } else {
+        const nextStart =
+          pianoStarts.find((t) => t > note.startBeat + 1e-9) ?? note.startBeat + note.durationBeats
+        out.push({
+          ...note,
+          durationBeats: Math.max(0.05, nextStart - note.startBeat),
+        })
+      }
       continue
     }
     out.push(note)

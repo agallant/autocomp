@@ -11,12 +11,10 @@ import type { VariationOptions } from './types'
  */
 export function chartLayoutKey(chart: Chart): string {
   const byId = new Map(chart.sections.map((s) => [s.id, s]))
-  return chart.form
-    .map((id) => {
-      const section = byId.get(id)
-      return `${id}:${section?.bars.length ?? 0}`
-    })
-    .join('|')
+  // JSON tuples avoid collisions when section ids contain `:` or `|`.
+  return JSON.stringify(
+    chart.form.map((id) => [id, byId.get(id)?.bars.length ?? 0] as const),
+  )
 }
 
 /** Wrap a style engine so every `realizeBar` runs through `applyVariation`. */

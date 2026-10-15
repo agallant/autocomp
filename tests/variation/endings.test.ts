@@ -32,7 +32,7 @@ describe('form endings', () => {
     expect(snares.length).toBeGreaterThan(baseSnares.length)
   })
 
-  it('holds the final bar with kick+ride and no late bass', () => {
+  it('holds only the last piano voicing to the bar boundary', () => {
     const ctx = buildStyleBarContextFromBars(chart, bars, bars.length - 1, {
       wrapNext: false,
     })!
@@ -41,7 +41,16 @@ describe('form endings', () => {
     expect(ended.some((n) => n.voice === 'drums' && n.drum === 'ride')).toBe(true)
     expect(ended.some((n) => n.voice === 'drums' && n.drum === 'kick')).toBe(true)
     expect(ended.some((n) => n.voice === 'bass' && n.startBeat >= 1)).toBe(false)
-    expect(ended.some((n) => n.voice === 'piano')).toBe(true)
+    const piano = ended.filter((n) => n.voice === 'piano')
+    expect(piano.length).toBeGreaterThan(0)
+    const lastStart = Math.max(...piano.map((n) => n.startBeat))
+    expect(
+      piano.some(
+        (n) =>
+          Math.abs(n.startBeat - lastStart) <= 1e-9 &&
+          n.startBeat + n.durationBeats >= ctx.beatsPerBar - 1e-9,
+      ),
+    ).toBe(true)
   })
 
   it('wires through applyVariation when endings are on', () => {
@@ -58,6 +67,6 @@ describe('form endings', () => {
       seed: seedFromString(chart.id),
       tempoBpm: 120,
     })
-    expect(via.some((n) => n.drum === 'ride')).toBe(true)
+    expect(via.some((n) => n.voice === 'bass' && n.startBeat >= 1)).toBe(false)
   })
 })
