@@ -18,8 +18,8 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M1 | Music model | done | Chords, bars, forms, chart JSON schema + parse/serialize + tests |
 | M2 | Chart editor | done | iReal-like bar grid editor (select, navigate, chord entry); multi-slot duration editing deferred |
 | M3 | Audio clock | done | Web Audio transport, metronome, lookahead scheduler |
-| M4 | Jazz swing style | in progress | Walking bass + piano comp + kit pattern for swing |
-| M5 | Style pack | planned | Bossa, ballad, Latin/salsa-lite; style picker |
+| M4 | Jazz swing style | done | Walking bass + piano comp + kit pattern for swing |
+| M5 | Style pack | in progress | Bossa, ballad, Latin/salsa-lite; style picker |
 | M6 | Tune library | planned | Built-in standards/progressions + search/tags |
 | M7 | Persistence | planned | Local save/load charts (IndexedDB), import/export JSON |
 | M8 | MIDI I/O | planned | MIDI file export; optional WebMIDI out where supported |
@@ -71,6 +71,15 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Swing ride + hat + kick pattern
 - [x] Synth voices scheduled from the audio transport
 - [x] Unit tests for style realization + synth scheduling
+
+## M5 acceptance
+
+- [x] Bossa Nova style (syncopated bass / soft comps / light hats)
+- [x] Ballad style (sparse bass / sustained piano / soft pulse)
+- [x] Latin / salsa-lite style (tumbao bass / montuno shells / clave skeleton)
+- [x] Style registry + in-app style picker
+- [x] Suggested tempo applied when changing styles
+- [x] Unit tests covering each pack style
 
 ## Process notes
 

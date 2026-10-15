@@ -1,6 +1,12 @@
 import { createAutumnPracticeChart } from '../data/autumnPractice'
 import { APP_VERSION } from '../lib/version'
-import { createJazzSwingStyle } from '../style'
+import {
+  STYLE_PACK,
+  createStyleById,
+  getStyleDescriptor,
+  isStyleId,
+  type StyleId,
+} from '../style'
 import {
   addBarAfterSelection,
   beginEdit,
@@ -19,6 +25,7 @@ import { TransportController, type TransportState } from './transport'
 
 export function mountApp(root: HTMLElement): () => void {
   let editor = createEditorState(createAutumnPracticeChart())
+  let styleId: StyleId = 'jazz-swing'
 
   const renderShell = (): void => {
     root.innerHTML = `
@@ -36,7 +43,7 @@ export function mountApp(root: HTMLElement): () => void {
             <h2 id="chart-heading" class="panel__title">Chart</h2>
             <p class="panel__copy">
               Click a bar to select, Enter to edit the chord, arrows to move.
-              Press Play for jazz swing backing (bass, piano, drums).
+              Choose a backing style, then press Play.
             </p>
             <div class="chart-stage" role="group" aria-label="Editable chord chart" id="chart-stage">
               ${chartStageInner(editor)}
@@ -47,7 +54,7 @@ export function mountApp(root: HTMLElement): () => void {
             <h2 id="status-heading" class="panel__title">Session</h2>
             <p class="panel__copy" id="session-status">
               <span class="status-dot" id="status-dot" aria-hidden="true"></span>
-              Ready — press Play for jazz swing accompaniment.
+              Ready — press Play for accompaniment.
             </p>
           </section>
         </main>
@@ -92,6 +99,15 @@ export function mountApp(root: HTMLElement): () => void {
       <button type="button" class="btn" id="edit-chord">Edit chord</button>
       <button type="button" class="btn" id="add-bar">Add bar</button>
       <button type="button" class="btn" id="remove-bar">Remove bar</button>
+      <label class="style-picker" for="style-select">
+        <span class="style-picker__label">Style</span>
+        <select id="style-select" class="style-picker__select" aria-label="Backing style">
+          ${STYLE_PACK.map(
+            (style) =>
+              `<option value="${style.id}"${style.id === styleId ? ' selected' : ''}>${escapeHtml(style.label)}</option>`,
+          ).join('')}
+        </select>
+      </label>
     </div>
     <p class="chart-error" id="chart-error" role="status">${escapeHtml(state.error ?? '')}</p>
     <div class="bars" id="bars">
@@ -134,13 +150,25 @@ export function mountApp(root: HTMLElement): () => void {
     barReadout.textContent = String(state.bar)
     beatReadout.textContent = String(state.beat)
     statusDot.classList.toggle('status-dot--live', state.playing)
-    const styleName = state.styleId === 'jazz-swing' ? 'Jazz Swing' : 'accompaniment'
+    const desc = getStyleDescriptor(state.styleId ?? styleId)
     const label = state.playing
-      ? `${styleName} running — walking bass, piano comps, swing ride.`
+      ? `${desc.label} running — ${desc.blurb}.`
       : state.audioReady
-        ? `Ready — press Play for ${styleName.toLowerCase()}.`
-        : `Ready — press Play to unlock audio and start ${styleName.toLowerCase()}.`
+        ? `Ready — press Play for ${desc.label}.`
+        : `Ready — press Play to unlock audio and start ${desc.label}.`
     sessionStatus.lastChild!.textContent = ` ${label}`
+  }
+
+  const applyStyle = (nextId: StyleId, opts: { adjustTempo: boolean }): void => {
+    styleId = nextId
+    const desc = getStyleDescriptor(nextId)
+    transport?.setStyle(desc.create())
+    if (opts.adjustTempo && transport) {
+      transport.setTempo(desc.suggestedTempoBpm)
+    }
+    // Keep the select in sync when the chart stage is not rebuilt.
+    const select = root.querySelector<HTMLSelectElement>('#style-select')
+    if (select && select.value !== nextId) select.value = nextId
   }
 
   const bindTransport = (): void => {
@@ -154,15 +182,16 @@ export function mountApp(root: HTMLElement): () => void {
     statusDot = root.querySelector('#status-dot')
     sessionStatus = root.querySelector('#session-status')
 
+    const desc = getStyleDescriptor(styleId)
     transport?.dispose()
     transport = new TransportController({
       onChange: renderTransport,
       beatsPerBar: editor.chart.timeSignature.numerator,
-      style: createJazzSwingStyle(),
+      style: createStyleById(styleId),
       getChart: () => editor.chart,
       metronomeEnabled: false,
     })
-    transport.setTempo(editor.chart.defaultTempoBpm)
+    transport.setTempo(editor.chart.defaultTempoBpm || desc.suggestedTempoBpm)
 
     playToggle?.addEventListener('click', () => transport?.toggle())
     tempoDown?.addEventListener('click', () => {
@@ -201,6 +230,11 @@ export function mountApp(root: HTMLElement): () => void {
     })
     root.querySelector('#remove-bar')?.addEventListener('click', () => {
       setEditor(removeSelectedBar(editor))
+    })
+    root.querySelector<HTMLSelectElement>('#style-select')?.addEventListener('change', (event) => {
+      const value = (event.target as HTMLSelectElement).value
+      if (!isStyleId(value)) return
+      applyStyle(value, { adjustTempo: true })
     })
 
     const titleInput = root.querySelector<HTMLInputElement>('#title-input')
