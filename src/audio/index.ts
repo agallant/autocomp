@@ -6,7 +6,11 @@ export {
   resetAudioContextForTests,
 } from './context'
 export { applyAmpEnvelope } from './envelope'
-export { scheduleMetronomeClick } from './metronome'
+export {
+  DEFAULT_CLICK_LEVEL,
+  clampClickLevel,
+  scheduleMetronomeClick,
+} from './metronome'
 export { LookaheadScheduler, secondsPerBeat } from './scheduler'
 export { scheduleStyleNote, type ScheduledSource, type ScheduleStyleNoteOptions } from './synth'
 export {

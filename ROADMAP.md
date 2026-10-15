@@ -43,7 +43,8 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M26 | Guide melody | done | Generative guide-tone practice line |
 | M27 | Keyboard shortcuts | done | Space play/pause, T tap, M click |
 | M28 | Playhead affordance | done | Play-from-here marker + live playhead |
-| M29 | Form editor | in progress | Edit form order + section markers on the grid |
+| M29 | Form editor | done | Edit form order + section markers on the grid |
+| M30 | Click volume | in progress | Adjustable metronome / count-in click level |
 
 ## M0 acceptance
 
@@ -289,6 +290,14 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Meta line shows compact form string
 - [x] Unit tests for form rewrite, add section, and markers
 - [ ] Rename / delete sections deferred
+
+## M30 acceptance
+
+- [x] `clickLevel` (0–1) scales metronome / count-in click amplitude
+- [x] Toolbar Click lvl range; live updates without restart
+- [x] Zero level schedules no click oscillators
+- [x] Unit tests for clamp, scaling, and silence
+- [ ] Persist click level with saved charts deferred
 
 ## Process notes
 

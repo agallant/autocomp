@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { scheduleMetronomeClick } from '../../src/audio/metronome'
+import { clampClickLevel, scheduleMetronomeClick } from '../../src/audio/metronome'
 
 function createFakeContext() {
   const osc = {
@@ -40,5 +40,23 @@ describe('scheduleMetronomeClick', () => {
     const { ctx, osc } = createFakeContext()
     scheduleMetronomeClick(ctx, 0, false)
     expect(osc.frequency.setValueAtTime).toHaveBeenCalledWith(900, 0)
+  })
+
+  it('scales peak gain by click level', () => {
+    const { ctx, gain } = createFakeContext()
+    scheduleMetronomeClick(ctx, 1, true, 0.5)
+    expect(gain.gain.linearRampToValueAtTime).toHaveBeenCalledWith(0.14, 1.002)
+  })
+
+  it('schedules nothing at zero click level', () => {
+    const { ctx, osc } = createFakeContext()
+    expect(scheduleMetronomeClick(ctx, 0, true, 0)).toBeNull()
+    expect(osc.start).not.toHaveBeenCalled()
+  })
+
+  it('clamps click level to 0–1', () => {
+    expect(clampClickLevel(-1)).toBe(0)
+    expect(clampClickLevel(2)).toBe(1)
+    expect(clampClickLevel(Number.NaN)).toBe(1)
   })
 })
