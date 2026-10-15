@@ -105,4 +105,19 @@ describe('reharmBar', () => {
   it('builds a secondary ii–V toward I', () => {
     expect(secondaryIiV(C, 1)).toEqual(['Dm7', 'G7'])
   })
+
+  it('honors preferSharps=false for ii-before-V spelling', () => {
+    const chart: Chart = {
+      version: 1,
+      id: 'b7',
+      title: 'B7',
+      key: C,
+      timeSignature: { numerator: 4, denominator: 4 },
+      defaultTempoBpm: 120,
+      form: ['A'],
+      sections: [sectionFromBarSymbols('A', 'A', [['B7']])],
+    }
+    const next = reharmBar(chart, 0, 'ii-before-v', false)
+    expect(chartBarSymbols(next)[0]).toBe('Gbm7 B7')
+  })
 })

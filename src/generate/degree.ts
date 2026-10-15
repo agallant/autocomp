@@ -1,6 +1,7 @@
 import {
   formatRoot,
   normalizePc,
+  pcToRoot,
   rootToPc,
   transposeRoot,
   type Accidental,
@@ -62,10 +63,14 @@ export function degreeRoot(
   const minorAdjust =
     mode === 'minor' && (degree === 3 || degree === 6 || degree === 7) ? -1 : 0
   const targetPc = normalizePc(rootToPc(key) + semitones + minorAdjust)
-  let accidental = (targetPc - LETTER_PC[letter]) as number
-  // Normalize accidental into -2..2 (double flats/sharps rare but valid).
-  while (accidental > 2) accidental -= 12
-  while (accidental < -2) accidental += 12
+  let accidental = targetPc - LETTER_PC[letter]
+  // Bring into roughly [-6, 6] then accept only spellable accidentals.
+  if (accidental > 6) accidental -= 12
+  if (accidental < -6) accidental += 12
+  if (accidental > 2 || accidental < -2) {
+    // Extreme keys (e.g. D##) — fall back to a valid enharmonic spelling.
+    return pcToRoot(targetPc, key.accidental >= 0)
+  }
   return { letter, accidental: accidental as Accidental }
 }
 

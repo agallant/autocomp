@@ -66,10 +66,6 @@ function findDominantSlotIndex(bar: Bar): number {
   return bar.slots.findIndex((slot) => slot.chord !== null && isDominantFamily(slot.chord))
 }
 
-function preferSharpsForRoot(root: { accidental: number }): boolean {
-  return root.accidental >= 0
-}
-
 /**
  * Split the first dominant slot into ii–V, preserving other slots and total beats.
  * Non-dominant bars are left unchanged (same object reference).
@@ -80,8 +76,7 @@ function reharmIiBeforeV(bar: Bar, preferSharps: boolean): Bar {
   const slot = bar.slots[slotIndex]!
   const chord = slot.chord!
   const vRoot = chord.root
-  const sharpBias = preferSharps || preferSharpsForRoot(vRoot)
-  const iiRoot = transposeRoot(vRoot, 7, sharpBias)
+  const iiRoot = transposeRoot(vRoot, 7, preferSharps)
   const half = slot.durationBeats / 2
   if (!(half > 0) || !Number.isFinite(half)) return bar
 
@@ -191,8 +186,7 @@ export function secondaryIiV(
 ): [string, string] {
   const target = degreeChord(tonic, targetDegree, 'major', undefined, preferSharps)
   const targetChord = parseChordSymbol(target)
-  const sharpBias = preferSharps || preferSharpsForRoot(targetChord.root)
-  const vRoot = transposeRoot(targetChord.root, 7, sharpBias)
-  const iiRoot = transposeRoot(vRoot, 7, sharpBias)
+  const vRoot = transposeRoot(targetChord.root, 7, preferSharps)
+  const iiRoot = transposeRoot(vRoot, 7, preferSharps)
   return [`${formatRoot(iiRoot)}m7`, `${formatRoot(vRoot)}7`]
 }

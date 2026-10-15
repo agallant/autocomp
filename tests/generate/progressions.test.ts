@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import {
   PROGRESSION_CATALOG,
+  degreeRoot,
   generateProgression,
   styleGenerateHints,
 } from '../../src/generate'
-import { chartBarSymbols, validateChart, type Root } from '../../src/music'
+import { chartBarSymbols, formatRoot, validateChart, type Root } from '../../src/music'
 import type { StyleId } from '../../src/style'
 
 const C: Root = { letter: 'C', accidental: 0 }
@@ -81,6 +82,14 @@ describe('generateProgression', () => {
     const a = generateProgression({ kind: 'vamp', key: C, styleId: 'latin' })
     const b = generateProgression({ kind: 'vamp', key: C, styleId: 'latin' })
     expect(a.id).not.toBe(b.id)
+  })
+
+  it('falls back to a spellable enharmonic for extreme keys', () => {
+    const dDoubleSharp: Root = { letter: 'D', accidental: 2 }
+    const root = degreeRoot(dDoubleSharp, 1, 'major')
+    expect(root.accidental).toBeGreaterThanOrEqual(-2)
+    expect(root.accidental).toBeLessThanOrEqual(2)
+    expect(formatRoot(root).length).toBeGreaterThan(0)
   })
 
   it('varies vamp harmony by style', () => {
