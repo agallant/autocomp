@@ -6,7 +6,7 @@ Automatic musical accompaniment as a **client-side TypeScript PWA** — chord ch
 
 ## Status
 
-Milestone **M5** — style pack (jazz swing, bossa, ballad, latin) with an in-app style picker. See [ROADMAP.md](./ROADMAP.md).
+Milestone **M6** — built-in practice tune library with search/tags, plus style pack accompaniment. See [ROADMAP.md](./ROADMAP.md).
 
 ## Chart format (preview)
 

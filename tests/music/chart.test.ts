@@ -36,7 +36,7 @@ describe('chart model', () => {
     expect(restored.title).toBe(chart.title)
     expect(restored.defaultTempoBpm).toBe(120)
     expect(restored.sections[0]!.bars[0]!.slots[0]!.durationBeats).toBe(4)
-    expect(restored.styleHint).toBe('swing')
+    expect(restored.styleHint).toBe('jazz-swing')
 
     const text = serializeChart(chart)
     const fromText = deserializeChart(text)
