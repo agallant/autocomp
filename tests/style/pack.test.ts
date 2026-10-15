@@ -69,10 +69,12 @@ describe('style pack', () => {
     }
   })
 
-  it('latin uses clave hits in the percussion pattern', () => {
+  it('latin uses clave hits with short hats (not ride wash)', () => {
     const ctx = buildStyleBarContext(createAutumnPracticeChart(), 0)!
     const notes = createStyleById('latin').realizeBar(ctx)
     expect(notes.some((n) => n.drum === 'clave')).toBe(true)
+    expect(notes.some((n) => n.drum === 'hat')).toBe(true)
+    expect(notes.every((n) => n.drum !== 'ride')).toBe(true)
   })
 
   it('latin anticipates bass on the and of 2/4', () => {

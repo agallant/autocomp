@@ -1,17 +1,21 @@
 # Sample credits
 
 Bundled accompaniment samples are redistributed under permissive / public-domain
-terms. Keep this file with the kit.
+terms, or created for this project. Keep this file with the kit.
 
 ## Drums
 
 Bundled as AAC/M4A for Safari `decodeAudioData` support.
 
-- **kick / snare / hat / ride** — from [danigb/samples](https://github.com/danigb/samples)
+- **kick / snare** — from [danigb/samples](https://github.com/danigb/samples)
   `drum-machines/808-mini`. Source pack: Michael Fischer TR-808 samples
   (1994), CC0 1.0 Universal.
-- **clave** — from [danigb/samples](https://github.com/danigb/samples)
-  `drum-machines/TR-808/clave`. Same TR-808 CC0 lineage.
+- **ride** — same TR-808 CC0 lineage, envelope-trimmed so overlapping swing
+  rides do not smear into a noise wash.
+- **clave** — short modal woodblock one-shot authored for Autocomp (original),
+  dedicated to the public domain under [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/).
+- **hat** — short closed-hat tonal one-shot authored for Autocomp (original),
+  dedicated to the public domain under [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/).
 
 ## Bass
 

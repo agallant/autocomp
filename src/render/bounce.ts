@@ -10,13 +10,10 @@ export type BounceOptions = {
   sampleRate?: number
   /** Extra silence after the last bar so note releases finish. */
   tailSeconds?: number
-<<<<<<< HEAD
-  /** Prefetched kit (tests); otherwise loads bundled CC0 samples. */
+  /** Prefetched kit (tests); otherwise loads bundled samples. */
   sampleKit?: SampleKit | null
-=======
   /** Lead-in silence matching live count-in (no click track in the WAV). */
   countInBars?: number
->>>>>>> 39518ff (M10: Section fills, count-in, and seeded humanization)
   /** Inject OfflineAudioContext for tests / non-browser environments. */
   createOfflineContext?: (
     numberOfChannels: number,
@@ -43,7 +40,9 @@ export async function bounceChartToBuffer(
   const tempoBpm = Math.max(1, options.tempoBpm)
   const sampleRate = options.sampleRate ?? DEFAULT_SAMPLE_RATE
   const tailSeconds = options.tailSeconds ?? DEFAULT_TAIL_SECONDS
-  const countInBars = Math.max(0, Math.floor(options.countInBars ?? 0))
+  const countInBars = Number.isFinite(options.countInBars)
+    ? Math.max(0, Math.floor(options.countInBars!))
+    : 0
   const secondsPerBeat = 60 / tempoBpm
   const durationSec = chartFormDurationSeconds(chart, tempoBpm, countInBars) + tailSeconds
   const length = Math.max(1, Math.ceil(durationSec * sampleRate))
@@ -53,13 +52,10 @@ export async function bounceChartToBuffer(
     ((channels: number, len: number, rate: number) => new OfflineAudioContext(channels, len, rate))
 
   const ctx = create(2, length, sampleRate)
+  // `undefined` → load kit (required for instrumental export). `null` → synth fallback (tests).
   let kit = options.sampleKit ?? null
-  if (kit === null && options.sampleKit === undefined) {
-    try {
-      kit = await ensureSampleKit(ctx, options.fetchFn ?? fetch)
-    } catch {
-      kit = null
-    }
+  if (options.sampleKit === undefined) {
+    kit = await ensureSampleKit(ctx, options.fetchFn ?? fetch)
   }
   const bars = expandChartBars(chart)
   let beatCursor = countInBeats(chart, countInBars)

@@ -152,26 +152,43 @@ function scheduleDrumSynth(
     return [osc]
   }
 
-  // Fallback only — live/export prefer CC0 samples. Short filtered burst, not long noise.
-  const length = Math.max(0.02, Math.min(duration, kind === 'ride' ? 0.12 : 0.06))
-  const sampleCount = Math.ceil(ctx.sampleRate * length)
-  const buffer = ctx.createBuffer(1, sampleCount, ctx.sampleRate)
-  const data = buffer.getChannelData(0)
-  for (let i = 0; i < sampleCount; i++) {
-    const env = 1 - i / sampleCount
-    data[i] = (Math.random() * 2 - 1) * env * env
+  // Fallback only — prefer bundled samples. Use short tonal pings, never long noise bursts.
+  if (kind === 'clave') {
+    return scheduleToneBurst(ctx, when, velocity, [1850, 2450, 3100], 0.12, 0.22)
   }
-  const src = ctx.createBufferSource()
-  src.buffer = buffer
-  const filter = ctx.createBiquadFilter()
-  filter.type = kind === 'hat' || kind === 'clave' ? 'highpass' : 'bandpass'
-  filter.frequency.value = kind === 'hat' || kind === 'clave' ? 6000 : 4000
-  const gain = ctx.createGain()
-  applyAmpEnvelope(gain.gain, when, (kind === 'ride' ? 0.14 : 0.2) * velocity, length, 0.002)
-  src.connect(filter)
-  filter.connect(gain)
-  gain.connect(ctx.destination)
-  src.start(when)
-  src.stop(when + length + 0.02)
-  return [src]
+  if (kind === 'hat') {
+    return scheduleToneBurst(ctx, when, velocity, [5200, 7800, 9400], 0.06, 0.12)
+  }
+  if (kind === 'ride') {
+    return scheduleToneBurst(ctx, when, velocity, [400, 800, 2400], 0.18, 0.14)
+  }
+  // snare: brief band-limited click + body tone
+  return scheduleToneBurst(ctx, when, velocity, [180, 220, 1800], 0.1, 0.18)
+}
+
+function scheduleToneBurst(
+  ctx: BaseAudioContext,
+  when: number,
+  velocity: number,
+  freqs: number[],
+  length: number,
+  peak: number,
+): ScheduledSource[] {
+  const master = ctx.createGain()
+  applyAmpEnvelope(master.gain, when, peak * velocity, length, 0.002)
+  master.connect(ctx.destination)
+  const sources: ScheduledSource[] = []
+  for (const [i, freq] of freqs.entries()) {
+    const osc = ctx.createOscillator()
+    const gain = ctx.createGain()
+    osc.type = 'sine'
+    osc.frequency.setValueAtTime(freq, when)
+    gain.gain.value = 1 / (i + 1.5)
+    osc.connect(gain)
+    gain.connect(master)
+    osc.start(when)
+    osc.stop(when + length + 0.02)
+    sources.push(osc)
+  }
+  return sources
 }
