@@ -40,6 +40,70 @@ describe('chartEditor', () => {
     expect(chartBarSymbols(state.chart)[0]).toBe('Em7')
   })
 
+  it('commits space-separated symbols as equal-duration slots', () => {
+    let state = createEditorState(createAutumnPracticeChart())
+    state = beginEdit(state)
+    state = setDraftSymbol(state, 'Dm7 G7')
+    state = commitEdit(state)
+    expect(state.error).toBeNull()
+    expect(chartBarSymbols(state.chart)[0]).toBe('Dm7 G7')
+    const bar = expandChartBars(state.chart)[0]!
+    expect(bar.slots).toHaveLength(2)
+    expect(bar.slots.map((s) => s.durationBeats)).toEqual([2, 2])
+  })
+
+  it('front-loads remainder beats for three chords in 4/4', () => {
+    let state = createEditorState(createAutumnPracticeChart())
+    state = beginEdit(state)
+    state = setDraftSymbol(state, 'C Dm G7')
+    state = commitEdit(state)
+    expect(state.error).toBeNull()
+    const bar = expandChartBars(state.chart)[0]!
+    expect(bar.slots.map((s) => s.durationBeats)).toEqual([2, 1, 1])
+    expect(bar.slots.reduce((sum, s) => sum + s.durationBeats, 0)).toBe(4)
+  })
+
+  it('keeps spaced alterations as one chord when the full draft parses', () => {
+    let state = createEditorState(createAutumnPracticeChart())
+    state = beginEdit(state)
+    state = setDraftSymbol(state, 'G7 b9')
+    state = commitEdit(state)
+    expect(state.error).toBeNull()
+    expect(chartBarSymbols(state.chart)[0]).toBe('G7b9')
+    expect(expandChartBars(state.chart)[0]!.slots).toHaveLength(1)
+  })
+
+  it('preserves silent slots via NC in the draft', () => {
+    let state = createEditorState(createAutumnPracticeChart())
+    state = beginEdit(state)
+    state = setDraftSymbol(state, 'NC G7')
+    state = commitEdit(state)
+    expect(state.error).toBeNull()
+    const bar = expandChartBars(state.chart)[0]!
+    expect(bar.slots[0]!.chord).toBeNull()
+    expect(bar.slots[1]!.chord).not.toBeNull()
+    state = beginEdit(state)
+    expect(state.draftSymbol).toBe('NC G7')
+  })
+
+  it('rejects more chords than beats in the bar', () => {
+    let state = createEditorState(createAutumnPracticeChart())
+    state = beginEdit(state)
+    state = setDraftSymbol(state, 'C Dm Em F G')
+    state = commitEdit(state)
+    expect(state.editing).toBe(true)
+    expect(state.error).toMatch(/At most 4 chords/)
+  })
+
+  it('loads multi-slot bars into the draft as space-separated symbols', () => {
+    const chart = createAutumnPracticeChart()
+    chart.sections[0]!.bars[0] = barFromSymbols(['Dm7', 'G7'])
+    assertValidChart(chart)
+    let state = createEditorState(chart)
+    state = beginEdit(state)
+    expect(state.draftSymbol).toBe('Dm7 G7')
+  })
+
   it('rejects invalid chord symbols without mutating the chart', () => {
     let state = createEditorState(createAutumnPracticeChart())
     const before = chartBarSymbols(state.chart)

@@ -1,14 +1,23 @@
 import {
   assertValidChart,
-  barFromSymbols,
   beatsPerBar,
+  distributeBeats,
   expandChartBars,
   formatChord,
   parseChordSymbol,
   tryParseChordSymbol,
   type Bar,
   type Chart,
+  type ChordSlot,
 } from '../music'
+
+/** Lead-sheet token for a silent slot (no chord). */
+export const REST_TOKEN = 'NC'
+
+function isRestToken(token: string): boolean {
+  const t = token.trim().toUpperCase()
+  return t === 'NC' || t === '.' || t === 'R'
+}
 
 export type ChartEditorState = {
   chart: Chart
@@ -39,11 +48,24 @@ export function selectedBar(state: ChartEditorState): Bar | null {
   return bars[state.selectedBarIndex] ?? null
 }
 
+/** Space-separated chord/rest tokens for the selected bar (multi-slot aware). */
 export function selectedSymbol(state: ChartEditorState): string {
   const bar = selectedBar(state)
   if (!bar) return ''
-  const chord = bar.slots.find((s) => s.chord)?.chord
-  return chord ? formatChord(chord) : ''
+  if (bar.slots.every((s) => !s.chord)) return ''
+  return bar.slots.map((s) => (s.chord ? formatChord(s.chord) : REST_TOKEN)).join(' ')
+}
+
+/**
+ * Split a draft into chord/rest tokens (whitespace-separated).
+ * Prefers the full string as one chord when it parses (e.g. `G7 b9`).
+ * Empty string → no tokens (clears the bar).
+ */
+export function parseDraftSymbols(draft: string): string[] {
+  const trimmed = draft.trim()
+  if (!trimmed) return []
+  if (tryParseChordSymbol(trimmed)) return [trimmed]
+  return trimmed.split(/\s+/).filter((s) => s.length > 0)
 }
 
 export function selectBar(state: ChartEditorState, index: number): ChartEditorState {
@@ -74,11 +96,15 @@ export function setDraftSymbol(state: ChartEditorState, draftSymbol: string): Ch
   return { ...state, draftSymbol, error: null }
 }
 
-/** Commit draft symbol into the selected bar (whole-bar chord). Empty clears the bar. */
+/**
+ * Commit draft into the selected bar.
+ * Whitespace-separated symbols become equal (or nearly equal) duration slots.
+ * Empty clears the bar.
+ */
 export function commitEdit(state: ChartEditorState): ChartEditorState {
-  const symbol = state.draftSymbol.trim()
+  const tokens = parseDraftSymbols(state.draftSymbol)
   const existing = selectedBar(state)
-  if (symbol === '') {
+  if (tokens.length === 0) {
     return {
       ...updateBarAt(state, state.selectedBarIndex, emptyBar(state.chart, existing)),
       editing: false,
@@ -86,12 +112,33 @@ export function commitEdit(state: ChartEditorState): ChartEditorState {
       error: null,
     }
   }
-  if (!tryParseChordSymbol(symbol)) {
-    return { ...state, error: `Invalid chord “${symbol}”` }
+  for (const token of tokens) {
+    if (!isRestToken(token) && !tryParseChordSymbol(token)) {
+      return { ...state, error: `Invalid chord “${token}”` }
+    }
   }
-  const chord = parseChordSymbol(symbol)
   const meter = existing?.timeSignature ?? state.chart.timeSignature
-  const bar = barFromSymbols([formatChord(chord)], meter)
+  const beats = beatsPerBar(meter)
+  if (tokens.length > beats) {
+    return {
+      ...state,
+      error: `At most ${beats} chords per bar in ${meter.numerator}/${meter.denominator}`,
+    }
+  }
+  let durations: number[]
+  try {
+    durations = distributeBeats(beats, tokens.length)
+  } catch (err) {
+    return {
+      ...state,
+      error: err instanceof Error ? err.message : 'Could not build bar slots',
+    }
+  }
+  const slots: ChordSlot[] = tokens.map((token, i) => {
+    if (isRestToken(token)) return { chord: null, durationBeats: durations[i]! }
+    return { chord: parseChordSymbol(token), durationBeats: durations[i]! }
+  })
+  const bar: Bar = { slots }
   if (existing?.timeSignature !== undefined) bar.timeSignature = existing.timeSignature
   if (existing?.rehearsalMark !== undefined) bar.rehearsalMark = existing.rehearsalMark
   return {

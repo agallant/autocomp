@@ -1,10 +1,9 @@
 import { formatChord, formatRoot, type Bar, type Chart } from '../music'
-import type { ChartEditorState } from './chartEditor'
+import { REST_TOKEN, type ChartEditorState } from './chartEditor'
 
 function slotLabel(bar: Bar): string {
-  const chords = bar.slots.filter((s) => s.chord).map((s) => formatChord(s.chord!))
-  if (chords.length === 0) return '·'
-  return chords.join(' ')
+  if (bar.slots.every((s) => !s.chord)) return '·'
+  return bar.slots.map((s) => (s.chord ? formatChord(s.chord) : REST_TOKEN)).join(' ')
 }
 
 export function renderEditableBars(state: ChartEditorState): string {
@@ -19,15 +18,16 @@ export function renderEditableBars(state: ChartEditorState): string {
       if (editing) {
         return `
           <div class="bar bar--selected bar--editing" data-bar="${i + 1}" data-index="${i}">
-            <label class="sr-only" for="chord-input">Chord symbol</label>
+            <label class="sr-only" for="chord-input">Chord symbols</label>
             <input
               id="chord-input"
               class="bar__input"
               type="text"
               value="${escapeAttr(state.draftSymbol)}"
+              placeholder="Dm7 G7 or NC G7"
               spellcheck="false"
               autocomplete="off"
-              aria-label="Chord symbol"
+              aria-label="Chord symbols (space-separated; NC for a rest slot)"
             />
             <span class="bar__beat">|</span>
           </div>`

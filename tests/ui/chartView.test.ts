@@ -4,6 +4,27 @@ import { createEditorState } from '../../src/ui/chartEditor'
 import { renderEditableBars } from '../../src/ui/chartView'
 
 describe('chartView', () => {
+  it('shows NC for silent slots in multi-slot bars', () => {
+    const state = createEditorState(createAutumnPracticeChart())
+    state.chart.sections[0]!.bars[0] = {
+      slots: [
+        { chord: null, durationBeats: 2 },
+        {
+          chord: {
+            root: { letter: 'G', accidental: 0 },
+            quality: 'dom7',
+            extensions: [],
+            alterations: [],
+            symbol: 'G7',
+          },
+          durationBeats: 2,
+        },
+      ],
+    }
+    const html = renderEditableBars(state)
+    expect(html).toContain('NC G7')
+  })
+
   it('escapes quotes in bar aria-label attributes', () => {
     const state = createEditorState(createAutumnPracticeChart())
     state.chart.sections[0]!.bars[0] = {
