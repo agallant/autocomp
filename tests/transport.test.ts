@@ -16,6 +16,7 @@ function createFakeAudioContext(initialState: AudioContextState = 'suspended') {
       return currentTime
     },
     state: initialState,
+    sampleRate: 44100,
     destination: {} as AudioDestinationNode,
     resume: vi.fn(async () => {
       ctx.state = 'running'
@@ -34,12 +35,33 @@ function createFakeAudioContext(initialState: AudioContextState = 'suspended') {
     createGain: vi.fn(() => {
       const gain = {
         gain: {
+          value: 0,
           setValueAtTime: vi.fn(),
+          linearRampToValueAtTime: vi.fn(),
+          cancelScheduledValues: vi.fn(),
           exponentialRampToValueAtTime: vi.fn(),
         },
         connect: vi.fn(),
       }
       return gain as unknown as GainNode
+    }),
+    createBuffer: vi.fn(
+      (channels: number, length: number, rate: number) =>
+        ({
+          numberOfChannels: channels,
+          length,
+          sampleRate: rate,
+          getChannelData: () => new Float32Array(length),
+        }) as unknown as AudioBuffer,
+    ),
+    createBufferSource: vi.fn(() => {
+      const source = {
+        buffer: null as AudioBuffer | null,
+        connect: vi.fn(),
+        start: vi.fn(),
+        stop: vi.fn(),
+      }
+      return source as unknown as AudioBufferSourceNode
     }),
     advance(seconds: number) {
       currentTime += seconds
@@ -81,6 +103,7 @@ describe('TransportController', () => {
     })
     await transport.play()
     expect(ctx.resume).toHaveBeenCalledTimes(1)
+    expect(ctx.createBufferSource).toHaveBeenCalled()
     expect(ctx.state).toBe('running')
     expect(transport.getState().audioReady).toBe(true)
     transport.dispose()
@@ -121,8 +144,8 @@ describe('TransportController', () => {
     expect(transport.getState().playing).toBe(true)
     expect(transport.getState().audioReady).toBe(true)
 
-    // Start offset 0.05s; first UI update fires then.
-    await vi.advanceTimersByTimeAsync(50)
+    // Start offset 0.08s; first UI update fires then.
+    await vi.advanceTimersByTimeAsync(80)
     expect(transport.getState()).toMatchObject({ bar: 1, beat: 1 })
 
     // Advance audio clock into the next beat's schedule window and flush timers.
@@ -186,7 +209,7 @@ describe('TransportController', () => {
     })
 
     await transport.play()
-    await vi.advanceTimersByTimeAsync(50)
+    await vi.advanceTimersByTimeAsync(80)
     ctx.advance(0.5)
     await vi.advanceTimersByTimeAsync(25)
     await vi.advanceTimersByTimeAsync(500)

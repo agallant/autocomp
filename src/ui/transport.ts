@@ -1,9 +1,9 @@
 import {
   getAudioContext,
   LookaheadScheduler,
-  resumeAudioContext,
   scheduleMetronomeClick,
   scheduleStyleNote,
+  unlockAudioContext,
   type ScheduledBeat,
   type ScheduledSource,
 } from '../audio'
@@ -132,9 +132,12 @@ export class TransportController {
     const generation = ++this.playGeneration
     const ctx = this.ensureContext()
     try {
-      await resumeAudioContext(ctx)
+      // Safari/iPad needs a silent buffer kick; resume alone is not enough.
+      await unlockAudioContext(ctx)
     } catch {
       this.starting = false
+      this.state = { ...this.state, playing: false, audioReady: false }
+      this.emit()
       return
     }
     if (generation !== this.playGeneration) {
@@ -160,7 +163,8 @@ export class TransportController {
       clearIntervalFn: this.clearIntervalFn,
       onSchedule: (beat) => this.handleScheduledBeat(ctx, beat),
     })
-    this.scheduler.start(ctx.currentTime + 0.05)
+    // Schedule slightly ahead so the first notes land after unlock settles.
+    this.scheduler.start(ctx.currentTime + 0.08)
   }
 
   stop(): void {

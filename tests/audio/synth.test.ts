@@ -18,6 +18,8 @@ function createFakeContext() {
     gain: {
       value: 0,
       setValueAtTime: vi.fn(),
+      linearRampToValueAtTime: vi.fn(),
+      cancelScheduledValues: vi.fn(),
       exponentialRampToValueAtTime: vi.fn(),
     },
     connect: vi.fn(),
