@@ -20,6 +20,8 @@ describe('practicePrefs', () => {
     prefs.metronomeEnabled = true
     prefs.swingFeel = 80
     prefs.fills = false
+    prefs.humanize = false
+    prefs.endings = true
     savePracticePrefs(prefs, storage)
     expect(storage.getItem(PRACTICE_PREFS_KEY)).toContain('"density":"sparse"')
     const loaded = loadPracticePrefs(storage)
@@ -31,6 +33,8 @@ describe('practicePrefs', () => {
     expect(loaded.metronomeEnabled).toBe(true)
     expect(loaded.swingFeel).toBe(80)
     expect(loaded.fills).toBe(false)
+    expect(loaded.humanize).toBe(false)
+    expect(loaded.endings).toBe(true)
   })
 
   it('returns defaults for missing or invalid storage', () => {
@@ -47,7 +51,7 @@ describe('practicePrefs', () => {
       density: 'loud',
       swingFeel: 150,
       voiceLevels: { bass: -1, piano: 2 },
-      voiceEnabled: { bass: false, piano: 'yes' },
+      voiceEnabled: { bass: false, melody: 'yes' },
     })
     expect(normalized.clickLevel).toBe(1)
     expect(normalized.countInBars).toBe(0)
@@ -56,6 +60,13 @@ describe('practicePrefs', () => {
     expect(normalized.voiceLevels.bass).toBe(0)
     expect(normalized.voiceLevels.piano).toBe(1)
     expect(normalized.voiceEnabled.bass).toBe(false)
-    expect(normalized.voiceEnabled.piano).toBe(true)
+    expect(normalized.voiceEnabled.melody).toBe(false)
+  })
+
+  it('keeps default swingFeel when the stored value is non-numeric', () => {
+    const defaults = defaultPracticePrefs()
+    expect(normalizePracticePrefs({ swingFeel: null }).swingFeel).toBe(defaults.swingFeel)
+    expect(normalizePracticePrefs({ swingFeel: false }).swingFeel).toBe(defaults.swingFeel)
+    expect(normalizePracticePrefs({ swingFeel: '80' }).swingFeel).toBe(defaults.swingFeel)
   })
 })

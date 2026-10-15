@@ -106,10 +106,10 @@ export function normalizePracticePrefs(raw: unknown): PracticePrefs {
     ? (densityRaw as CompDensity)
     : base.density
 
-  const swingRaw = Number(data.swingFeel)
-  const swingFeel = Number.isFinite(swingRaw)
-    ? Math.min(100, Math.max(0, Math.round(swingRaw)))
-    : base.swingFeel
+  const swingFeel =
+    typeof data.swingFeel === 'number' && Number.isFinite(data.swingFeel)
+      ? Math.min(100, Math.max(0, Math.round(data.swingFeel)))
+      : base.swingFeel
 
   return {
     version: 1,
