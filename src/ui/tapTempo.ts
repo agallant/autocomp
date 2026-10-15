@@ -8,7 +8,7 @@ export const TAP_TEMPO_RESET_MS = 2000
 export const TAP_TEMPO_MAX_INTERVALS = 4
 
 export type TapTempoState = {
-  /** Epoch-ms timestamps of recent taps (oldest → newest). */
+  /** Millisecond timestamps from a consistent clock source (oldest → newest). */
   taps: number[]
 }
 
