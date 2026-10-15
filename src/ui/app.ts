@@ -86,7 +86,7 @@ import {
   setTitle,
   type ChartEditorState,
 } from './chartEditor'
-import { chartMetaLine, renderEditableBars } from './chartView'
+import { chartMetaLine, renderEditableBars, syncBarPlayhead } from './chartView'
 import {
   createLibraryViewState,
   libraryControlsHtml,
@@ -596,6 +596,17 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       label = `${label} Follow: ${followSnapshot.message}`
     }
     sessionStatus.lastChild!.textContent = ` ${label}`
+    // Live playhead / stopped “play from here” marker on the chart grid.
+    const barsRoot = root.querySelector('.bars')
+    if (barsRoot) {
+      const playheadBarIndex =
+        state.playing && state.bar >= 1 ? state.bar - 1 : null
+      syncBarPlayhead(barsRoot, {
+        selectedBarIndex: editor.selectedBarIndex,
+        playheadBarIndex,
+        playing: state.playing,
+      })
+    }
   }
 
   const stopFollow = (): void => {
