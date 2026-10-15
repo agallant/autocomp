@@ -24,6 +24,11 @@ export type PracticeKeyContext = {
    * toggle transport.
    */
   spaceOnButton: boolean
+  /**
+   * True when Ctrl / Meta / Alt is held — leave browser shortcuts alone
+   * (e.g. zoom with ⌘/Ctrl + − / +).
+   */
+  withModifier: boolean
 }
 
 /**
@@ -34,7 +39,7 @@ export function practiceKeyAction(
   key: string,
   ctx: PracticeKeyContext,
 ): PracticeKeyAction | null {
-  if (ctx.inFormField || ctx.editing) return null
+  if (ctx.inFormField || ctx.editing || ctx.withModifier) return null
 
   if (key === ' ' || key === 'Spacebar') {
     if (ctx.spaceOnButton) return null

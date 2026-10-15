@@ -278,7 +278,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
               <span aria-hidden="true">Play</span>
             </button>
             <button type="button" class="btn" id="tempo-down" aria-label="Decrease tempo ([ or -)" title="Tempo −10 ([ or -)">−10</button>
-            <button type="button" class="btn" id="tempo-up" aria-label="Increase tempo (] or =)" title="Tempo +10 (] or =)">+10</button>
+            <button type="button" class="btn" id="tempo-up" aria-label="Increase tempo (], =, or +)" title="Tempo +10 (], =, or +)">+10</button>
             <button type="button" class="btn" id="tempo-tap" aria-label="Tap tempo (T)" title="Tap tempo (T)">Tap</button>
           </div>
           <div class="transport__readout">
@@ -1461,6 +1461,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       inFormField: false,
       editing: editor.editing,
       spaceOnButton: target instanceof HTMLButtonElement,
+      withModifier: event.ctrlKey || event.metaKey || event.altKey,
     })
     if (practice !== null) {
       // Prevent page scroll / browser search; ignore key-repeat holds.

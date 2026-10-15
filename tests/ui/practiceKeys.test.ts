@@ -6,6 +6,7 @@ describe('practiceKeyAction', () => {
     inFormField: false,
     editing: false,
     spaceOnButton: false,
+    withModifier: false,
   }
 
   it('maps Space / T / M when the chart is not being edited', () => {
@@ -31,6 +32,13 @@ describe('practiceKeyAction', () => {
     expect(practiceKeyAction('m', { ...free, inFormField: true })).toBeNull()
     expect(practiceKeyAction('[', { ...free, editing: true })).toBeNull()
     expect(practiceKeyAction('=', { ...free, inFormField: true })).toBeNull()
+  })
+
+  it('ignores Ctrl / Meta / Alt so browser zoom shortcuts still work', () => {
+    expect(practiceKeyAction('-', { ...free, withModifier: true })).toBeNull()
+    expect(practiceKeyAction('+', { ...free, withModifier: true })).toBeNull()
+    expect(practiceKeyAction('=', { ...free, withModifier: true })).toBeNull()
+    expect(practiceKeyAction('t', { ...free, withModifier: true })).toBeNull()
   })
 
   it('lets Space activate a focused button instead of toggling play', () => {
