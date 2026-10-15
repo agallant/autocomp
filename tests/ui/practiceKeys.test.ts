@@ -26,6 +26,12 @@ describe('practiceKeyAction', () => {
     expect(practiceKeyAction('+', free)).toBe('tempo-up')
   })
 
+  it('maps D to cycle density', () => {
+    expect(practiceKeyAction('d', free)).toBe('cycle-density')
+    expect(practiceKeyAction('D', free)).toBe('cycle-density')
+    expect(practiceKeyAction('D', { ...free, withModifier: true })).toBeNull()
+  })
+
   it('ignores shortcuts in form fields or during chord edit', () => {
     expect(practiceKeyAction(' ', { ...free, inFormField: true })).toBeNull()
     expect(practiceKeyAction('t', { ...free, editing: true })).toBeNull()

@@ -5,6 +5,7 @@
  * - M: toggle metronome click
  * - [ / ]: tempo −10 / +10
  * - - / = (and +): tempo −10 / +10
+ * - D: cycle comp density
  */
 
 export type PracticeKeyAction =
@@ -13,6 +14,7 @@ export type PracticeKeyAction =
   | 'toggle-click'
   | 'tempo-down'
   | 'tempo-up'
+  | 'cycle-density'
 
 export type PracticeKeyContext = {
   /** True when a text/select field has focus. */
@@ -49,5 +51,6 @@ export function practiceKeyAction(
   if (key === 'm' || key === 'M') return 'toggle-click'
   if (key === '[' || key === '-') return 'tempo-down'
   if (key === ']' || key === '=' || key === '+') return 'tempo-up'
+  if (key === 'd' || key === 'D') return 'cycle-density'
   return null
 }

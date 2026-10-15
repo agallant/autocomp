@@ -27,6 +27,7 @@ export {
 export {
   COMP_DENSITY_OPTIONS,
   DEFAULT_VARIATION,
+  nextCompDensity,
   type CompDensity,
   type VariationOptions,
 } from './types'

@@ -40,3 +40,11 @@ export const COMP_DENSITY_OPTIONS: ReadonlyArray<{ id: CompDensity; label: strin
   { id: 'normal', label: 'Normal' },
   { id: 'dense', label: 'Dense' },
 ]
+
+/** Cycle Solo → Sparse → Normal → Dense → Solo. */
+export function nextCompDensity(current: CompDensity): CompDensity {
+  const ids = COMP_DENSITY_OPTIONS.map((o) => o.id)
+  const index = ids.indexOf(current)
+  const next = ids[(index + 1) % ids.length]
+  return next ?? 'normal'
+}
