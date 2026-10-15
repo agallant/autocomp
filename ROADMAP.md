@@ -44,7 +44,8 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M27 | Keyboard shortcuts | done | Space play/pause, T tap, M click |
 | M28 | Playhead affordance | done | Play-from-here marker + live playhead |
 | M29 | Form editor | done | Edit form order + section markers on the grid |
-| M30 | Click volume | in progress | Adjustable metronome / count-in click level |
+| M30 | Click volume | done | Adjustable metronome / count-in click level |
+| M31 | Playhead scroll | in progress | Keep the sounding bar in view during playback |
 
 ## M0 acceptance
 
@@ -280,7 +281,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Live playhead class tracks the sounding form bar during playback
 - [x] `syncBarPlayhead` updates the grid without a full re-render
 - [x] Unit tests for markers and sync
-- [ ] Scroll-into-view for off-screen playhead deferred
+- [x] Scroll-into-view for off-screen playhead (M31)
 
 ## M29 acceptance
 
@@ -298,6 +299,14 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Zero level schedules no click oscillators
 - [x] Unit tests for clamp, scaling, and silence
 - [ ] Persist click level with saved charts deferred
+
+## M31 acceptance
+
+- [x] Sounding bar scrolls into view when the playhead advances
+- [x] Scroll uses `nearest` (no jump when already visible); smooth unless reduced-motion
+- [x] Only scrolls once per bar (not every beat)
+- [x] Unit tests for scroll options
+- [ ] Center-on-playhead preference deferred
 
 ## Process notes
 

@@ -616,6 +616,8 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
   let beatReadout: HTMLElement | null = null
   let statusDot: HTMLElement | null = null
   let sessionStatus: HTMLElement | null = null
+  /** Last form bar we scrolled into view (avoids per-beat scroll churn). */
+  let lastScrolledPlayhead: number | null = null
 
   const renderTransport = (state: TransportState): void => {
     if (!playToggle || !playLabel || !tempoReadout || !barReadout || !beatReadout || !statusDot || !sessionStatus) {
@@ -642,10 +644,20 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     if (barsRoot) {
       const playheadBarIndex =
         state.playing && state.bar >= 1 ? state.bar - 1 : null
+      if (!state.playing) lastScrolledPlayhead = null
+      const shouldScroll =
+        playheadBarIndex !== null && playheadBarIndex !== lastScrolledPlayhead
+      if (shouldScroll) lastScrolledPlayhead = playheadBarIndex
+      const reduceMotion =
+        typeof window !== 'undefined' &&
+        typeof window.matchMedia === 'function' &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches
       syncBarPlayhead(barsRoot, {
         selectedBarIndex: editor.selectedBarIndex,
         playheadBarIndex,
         playing: state.playing,
+        scrollIntoView: shouldScroll,
+        reduceMotion,
       })
     }
   }
