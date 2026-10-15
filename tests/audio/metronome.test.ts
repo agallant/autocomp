@@ -29,7 +29,7 @@ describe('scheduleMetronomeClick', () => {
     const { ctx, osc, gain } = createFakeContext()
     scheduleMetronomeClick(ctx, 1.25, true)
     expect(osc.frequency.setValueAtTime).toHaveBeenCalledWith(1200, 1.25)
-    expect(gain.gain.exponentialRampToValueAtTime).toHaveBeenCalled()
+    expect(gain.gain.exponentialRampToValueAtTime).toHaveBeenCalledWith(0.22, 1.252)
     expect(osc.start).toHaveBeenCalledWith(1.25)
     expect(osc.stop).toHaveBeenCalled()
   })

@@ -16,7 +16,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | --- | --- | --- | --- |
 | M0 | PWA scaffold | done | Vite + TS + PWA, CI, Pages deploy, app shell + transport stub |
 | M1 | Music model | done | Chords, bars, forms, chart JSON schema + parse/serialize + tests |
-| M2 | Chart editor | done | iReal-like bar grid editor (entry, navigate, quality, duration) |
+| M2 | Chart editor | done | iReal-like bar grid editor (select, navigate, chord entry); multi-slot duration editing deferred |
 | M3 | Audio clock | in progress | Web Audio transport, metronome, lookahead scheduler |
 | M4 | Jazz swing style | planned | Walking bass + piano comp + kit pattern for swing |
 | M5 | Style pack | planned | Bossa, ballad, Latin/salsa-lite; style picker |

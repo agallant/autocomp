@@ -57,7 +57,10 @@ export class TransportController {
 
   private ctx: AudioContext | null = null
   private scheduler: LookaheadScheduler | null = null
-  private uiTimers: ReturnType<typeof setTimeout>[] = []
+  private uiTimers = new Set<ReturnType<typeof setTimeout>>()
+  /** Monotonic token so overlapping async `play()` calls can be invalidated. */
+  private playGeneration = 0
+  private starting = false
 
   constructor(options: TransportOptions) {
     this.callbacks = options
@@ -81,7 +84,7 @@ export class TransportController {
   }
 
   toggle(): void {
-    if (this.state.playing) {
+    if (this.state.playing || this.starting) {
       this.stop()
     } else {
       void this.play()
@@ -89,9 +92,22 @@ export class TransportController {
   }
 
   async play(): Promise<void> {
-    if (this.state.playing) return
+    if (this.state.playing || this.starting) return
+    this.starting = true
+    const generation = ++this.playGeneration
     const ctx = this.ensureContext()
-    await resumeAudioContext(ctx)
+    try {
+      await resumeAudioContext(ctx)
+    } catch {
+      this.starting = false
+      return
+    }
+    if (generation !== this.playGeneration) {
+      // stop() ran while we awaited resume — do not start a scheduler.
+      this.starting = false
+      return
+    }
+
     this.state = {
       ...this.state,
       playing: true,
@@ -99,6 +115,7 @@ export class TransportController {
       beat: 1,
       audioReady: true,
     }
+    this.starting = false
     this.emit()
 
     this.scheduler = new LookaheadScheduler({
@@ -113,6 +130,8 @@ export class TransportController {
   }
 
   stop(): void {
+    this.playGeneration += 1
+    this.starting = false
     this.scheduler?.stop()
     this.scheduler = null
     this.clearUiTimers()
@@ -143,18 +162,19 @@ export class TransportController {
     }
     const delayMs = Math.max(0, (beat.time - ctx.currentTime) * 1000)
     const timer = this.setTimeoutFn(() => {
+      this.uiTimers.delete(timer)
       if (!this.state.playing) return
       this.state = { ...this.state, bar: beat.bar, beat: beat.beat }
       this.emit()
     }, delayMs)
-    this.uiTimers.push(timer)
+    this.uiTimers.add(timer)
   }
 
   private clearUiTimers(): void {
     for (const timer of this.uiTimers) {
       this.clearTimeoutFn(timer)
     }
-    this.uiTimers = []
+    this.uiTimers.clear()
   }
 
   private emit(): void {

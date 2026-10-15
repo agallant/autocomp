@@ -9,13 +9,13 @@ type FakeOsc = {
   stop: ReturnType<typeof vi.fn>
 }
 
-function createFakeAudioContext() {
+function createFakeAudioContext(initialState: AudioContextState = 'suspended') {
   let currentTime = 0
   const ctx = {
     get currentTime() {
       return currentTime
     },
-    state: 'running' as AudioContextState,
+    state: initialState,
     destination: {} as AudioDestinationNode,
     resume: vi.fn(async () => {
       ctx.state = 'running'
@@ -71,9 +71,41 @@ describe('TransportController', () => {
     transport.dispose()
   })
 
+  it('resumes a suspended AudioContext on play', async () => {
+    const ctx = createFakeAudioContext('suspended')
+    const transport = new TransportController({
+      onChange: () => undefined,
+      audioContext: ctx as unknown as AudioContext,
+      metronomeEnabled: false,
+    })
+    await transport.play()
+    expect(ctx.resume).toHaveBeenCalledTimes(1)
+    expect(ctx.state).toBe('running')
+    expect(transport.getState().audioReady).toBe(true)
+    transport.dispose()
+  })
+
+  it('schedules accented metronome clicks when enabled', async () => {
+    vi.useFakeTimers()
+    const ctx = createFakeAudioContext('suspended')
+    const transport = new TransportController({
+      onChange: () => undefined,
+      audioContext: ctx as unknown as AudioContext,
+      metronomeEnabled: true,
+    })
+
+    await transport.play()
+    expect(ctx.createOscillator).toHaveBeenCalled()
+    const osc = (ctx.createOscillator.mock.results[0]!.value as FakeOsc)
+    expect(osc.frequency.setValueAtTime).toHaveBeenCalledWith(1200, expect.any(Number))
+    expect(osc.start).toHaveBeenCalled()
+
+    transport.dispose()
+  })
+
   it('advances beats from the audio scheduler while playing', async () => {
     vi.useFakeTimers()
-    const ctx = createFakeAudioContext()
+    const ctx = createFakeAudioContext('running')
     const transport = new TransportController({
       onChange: () => undefined,
       audioContext: ctx as unknown as AudioContext,
@@ -103,6 +135,33 @@ describe('TransportController', () => {
     transport.dispose()
   })
 
+  it('ignores a play() that was stopped while resuming audio', async () => {
+    let resolveResume: (() => void) | undefined
+    const ctx = createFakeAudioContext('suspended')
+    ctx.resume = vi.fn(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveResume = () => {
+            ctx.state = 'running'
+            resolve()
+          }
+        }),
+    )
+
+    const transport = new TransportController({
+      onChange: () => undefined,
+      audioContext: ctx as unknown as AudioContext,
+      metronomeEnabled: false,
+    })
+
+    const playPromise = transport.play()
+    transport.stop()
+    resolveResume?.()
+    await playPromise
+    expect(transport.getState().playing).toBe(false)
+    transport.dispose()
+  })
+
   it('clamps tempo into a playable range', () => {
     const transport = new TransportController({
       onChange: () => undefined,
@@ -118,7 +177,7 @@ describe('TransportController', () => {
 
   it('keeps bar/beat when tempo changes during playback', async () => {
     vi.useFakeTimers()
-    const ctx = createFakeAudioContext()
+    const ctx = createFakeAudioContext('running')
     const transport = new TransportController({
       onChange: () => undefined,
       audioContext: ctx as unknown as AudioContext,

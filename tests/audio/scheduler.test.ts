@@ -88,6 +88,32 @@ describe('LookaheadScheduler', () => {
     expect(scheduled[2]!.time).toBe(1.5)
     scheduler.stop()
   })
+
+  it('skips elapsed beats after a stall without scheduling late clicks', () => {
+    const clock = new FakeClock()
+    const scheduled: ScheduledBeat[] = []
+    const scheduler = new LookaheadScheduler({
+      clock,
+      getTempoBpm: () => 120,
+      getBeatsPerBar: () => 4,
+      scheduleAheadTime: 0.1,
+      setIntervalFn: vi.fn(() => 1 as unknown as ReturnType<typeof setInterval>),
+      clearIntervalFn: vi.fn(),
+      onSchedule: (beat) => scheduled.push(beat),
+    })
+    scheduler.start(0)
+    expect(scheduled).toHaveLength(1)
+
+    // Jump far ahead as if the tab was backgrounded.
+    const before = scheduled.length
+    clock.currentTime = 2.0
+    scheduler.tick()
+    const afterStall = scheduled.slice(before)
+    expect(afterStall.length).toBeGreaterThan(0)
+    expect(afterStall.every((b) => b.time >= 2.0 - 1e-9)).toBe(true)
+    expect(scheduled.at(-1)).toMatchObject({ bar: 2, beat: 1 })
+    scheduler.stop()
+  })
 })
 
 describe('secondsPerBeat', () => {

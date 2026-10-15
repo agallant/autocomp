@@ -75,9 +75,15 @@ export class LookaheadScheduler {
   /** Run one scheduling pass (also used by tests without waiting on the interval). */
   tick(): void {
     if (!this.running) return
-    const horizon = this.clock.currentTime + this.scheduleAheadTime
+    const now = this.clock.currentTime
+    const horizon = now + this.scheduleAheadTime
     while (this.nextNoteTime < horizon) {
       const beatsPerBar = Math.max(1, Math.round(this.getBeatsPerBar()))
+      // Skip beats that already elapsed (tab backgrounded / long stall) — keep position.
+      if (this.nextNoteTime < now) {
+        this.advance(beatsPerBar)
+        continue
+      }
       const beat: ScheduledBeat = {
         time: this.nextNoteTime,
         bar: this.position.bar,
