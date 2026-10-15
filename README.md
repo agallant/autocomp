@@ -6,7 +6,7 @@ Automatic musical accompaniment as a **client-side TypeScript PWA** — chord ch
 
 ## Status
 
-Milestone **M2** — interactive chart editor on top of the typed music model. See [ROADMAP.md](./ROADMAP.md).
+Milestone **M3** — Web Audio transport clock and metronome on top of the chart editor. See [ROADMAP.md](./ROADMAP.md).
 
 ## Chart format (preview)
 

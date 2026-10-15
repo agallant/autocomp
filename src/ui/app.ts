@@ -46,7 +46,7 @@ export function mountApp(root: HTMLElement): () => void {
             <h2 id="status-heading" class="panel__title">Session</h2>
             <p class="panel__copy" id="session-status">
               <span class="status-dot" id="status-dot" aria-hidden="true"></span>
-              Ready — transport is a visual stub until the audio engine lands.
+              Ready — press Play for a Web Audio metronome.
             </p>
           </section>
         </main>
@@ -134,8 +134,10 @@ export function mountApp(root: HTMLElement): () => void {
     beatReadout.textContent = String(state.beat)
     statusDot.classList.toggle('status-dot--live', state.playing)
     const label = state.playing
-      ? 'Counting — audio engine arrives in a later milestone.'
-      : 'Ready — transport is a visual stub until the audio engine lands.'
+      ? 'Metronome running — style engines arrive in later milestones.'
+      : state.audioReady
+        ? 'Ready — press Play for a Web Audio metronome.'
+        : 'Ready — press Play to unlock audio and start the metronome.'
     sessionStatus.lastChild!.textContent = ` ${label}`
   }
 
@@ -151,7 +153,10 @@ export function mountApp(root: HTMLElement): () => void {
     sessionStatus = root.querySelector('#session-status')
 
     transport?.dispose()
-    transport = new TransportController({ onChange: renderTransport })
+    transport = new TransportController({
+      onChange: renderTransport,
+      beatsPerBar: editor.chart.timeSignature.numerator,
+    })
     transport.setTempo(editor.chart.defaultTempoBpm)
 
     playToggle?.addEventListener('click', () => transport?.toggle())
