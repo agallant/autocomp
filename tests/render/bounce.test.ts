@@ -36,6 +36,7 @@ function createMockOfflineContext(length: number, sampleRate: number): {
 
   const ctx = {
     destination: {},
+    length,
     sampleRate,
     createOscillator: () => {
       const osc = {
@@ -117,15 +118,22 @@ describe('bounceChartToBuffer', () => {
     }
 
     const sampleRate = 8000
+    const tempoBpm = 180
     // Always inject — Node CI has no OfflineAudioContext; the mock still runs the real synth schedulers.
-    const { ctx, scheduled, buffer } = createMockOfflineContext(sampleRate, sampleRate)
-
+    let captured: ReturnType<typeof createMockOfflineContext> | null = null
     const rendered = await bounceChartToBuffer(short, createStyleById('jazz-swing'), {
-      tempoBpm: 180,
+      tempoBpm,
       sampleRate,
-      createOfflineContext: () => ctx,
+      createOfflineContext: (_channels, length, rate) => {
+        captured = createMockOfflineContext(length, rate)
+        return captured.ctx
+      },
     })
+    expect(captured).not.toBeNull()
+    const { scheduled, buffer } = captured!
     expect(rendered).toBe(buffer)
+    expect(buffer.length).toBeGreaterThan(sampleRate) // > 1s at 180 BPM + 0.2s tail
+    expect(buffer.duration).toBeCloseTo(buffer.length / sampleRate, 5)
     expect(scheduled.length).toBeGreaterThan(0)
 
     let peak = 0
@@ -144,7 +152,8 @@ describe('bounceChartToBuffer', () => {
     const wav = await chartToWavBytes(short, createStyleById('bossa'), {
       tempoBpm: 160,
       sampleRate,
-      createOfflineContext: () => createMockOfflineContext(sampleRate, sampleRate).ctx,
+      createOfflineContext: (_channels, length, rate) =>
+        createMockOfflineContext(length, rate).ctx,
     })
     expect(wav.byteLength).toBeGreaterThan(44)
     expect(String.fromCharCode(...wav.slice(0, 4))).toBe('RIFF')
