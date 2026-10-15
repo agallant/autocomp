@@ -24,9 +24,10 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M7 | Persistence | done | Local save/load charts (IndexedDB), import/export JSON |
 | M8 | MIDI I/O | done | MIDI file export; optional WebMIDI out where supported |
 | M9 | Audio render | done | Offline bounce to WAV (MP3 deferred); client-side encode |
-| M10 | Variation | in progress | Fills, intros/endings, solo density, humanization |
+| M10 | Variation | done | Fills, intros/endings, solo density, humanization |
 | M11 | Generative | done | Style-conditioned progression / reharm helpers |
-| M12 | Listen & follow | in progress | Experimental mic/chord following for dynamic backing |
+| M12 | Listen & follow | done | Experimental mic/chord following for dynamic backing |
+| M13 | Transpose | in progress | Full-chart transpose (±semitone) with key-aware spelling |
 
 ## M0 acceptance
 
@@ -128,7 +129,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Reharm helpers on selected bar: ii-before-V and tritone substitute (dominant bars)
 - [x] UI: Generate kind/key → loads chart via existing apply path; Reharm applies to selection
 - [x] Unit tests for generators + reharm; charts validate
-- [ ] Full-chart transpose UI / generative melody deferred
+- [ ] Generative melody deferred
 
 ## M12 acceptance
 
@@ -138,6 +139,13 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Unit tests for chroma, match, follow engine, scheduler seek
 - [ ] Manual microphone and playback scenarios verified
 - [ ] Polyphonic pitch tracking / ML chord ID deferred
+
+## M13 acceptance
+
+- [x] `transposeChart` / `transposeChord` with destination-key sharp/flat spelling
+- [x] Toolbar ±1 semitone controls; chart meta shows concert key
+- [x] Unit tests for chord, flat-key spelling, and octave round-trip
+- [ ] Jump-to-key picker deferred (semitone steps cover practice use)
 
 ## Process notes
 

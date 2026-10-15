@@ -29,7 +29,7 @@ import {
   wavDownloadFilename,
   wavToDownloadBlob,
 } from '../render'
-import { formatRoot, parseRoot, type Chart, type Root } from '../music'
+import { formatRoot, parseRoot, transposeChart, type Chart, type Root } from '../music'
 import {
   STYLE_PACK,
   createStyleById,
@@ -301,6 +301,12 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
           </select>
         </label>
         <button type="button" class="btn" id="reharm-run">Apply to bar</button>
+      </div>
+      <div class="generate-controls" role="group" aria-label="Transpose chart">
+        <span class="style-picker__label">Transpose</span>
+        <span class="transpose-key" id="transpose-key" aria-live="polite">${escapeHtml(formatRoot(state.chart.key))}</span>
+        <button type="button" class="btn" id="transpose-down" aria-label="Transpose down one semitone">−1</button>
+        <button type="button" class="btn" id="transpose-up" aria-label="Transpose up one semitone">+1</button>
       </div>
       ${
         webMidiAvailable
@@ -842,6 +848,19 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
         setPersistStatus('Could not reharmonize bar.')
       }
     })
+    const applyTranspose = (semitones: number): void => {
+      try {
+        const barIndex = editor.selectedBarIndex
+        const next = transposeChart(editor.chart, semitones)
+        setEditor(selectBar(createEditorState(next), barIndex))
+        syncTransportStyle({ stopSources: false })
+        setPersistStatus(`Transposed to ${formatRoot(next.key)}.`)
+      } catch {
+        setPersistStatus('Could not transpose chart.')
+      }
+    }
+    root.querySelector('#transpose-down')?.addEventListener('click', () => applyTranspose(-1))
+    root.querySelector('#transpose-up')?.addEventListener('click', () => applyTranspose(1))
     root.querySelector('#midi-out-select')?.addEventListener('focus', () => {
       void refreshMidiOutputs()
     })

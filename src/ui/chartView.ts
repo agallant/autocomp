@@ -1,4 +1,4 @@
-import { formatChord, type Bar, type Chart } from '../music'
+import { formatChord, formatRoot, type Bar, type Chart } from '../music'
 import type { ChartEditorState } from './chartEditor'
 
 function slotLabel(bar: Bar): string {
@@ -50,7 +50,7 @@ export function renderEditableBars(state: ChartEditorState): string {
 
 export function chartMetaLine(chart: Chart): string {
   const style = chart.styleHint ? ` · ${capitalize(chart.styleHint)}` : ''
-  return `Edit · ${chart.timeSignature.numerator}/${chart.timeSignature.denominator}${style}`
+  return `Edit · ${formatRoot(chart.key)} · ${chart.timeSignature.numerator}/${chart.timeSignature.denominator}${style}`
 }
 
 function capitalize(value: string): string {
