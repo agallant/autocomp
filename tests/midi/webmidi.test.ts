@@ -135,5 +135,8 @@ describe('webmidi helpers', () => {
     sink.clearVoices(['piano'])
     expect(timers.length).toBe(2)
     expect(sent.some((msg) => msg[0] === (0xb0 | 1) && msg[1] === 123)).toBe(true)
+    for (const timer of [...timers]) timer.fn()
+    expect(sent.some((msg) => msg[0] === 0x90 && msg[1] === 36)).toBe(true)
+    expect(sent.some((msg) => msg[0] === 0x91 && msg[1] === 60)).toBe(false)
   })
 })
