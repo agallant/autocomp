@@ -1,10 +1,9 @@
 import { formatChord, formatRoot, type Bar, type Chart } from '../music'
-import type { ChartEditorState } from './chartEditor'
+import { REST_TOKEN, type ChartEditorState } from './chartEditor'
 
 function slotLabel(bar: Bar): string {
-  const chords = bar.slots.filter((s) => s.chord).map((s) => formatChord(s.chord!))
-  if (chords.length === 0) return '·'
-  return chords.join(' ')
+  if (bar.slots.every((s) => !s.chord)) return '·'
+  return bar.slots.map((s) => (s.chord ? formatChord(s.chord) : REST_TOKEN)).join(' ')
 }
 
 export function renderEditableBars(state: ChartEditorState): string {
