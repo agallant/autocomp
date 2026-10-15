@@ -107,6 +107,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
   let variationCountIn = DEFAULT_VARIATION.countInBars > 0
   let variationHumanize = DEFAULT_VARIATION.humanize
   let variationDensity: CompDensity = DEFAULT_VARIATION.density
+  let variationEndings = DEFAULT_VARIATION.endings
   let generateKind: ProgressionKind = styleGenerateHints(styleId).defaultKind
   let generateKey: Root = { letter: 'C', accidental: 0 }
   let reharmMode: ReharmMode = 'ii-before-v'
@@ -142,6 +143,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     countInBars: variationCountIn ? 1 : 0,
     humanize: variationHumanize,
     density: variationDensity,
+    endings: variationEndings,
     seed: seedFromString(chart.id),
     tempoBpm,
   })
@@ -268,6 +270,10 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
         <label class="variation-toggle">
           <input type="checkbox" id="var-humanize"${variationHumanize ? ' checked' : ''} />
           <span>Humanize</span>
+        </label>
+        <label class="variation-toggle" title="Penultimate fill and held last bar at form end">
+          <input type="checkbox" id="var-endings"${variationEndings ? ' checked' : ''} />
+          <span>Ending</span>
         </label>
         <label class="variation-toggle" title="${
           followSupported
@@ -827,6 +833,9 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     })
     bindVariationToggle('#var-humanize', (checked) => {
       variationHumanize = checked
+    })
+    bindVariationToggle('#var-endings', (checked) => {
+      variationEndings = checked
     })
     root.querySelector<HTMLSelectElement>('#var-density')?.addEventListener('change', (event) => {
       const value = (event.target as HTMLSelectElement).value as CompDensity

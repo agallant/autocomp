@@ -21,6 +21,7 @@ describe('applyVariation / createVariedStyle', () => {
     countInBars: 0,
     humanize: true,
     density: 'normal',
+    endings: false,
     seed: seedFromString(chart.id),
     tempoBpm: 120,
   }

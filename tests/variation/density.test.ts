@@ -69,6 +69,7 @@ describe('applyCompDensity', () => {
       countInBars: 0,
       humanize: false,
       density: 'sparse',
+      endings: false,
       seed: seedFromString(chart.id),
       tempoBpm: 120,
     })
