@@ -3,16 +3,30 @@ import { TUNE_LIBRARY, filterTunes, getTuneById } from '../../src/library'
 
 describe('tune library', () => {
   it('registers built-in practice progressions', () => {
-    expect(TUNE_LIBRARY.length).toBeGreaterThanOrEqual(6)
+    expect(TUNE_LIBRARY.map((t) => t.id).sort()).toEqual([
+      'autumn-practice',
+      'ballad-holds',
+      'blues-workshop',
+      'bossa-loop',
+      'latin-clave',
+      'minor-path',
+      'rhythm-lab',
+      'turnaround-drill',
+    ])
     expect(getTuneById('autumn-practice')?.title).toBe('Autumn Practice')
     expect(getTuneById('blues-workshop')?.styleId).toBe('jazz-swing')
   })
 
   it('filters by query across title, blurb, and tags', () => {
-    const bossa = filterTunes(TUNE_LIBRARY, { query: 'bossa' })
-    expect(bossa.map((t) => t.id)).toContain('bossa-loop')
-    expect(bossa.every((t) => /bossa/i.test([t.title, t.blurb, ...t.tags].join(' ')))).toBe(
-      true,
+    const title = filterTunes(TUNE_LIBRARY, { query: 'Autumn' })
+    expect(title.map((t) => t.id)).toContain('autumn-practice')
+
+    const blurb = filterTunes(TUNE_LIBRARY, { query: 'Twelve-bar' })
+    expect(blurb.map((t) => t.id)).toContain('blues-workshop')
+
+    const tag = filterTunes(TUNE_LIBRARY, { query: 'ii-v-i' })
+    expect(tag.map((t) => t.id)).toEqual(
+      expect.arrayContaining(['autumn-practice', 'minor-path']),
     )
   })
 

@@ -167,7 +167,8 @@ export function mountApp(root: HTMLElement): () => void {
     styleId = tune.styleId
     refreshChart()
     refreshLibrary()
-    bindTransport()
+    // Reuse the existing transport — rebinding would stack Play/tempo listeners.
+    transport?.setBeatsPerBar(chart.timeSignature.numerator)
     transport?.setTempo(chart.defaultTempoBpm)
     applyStyle(styleId, { adjustTempo: false })
   }

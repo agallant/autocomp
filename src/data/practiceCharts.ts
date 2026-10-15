@@ -157,7 +157,7 @@ export function createBalladHoldsChart(): Chart {
 }
 
 /**
- * Educational AABA workshop form based on common I–vi–ii–V practice patterns.
+ * Educational AABA workshop form based on common I–VI7–ii–V practice patterns.
  * Original practice material — not a copyrighted standard.
  */
 export function createRhythmLabChart(): Chart {
