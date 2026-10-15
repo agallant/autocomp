@@ -277,8 +277,8 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
             >
               <span aria-hidden="true">Play</span>
             </button>
-            <button type="button" class="btn" id="tempo-down" aria-label="Decrease tempo">−10</button>
-            <button type="button" class="btn" id="tempo-up" aria-label="Increase tempo">+10</button>
+            <button type="button" class="btn" id="tempo-down" aria-label="Decrease tempo ([ or -)" title="Tempo −10 ([ or -)">−10</button>
+            <button type="button" class="btn" id="tempo-up" aria-label="Increase tempo (], =, or +)" title="Tempo +10 (], =, or +)">+10</button>
             <button type="button" class="btn" id="tempo-tap" aria-label="Tap tempo (T)" title="Tap tempo (T)">Tap</button>
           </div>
           <div class="transport__readout">
@@ -888,18 +888,21 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       transport?.toggle({ formBar: editor.selectedBarIndex + 1 })
     })
     tempoDown?.addEventListener('click', () => {
-      if (!transport) return
-      transport.setTempo(transport.getState().tempoBpm - 10)
-      syncTransportStyle({ stopSources: false })
+      nudgeTempo(-10)
     })
     tempoUp?.addEventListener('click', () => {
-      if (!transport) return
-      transport.setTempo(transport.getState().tempoBpm + 10)
-      syncTransportStyle({ stopSources: false })
+      nudgeTempo(10)
     })
     tempoTap?.addEventListener('click', () => {
       applyTapTempo()
     })
+  }
+
+  const nudgeTempo = (delta: number): void => {
+    if (!transport) return
+    transport.setTempo(transport.getState().tempoBpm + delta)
+    syncTransportStyle({ stopSources: false })
+    setPersistStatus(`Tempo ${transport.getState().tempoBpm} BPM.`)
   }
 
   const applyTapTempo = (): void => {
@@ -1458,6 +1461,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       inFormField: false,
       editing: editor.editing,
       spaceOnButton: target instanceof HTMLButtonElement,
+      withModifier: event.ctrlKey || event.metaKey || event.altKey,
     })
     if (practice !== null) {
       // Prevent page scroll / browser search; ignore key-repeat holds.
@@ -1467,8 +1471,12 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
         transport?.toggle({ formBar: editor.selectedBarIndex + 1 })
       } else if (practice === 'tap-tempo') {
         applyTapTempo()
-      } else {
+      } else if (practice === 'toggle-click') {
         toggleMetronomeClick()
+      } else if (practice === 'tempo-down') {
+        nudgeTempo(-10)
+      } else {
+        nudgeTempo(10)
       }
       return
     }
