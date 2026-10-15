@@ -41,7 +41,8 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M24 | Swing feel | done | Straight → triplet → hard shuffle amount |
 | M25 | Voice volume | done | Per-voice level for bass / piano / drums |
 | M26 | Guide melody | done | Generative guide-tone practice line |
-| M27 | Keyboard shortcuts | in progress | Space play/pause, T tap, M click |
+| M27 | Keyboard shortcuts | done | Space play/pause, T tap, M click |
+| M28 | Playhead affordance | in progress | Play-from-here marker + live playhead |
 
 ## M0 acceptance
 
@@ -229,7 +230,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Play button uses the selected bar; count-in still leads in
 - [x] Compatible with A–B loop clamp via `passIndexForFormBar`
 - [x] Unit test for mid-form start
-- [ ] Visual “playhead from here” affordance deferred
+- [x] Visual “playhead from here” affordance (M28)
 - [ ] Manual playback checks (mid-form start, restart from top, loop clamp) deferred
 
 ## M23 acceptance
@@ -270,6 +271,14 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Shortcuts ignored in form fields / chord edit
 - [x] Unit tests for `practiceKeyAction`
 - [ ] Additional shortcuts (tempo ±, density) deferred
+
+## M28 acceptance
+
+- [x] Selected bar shows a “play from here” marker when stopped
+- [x] Live playhead class tracks the sounding form bar during playback
+- [x] `syncBarPlayhead` updates the grid without a full re-render
+- [x] Unit tests for markers and sync
+- [ ] Scroll-into-view for off-screen playhead deferred
 
 ## Process notes
 
