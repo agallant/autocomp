@@ -23,8 +23,15 @@ import {
   createStyleById,
   getStyleDescriptor,
   isStyleId,
+  type StyleEngine,
   type StyleId,
 } from '../style'
+import {
+  DEFAULT_VARIATION,
+  createVariedStyle,
+  seedFromString,
+  type VariationOptions,
+} from '../variation'
 import {
   chartDownloadFilename,
   chartToDownloadBlob,
@@ -74,8 +81,22 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
   let midiSelectGeneration = 0
   /** True while an offline WAV bounce is in flight (survives chart re-renders). */
   let wavExporting = false
+  let variationFills = DEFAULT_VARIATION.fills
+  let variationCountIn = DEFAULT_VARIATION.countInBars > 0
+  let variationHumanize = DEFAULT_VARIATION.humanize
   const webMidiAvailable = isWebMidiSupported()
   const charts = options.chartRepository ?? createDefaultChartRepository()
+
+  const variationOptions = (chart: Chart, tempoBpm: number): VariationOptions => ({
+    fills: variationFills,
+    countInBars: variationCountIn ? 1 : 0,
+    humanize: variationHumanize,
+    seed: seedFromString(chart.id),
+    tempoBpm,
+  })
+
+  const activeStyle = (chart: Chart, tempoBpm: number): StyleEngine =>
+    createVariedStyle(createStyleById(styleId), variationOptions(chart, tempoBpm))
 
   const renderShell = (): void => {
     root.innerHTML = `
@@ -184,6 +205,20 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
           ).join('')}
         </select>
       </label>
+      <div class="variation-toggles" role="group" aria-label="Variation">
+        <label class="variation-toggle">
+          <input type="checkbox" id="var-fills"${variationFills ? ' checked' : ''} />
+          <span>Fills</span>
+        </label>
+        <label class="variation-toggle">
+          <input type="checkbox" id="var-count-in"${variationCountIn ? ' checked' : ''} />
+          <span>Count-in</span>
+        </label>
+        <label class="variation-toggle">
+          <input type="checkbox" id="var-humanize"${variationHumanize ? ' checked' : ''} />
+          <span>Humanize</span>
+        </label>
+      </div>
       ${
         webMidiAvailable
           ? `<label class="style-picker" for="midi-out-select">
@@ -314,13 +349,23 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     sessionStatus.lastChild!.textContent = ` ${label}`
   }
 
+  const syncTransportStyle = (opts: { stopSources?: boolean } = {}): void => {
+    if (!transport) return
+    const tempoBpm = transport.getState().tempoBpm
+    const styleOpts =
+      opts.stopSources === undefined ? undefined : { stopSources: opts.stopSources }
+    transport.setStyle(activeStyle(editor.chart, tempoBpm), styleOpts)
+    transport.setCountInBars(variationCountIn ? 1 : 0)
+  }
+
   const applyStyle = (nextId: StyleId, opts: { adjustTempo: boolean }): void => {
     styleId = nextId
     const desc = getStyleDescriptor(nextId)
-    transport?.setStyle(desc.create())
     if (opts.adjustTempo && transport) {
       transport.setTempo(desc.suggestedTempoBpm)
     }
+    // Style picker changes should cut the previous engine's ringing notes.
+    syncTransportStyle({ stopSources: true })
     // Keep the select in sync when the chart stage is not rebuilt.
     const select = root.querySelector<HTMLSelectElement>('#style-select')
     if (select && select.value !== nextId) select.value = nextId
@@ -399,25 +444,29 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     sessionStatus = root.querySelector('#session-status')
 
     const desc = getStyleDescriptor(styleId)
+    const tempoBpm = editor.chart.defaultTempoBpm || desc.suggestedTempoBpm
     transport?.dispose()
     transport = new TransportController({
       onChange: renderTransport,
       beatsPerBar: editor.chart.timeSignature.numerator,
-      style: createStyleById(styleId),
+      style: activeStyle(editor.chart, tempoBpm),
       getChart: () => editor.chart,
       metronomeEnabled: false,
       midiSink,
+      countInBars: variationCountIn ? 1 : 0,
     })
-    transport.setTempo(editor.chart.defaultTempoBpm || desc.suggestedTempoBpm)
+    transport.setTempo(tempoBpm)
 
     playToggle?.addEventListener('click', () => transport?.toggle())
     tempoDown?.addEventListener('click', () => {
       if (!transport) return
       transport.setTempo(transport.getState().tempoBpm - 10)
+      syncTransportStyle({ stopSources: false })
     })
     tempoUp?.addEventListener('click', () => {
       if (!transport) return
       transport.setTempo(transport.getState().tempoBpm + 10)
+      syncTransportStyle({ stopSources: false })
     })
   }
 
@@ -525,7 +574,11 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     root.querySelector('#export-midi')?.addEventListener('click', () => {
       try {
         const tempoBpm = transport?.getState().tempoBpm ?? editor.chart.defaultTempoBpm
-        const bytes = chartToMidiBytes(editor.chart, createStyleById(styleId), { tempoBpm })
+        const opts = variationOptions(editor.chart, tempoBpm)
+        const bytes = chartToMidiBytes(editor.chart, activeStyle(editor.chart, tempoBpm), {
+          tempoBpm,
+          countInBars: opts.countInBars,
+        })
         const blob = midiToDownloadBlob(bytes)
         const url = URL.createObjectURL(blob)
         const anchor = document.createElement('a')
@@ -545,11 +598,15 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
         const button = root.querySelector<HTMLButtonElement>('#export-wav')
         if (button) button.disabled = true
         const chart = editor.chart
-        const exportStyleId = styleId
         const tempoBpm = transport?.getState().tempoBpm ?? chart.defaultTempoBpm
+        const opts = variationOptions(chart, tempoBpm)
+        const style = activeStyle(chart, tempoBpm)
         setPersistStatus('Rendering WAV…')
         try {
-          const bytes = await chartToWavBytes(chart, createStyleById(exportStyleId), { tempoBpm })
+          const bytes = await chartToWavBytes(chart, style, {
+            tempoBpm,
+            countInBars: opts.countInBars,
+          })
           const blob = wavToDownloadBlob(bytes)
           const url = URL.createObjectURL(blob)
           const anchor = document.createElement('a')
@@ -566,6 +623,24 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
           if (current) current.disabled = false
         }
       })()
+    })
+    const bindVariationToggle = (
+      id: string,
+      apply: (checked: boolean) => void,
+    ): void => {
+      root.querySelector<HTMLInputElement>(id)?.addEventListener('change', (event) => {
+        apply((event.target as HTMLInputElement).checked)
+        syncTransportStyle({ stopSources: false })
+      })
+    }
+    bindVariationToggle('#var-fills', (checked) => {
+      variationFills = checked
+    })
+    bindVariationToggle('#var-count-in', (checked) => {
+      variationCountIn = checked
+    })
+    bindVariationToggle('#var-humanize', (checked) => {
+      variationHumanize = checked
     })
     root.querySelector('#midi-out-select')?.addEventListener('focus', () => {
       void refreshMidiOutputs()

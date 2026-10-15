@@ -1,7 +1,7 @@
 import type { Chart } from '../music'
 import type { StyleEngine } from '../style'
 import { midiDownloadFilename, midiToDownloadBlob } from './download'
-import { realizeChartMidi } from './realize'
+import { realizeChartMidi, type RealizeMidiOptions } from './realize'
 import { encodeSmf, encodeVlq, type EncodeSmfOptions } from './smf'
 import {
   MIDI_PPQ,
@@ -32,14 +32,22 @@ export {
   midiToDownloadBlob,
   realizeChartMidi,
 }
-export type { AbsoluteMidiNote, EncodeSmfOptions, MidiOutputInfo, WebMidiSink }
+export type { AbsoluteMidiNote, EncodeSmfOptions, MidiOutputInfo, RealizeMidiOptions, WebMidiSink }
 export { chartBeatsPerQuarter, quartersPerChartBeat } from './realize'
+
+export type ChartToMidiOptions = EncodeSmfOptions & RealizeMidiOptions
 
 /** Realize a chart style and encode a downloadable Standard MIDI File. */
 export function chartToMidiBytes(
   chart: Chart,
   style: StyleEngine,
-  options?: EncodeSmfOptions,
+  options?: ChartToMidiOptions,
 ): Uint8Array {
-  return encodeSmf(chart, realizeChartMidi(chart, style), options)
+  const { countInBars, ...smfOptions } = options ?? {}
+  const realizeOpts =
+    countInBars === undefined ? undefined : { countInBars }
+  return encodeSmf(chart, realizeChartMidi(chart, style, realizeOpts), {
+    ...smfOptions,
+    ...(countInBars === undefined ? {} : { countInBars }),
+  })
 }

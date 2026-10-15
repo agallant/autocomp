@@ -23,8 +23,8 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M6 | Tune library | done | Built-in practice progressions + search/tags |
 | M7 | Persistence | done | Local save/load charts (IndexedDB), import/export JSON |
 | M8 | MIDI I/O | done | MIDI file export; optional WebMIDI out where supported |
-| M9 | Audio render | in progress | Offline bounce to WAV (MP3 deferred); client-side encode |
-| M10 | Variation | planned | Fills, intros/endings, solo density, humanization |
+| M9 | Audio render | done | Offline bounce to WAV (MP3 deferred); client-side encode |
+| M10 | Variation | in progress | Fills, intros/endings, solo density, humanization |
 | M11 | Generative | planned | Style-conditioned progression / reharm helpers |
 | M12 | Listen & follow | planned | Experimental mic/chord following for dynamic backing |
 
@@ -113,6 +113,14 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Export uses current transport tempo when available
 - [x] Unit tests for duration, WAV header, and bounce scheduling
 - [ ] MP3 encode deferred (keep PR small; add when a lightweight encoder fits)
+
+## M10 acceptance
+
+- [x] Section-boundary drum fills (shared live / MIDI / WAV path)
+- [x] Optional 1-bar count-in (metronome live; silence in exports)
+- [x] Seeded velocity/timing humanization
+- [x] UI toggles: Fills / Count-in / Humanize
+- [ ] Solo density / complex endings deferred
 
 ## Process notes
 

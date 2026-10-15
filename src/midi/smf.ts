@@ -1,4 +1,5 @@
 import { beatsPerBar, expandChartBars, type Chart, type TimeSignature } from '../music'
+import { countInBeats } from '../variation'
 import { quartersPerChartBeat } from './realize'
 import type { AbsoluteMidiNote } from './types'
 import { MIDI_PPQ, VOICE_CHANNEL, VOICE_PROGRAM } from './types'
@@ -11,6 +12,8 @@ export type EncodeSmfOptions = {
   tempoBpm?: number
   /** Pulses per quarter note (default MIDI_PPQ). Must be 1–32767. */
   ppq?: number
+  /** Lead-in bars — shifts tempo/meter meta to align with realized notes. */
+  countInBars?: number
 }
 
 type TrackEvent = {
@@ -37,7 +40,10 @@ export function encodeSmf(
   assertPowerOfTwoMeter(chart.timeSignature, 'chart.timeSignature')
 
   const tempoBpm = Math.max(1, options.tempoBpm ?? chart.defaultTempoBpm)
-  const tempoTrack = buildTempoMeterTrack(chart, tempoBpm, ppq)
+  const countInBars = Number.isFinite(options.countInBars)
+    ? Math.max(0, Math.floor(options.countInBars!))
+    : 0
+  const tempoTrack = buildTempoMeterTrack(chart, tempoBpm, ppq, countInBars)
 
   const byVoice = {
     bass: [] as AbsoluteMidiNote[],
@@ -62,15 +68,34 @@ export function encodeSmf(
 }
 
 /** Build tempo + time-signature meta events, including per-bar meter overrides. */
-function buildTempoMeterTrack(chart: Chart, chartTempoBpm: number, ppq: number): TrackEvent[] {
+function buildTempoMeterTrack(
+  chart: Chart,
+  chartTempoBpm: number,
+  ppq: number,
+  countInBars = 0,
+): TrackEvent[] {
   const events: TrackEvent[] = [
     { tick: 0, order: 2, bytes: metaTrackName(chart.title || 'Autocomp') },
   ]
 
   const bars = expandChartBars(chart)
-  let tick = 0
+  const openTs = bars[0]?.timeSignature ?? chart.timeSignature
+  const leadBeats = countInBeats(chart, countInBars)
+  const leadTicks = Math.round(leadBeats * quartersPerChartBeat(openTs) * ppq)
+
+  let tick = leadTicks
   let lastTs: TimeSignature | null = null
   let lastMicros = -1
+
+  // Count-in uses the opening meter/tempo from tick 0 through the lead-in.
+  if (leadTicks > 0 && bars.length > 0) {
+    assertPowerOfTwoMeter(openTs, 'chart.timeSignature')
+    const micros = microsPerQuarter(chartTempoBpm, openTs)
+    events.push({ tick: 0, order: 0, bytes: metaTempoMicros(micros) })
+    events.push({ tick: 0, order: 1, bytes: metaTimeSignature(openTs.numerator, openTs.denominator) })
+    lastTs = openTs
+    lastMicros = micros
+  }
 
   for (let i = 0; i < bars.length; i++) {
     const bar = bars[i]!
@@ -84,10 +109,11 @@ function buildTempoMeterTrack(chart: Chart, chartTempoBpm: number, ppq: number):
       lastTs.denominator !== ts.denominator
     const tempoChanged = micros !== lastMicros
 
-    if (i === 0 || meterChanged) {
+    // When a count-in already emitted opening meter/tempo at tick 0, skip duplicates.
+    if (meterChanged || (i === 0 && leadTicks === 0)) {
       events.push({ tick, order: 1, bytes: metaTimeSignature(ts.numerator, ts.denominator) })
     }
-    if (i === 0 || tempoChanged) {
+    if (tempoChanged || (i === 0 && leadTicks === 0)) {
       // Constant chart-beat tempo ⇒ quarter-note tempo shifts when the denominator changes.
       events.push({ tick, order: 0, bytes: metaTempoMicros(micros) })
     }

@@ -43,6 +43,8 @@ export type TransportOptions = TransportCallbacks & {
   getChart?: () => Chart
   /** Optional WebMIDI sink mirroring scheduled style notes. */
   midiSink?: WebMidiSink | null
+  /** Bars of metronome before form bar 1 (style silent during count-in). */
+  countInBars?: number
 }
 
 /**
@@ -70,6 +72,9 @@ export class TransportController {
   private style: StyleEngine | null
   private getChart: (() => Chart) | null
   private midiSink: WebMidiSink | null
+  private countInBars: number
+  /** Count-in changes while playing apply on the next `play()`. */
+  private pendingCountInBars: number | null = null
   private readonly injectedContext: AudioContext | undefined
 
   private ctx: AudioContext | null = null
@@ -92,6 +97,7 @@ export class TransportController {
     this.style = options.style ?? null
     this.getChart = options.getChart ?? null
     this.midiSink = options.midiSink ?? null
+    this.countInBars = Math.max(0, Math.floor(options.countInBars ?? 0))
     this.metronomeEnabled =
       options.metronomeEnabled !== undefined
         ? options.metronomeEnabled
@@ -108,10 +114,16 @@ export class TransportController {
     this.defaultBeatsPerBar = Math.max(1, Math.round(beats))
   }
 
-  setStyle(style: StyleEngine | null): void {
-    // Drop in-flight notes from the previous style so long ballad tones don't overlap.
-    this.stopAudioSources()
-    this.midiSink?.clear()
+  setStyle(
+    style: StyleEngine | null,
+    options: { /** When false, keep ringing notes (tempo / variation tweaks). */ stopSources?: boolean } = {},
+  ): void {
+    const stopSources = options.stopSources !== false
+    if (stopSources) {
+      // Drop in-flight notes from the previous style so long ballad tones don't overlap.
+      this.stopAudioSources()
+      this.midiSink?.clear()
+    }
     this.style = style
     this.state = { ...this.state, styleId: style?.id ?? null }
     this.emit()
@@ -128,6 +140,21 @@ export class TransportController {
 
   setMetronomeEnabled(enabled: boolean): void {
     this.metronomeEnabled = enabled
+  }
+
+  setCountInBars(bars: number): void {
+    const next = Number.isFinite(bars) ? Math.max(0, Math.floor(bars)) : 0
+    // Mid-playback changes would rematerialize the form offset under the scheduler.
+    if (this.state.playing || this.starting) {
+      this.pendingCountInBars = next
+      return
+    }
+    this.countInBars = next
+    this.pendingCountInBars = null
+  }
+
+  getCountInBars(): number {
+    return this.countInBars
   }
 
   toggle(): void {
@@ -159,6 +186,11 @@ export class TransportController {
     if (generation !== this.playGeneration) {
       this.starting = false
       return
+    }
+
+    if (this.pendingCountInBars !== null) {
+      this.countInBars = this.pendingCountInBars
+      this.pendingCountInBars = null
     }
 
     this.state = {
@@ -216,12 +248,19 @@ export class TransportController {
     if (!chart) return this.defaultBeatsPerBar
     const bars = expandChartBars(chart)
     if (bars.length === 0) return this.defaultBeatsPerBar
-    const bar = bars[((formBar - 1) % bars.length + bars.length) % bars.length]!
+    // Count-in uses the opening bar's meter.
+    if (formBar <= this.countInBars) {
+      const open = bars[0]!
+      return beatsPerBar(open.timeSignature ?? chart.timeSignature)
+    }
+    const formIndex = formBar - 1 - this.countInBars
+    const bar = bars[((formIndex % bars.length) + bars.length) % bars.length]!
     return beatsPerBar(bar.timeSignature ?? chart.timeSignature)
   }
 
   private handleScheduledBeat(ctx: AudioContext, beat: ScheduledBeat): void {
-    if (this.metronomeEnabled) {
+    const inCountIn = beat.bar <= this.countInBars
+    if (this.metronomeEnabled || inCountIn) {
       scheduleMetronomeClick(ctx, beat.time, beat.accent)
     }
     this.scheduleStyleBeat(ctx, beat)
@@ -229,7 +268,9 @@ export class TransportController {
     const timer = this.setTimeoutFn(() => {
       this.uiTimers.delete(timer)
       if (!this.state.playing) return
-      this.state = { ...this.state, bar: beat.bar, beat: beat.beat }
+      // Count-in shows as bar 0; form bars are 1-based after the lead-in.
+      const displayBar = inCountIn ? 0 : beat.bar - this.countInBars
+      this.state = { ...this.state, bar: displayBar, beat: beat.beat }
       this.emit()
     }, delayMs)
     this.uiTimers.add(timer)
@@ -238,10 +279,12 @@ export class TransportController {
   /** Schedule only the style notes that fall inside this beat (keeps Stop / tempo responsive). */
   private scheduleStyleBeat(ctx: AudioContext, beat: ScheduledBeat): void {
     if (!this.style || !this.getChart) return
+    if (beat.bar <= this.countInBars) return
     const chart = this.getChart()
     const total = expandChartBars(chart).length
     if (total === 0) return
-    const barIndex = ((beat.bar - 1) % total + total) % total
+    const formIndex = beat.bar - 1 - this.countInBars
+    const barIndex = ((formIndex % total) + total) % total
     const styleCtx = buildStyleBarContext(chart, barIndex)
     if (!styleCtx) return
     const beatIndex = beat.beat - 1
