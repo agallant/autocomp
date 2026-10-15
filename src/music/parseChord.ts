@@ -196,13 +196,13 @@ function parseQualityTail(tail: string, symbol: string): QualityParse {
     rest = rest.slice(1)
   }
 
-  // Optional add9 after a quality (e.g. m7add9)
+  // Optional add9 after a quality (e.g. m7add9 or m7(add9))
+  rest = rest.replace(/[()]/g, '')
   if (rest.startsWith('add9')) {
     extensions.push('add9')
     rest = rest.slice(4)
   }
 
-  rest = rest.replace(/[()]/g, '')
   while (rest.length > 0) {
     let hit = false
     for (const { token, alt } of ALTERATION_TOKENS) {

@@ -56,6 +56,14 @@ describe('chart model', () => {
     expect(() => barFromSymbols(['C', 'Dm', 'Em', 'F', 'G'])).toThrow(/More chord symbols/)
   })
 
+  it('does not throw when validating a chart with a missing time signature', () => {
+    const chart = createAutumnPracticeChart()
+    // @ts-expect-error intentional invalid fixture
+    chart.timeSignature = undefined
+    expect(() => validateChart(chart)).not.toThrow()
+    expect(validateChart(chart).some((i) => i.path === 'timeSignature')).toBe(true)
+  })
+
   it('rejects empty chord strings and invalid keys in JSON', () => {
     const chart = createAutumnPracticeChart()
     const json = chartToJson(chart)

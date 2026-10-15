@@ -40,6 +40,12 @@ describe('parseChordSymbol', () => {
     expect(() => parseChordSymbol('C7)b9(')).toThrow(/unbalanced parentheses/)
   })
 
+  it('parses parenthesized add9', () => {
+    const chord = parseChordSymbol('Cm7(add9)')
+    expect(chord.quality).toBe('min7')
+    expect(chord.extensions).toContain('add9')
+  })
+
   it('includes original symbol in parse errors', () => {
     expect(() => parseChordSymbol('Cfoo')).toThrow(/Invalid chord "Cfoo"/)
   })

@@ -43,10 +43,10 @@ export function validateChart(chart: Chart): ChartValidationIssue[] {
   if (!isPositiveFinite(chart.defaultTempoBpm) || chart.defaultTempoBpm < 20 || chart.defaultTempoBpm > 400) {
     issues.push({ path: 'defaultTempoBpm', message: 'tempo must be a finite number in range 20–400' })
   }
-  if (
-    !isPositiveFinite(chart.timeSignature?.numerator) ||
-    !isPositiveFinite(chart.timeSignature?.denominator)
-  ) {
+  const timeSignatureOk =
+    isPositiveFinite(chart.timeSignature?.numerator) &&
+    isPositiveFinite(chart.timeSignature?.denominator)
+  if (!timeSignatureOk) {
     issues.push({ path: 'timeSignature', message: 'invalid time signature' })
   }
 
@@ -65,6 +65,21 @@ export function validateChart(chart: Chart): ChartValidationIssue[] {
       issues.push({ path: `sections[${si}].bars`, message: 'section has no bars' })
     }
     for (const [bi, bar] of section.bars.entries()) {
+      const barTsOk =
+        !bar.timeSignature ||
+        (isPositiveFinite(bar.timeSignature.numerator) &&
+          isPositiveFinite(bar.timeSignature.denominator))
+      if (!barTsOk) {
+        issues.push({
+          path: `sections[${si}].bars[${bi}].timeSignature`,
+          message: 'invalid bar time signature',
+        })
+        continue
+      }
+      if (!timeSignatureOk && !bar.timeSignature) {
+        // Cannot compute expected beats without a usable fallback signature.
+        continue
+      }
       const expected = barBeats(bar, chart.timeSignature)
       if (bar.slots.length === 0) {
         issues.push({
