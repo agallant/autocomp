@@ -20,6 +20,7 @@ describe('applyVariation / createVariedStyle', () => {
     fills: true,
     countInBars: 0,
     humanize: true,
+    density: 'normal',
     seed: seedFromString(chart.id),
     tempoBpm: 120,
   }

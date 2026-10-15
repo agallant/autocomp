@@ -1,4 +1,5 @@
 import type { StyleBarContext, StyleNote } from '../style'
+import { applyCompDensity } from './density'
 import { applySectionFill } from './fills'
 import { humanizeNotes } from './humanize'
 import { sectionBoundaryFlags } from './sectionMeta'
@@ -23,6 +24,7 @@ export function applyVariation(
       out = applySectionFill(ctx, out)
     }
   }
+  out = applyCompDensity(ctx, out, opts.density)
   if (opts.humanize) {
     out = humanizeNotes(out, opts.seed, ctx.barIndex, opts.tempoBpm, ctx.beatsPerBar)
   }
