@@ -10,6 +10,7 @@ export { scheduleMetronomeClick } from './metronome'
 export { LookaheadScheduler, secondsPerBeat } from './scheduler'
 export { scheduleStyleNote, type ScheduledSource, type ScheduleStyleNoteOptions } from './synth'
 export {
+  decodeAudioDataCompat,
   ensureSampleKit,
   getSampleKit,
   nearestPitchedSample,

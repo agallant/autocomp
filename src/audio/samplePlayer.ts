@@ -41,8 +41,10 @@ export function playBuffer(
 
   const amp = ctx.createGain()
   const peak = Math.max(0.0001, gain * velocity)
-  // Hold the natural sample length when short notes request a longer gate.
-  const playSeconds = Math.max(0.04, Math.min(duration, buffer.duration / Math.max(0.01, playbackRate)))
+  const natural = buffer.duration / Math.max(0.01, playbackRate)
+  // Prefer the note gate, but never shorter than a tiny click; callers may pass
+  // `duration: Infinity` (drums) to hear the full one-shot decay.
+  const playSeconds = Math.max(0.04, Number.isFinite(duration) ? Math.min(duration, natural) : natural)
   applyAmpEnvelope(amp.gain, when, peak, playSeconds, attack)
   src.connect(amp)
   amp.connect(ctx.destination)
@@ -60,13 +62,19 @@ export function playDrumSample(
   kit: SampleKit,
   id: DrumSampleId,
   when: number,
-  duration: number,
+  _noteDuration: number,
   velocity: number,
 ): ScheduledSource | null {
   const buffer = kit.drums[id]
   if (!buffer) return null
   const gain = id === 'ride' ? 0.55 : id === 'hat' || id === 'clave' ? 0.65 : 0.85
-  return playBuffer(ctx, buffer, { when, duration, velocity, gain })
+  // Style note durations are often 60–120ms; play the full one-shot so rides/hats ring.
+  return playBuffer(ctx, buffer, {
+    when,
+    duration: Number.POSITIVE_INFINITY,
+    velocity,
+    gain,
+  })
 }
 
 export function playPitchedSample(

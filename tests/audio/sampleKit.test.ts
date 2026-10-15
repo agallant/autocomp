@@ -58,7 +58,10 @@ describe('sample kit helpers', () => {
   })
 
   it('builds sample URLs under the Vite base path', () => {
-    expect(sampleAssetUrl('drums/kick.m4a')).toMatch(/samples\/drums\/kick\.m4a$/)
+    const base = import.meta.env.BASE_URL || '/'
+    const prefix = base.endsWith('/') ? base : `${base}/`
+    expect(sampleAssetUrl('drums/kick.m4a')).toBe(`${prefix}samples/drums/kick.m4a`)
+    expect(sampleAssetUrl('drums/kick.m4a').startsWith(prefix)).toBe(true)
   })
 
   it('picks the nearest pitched sample and computes playback rate', () => {

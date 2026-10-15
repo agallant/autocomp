@@ -6,7 +6,7 @@ Automatic musical accompaniment as a **client-side TypeScript PWA** — chord ch
 
 ## Status
 
-Live / WAV playback uses a small **CC0 sample kit** (drums, pizz bass, piano) bundled under `public/samples/` — see `public/samples/LICENSE.md`. See [ROADMAP.md](./ROADMAP.md).
+Live / WAV playback uses a small bundled sample kit (CC0 drums/bass + public-domain piano) under `public/samples/` — see `public/samples/LICENSE.md`. See [ROADMAP.md](./ROADMAP.md).
 
 ## Chart format (preview)
 

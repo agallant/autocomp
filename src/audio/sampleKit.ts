@@ -83,6 +83,38 @@ export function playbackRateForMidi(rootMidi: number, targetMidi: number): numbe
   return 2 ** ((targetMidi - rootMidi) / 12)
 }
 
+/**
+ * Safari/WebKit historically required the callback form of `decodeAudioData`.
+ * Prefer the Promise return when present; always supply callbacks as a fallback.
+ */
+export function decodeAudioDataCompat(
+  ctx: BaseAudioContext,
+  bytes: ArrayBuffer,
+): Promise<AudioBuffer> {
+  const copy = bytes.slice(0)
+  return new Promise((resolve, reject) => {
+    let settled = false
+    const ok = (buffer: AudioBuffer): void => {
+      if (settled) return
+      settled = true
+      resolve(buffer)
+    }
+    const fail = (err?: unknown): void => {
+      if (settled) return
+      settled = true
+      reject(err instanceof Error ? err : new Error('decodeAudioData failed'))
+    }
+    try {
+      const ret = ctx.decodeAudioData(copy, ok, fail) as Promise<AudioBuffer> | undefined
+      if (ret && typeof ret.then === 'function') {
+        ret.then(ok, fail)
+      }
+    } catch (err) {
+      fail(err)
+    }
+  })
+}
+
 async function decodeAsset(
   ctx: BaseAudioContext,
   relativePath: string,
@@ -93,13 +125,12 @@ async function decodeAsset(
     throw new Error(`Failed to load sample ${relativePath} (${response.status})`)
   }
   const bytes = await response.arrayBuffer()
-  // Safari still wants the legacy callback form in some builds; Promise form is fine on modern WebKit.
-  return ctx.decodeAudioData(bytes.slice(0))
+  return decodeAudioDataCompat(ctx, bytes)
 }
 
 /**
- * Load and decode the bundled CC0 kit once. Safe to call from live AudioContext
- * or OfflineAudioContext (bounce).
+ * Load and decode the bundled sample kit once. Safe to call from live AudioContext
+ * or OfflineAudioContext (bounce). Drum/bass/piano groups load concurrently.
  */
 export async function ensureSampleKit(
   ctx: BaseAudioContext,
@@ -112,26 +143,28 @@ export async function ensureSampleKit(
   }
 
   loadPromise = (async () => {
+    const [drumEntries, bass, piano] = await Promise.all([
+      Promise.all(
+        DRUM_FILES.map(async ([id, path]) => [id, await decodeAsset(ctx, path, fetchFn)] as const),
+      ),
+      Promise.all(
+        BASS_FILES.map(async ([midi, path]) => ({
+          midi,
+          buffer: await decodeAsset(ctx, path, fetchFn),
+        })),
+      ),
+      Promise.all(
+        PIANO_FILES.map(async ([midi, path]) => ({
+          midi,
+          buffer: await decodeAsset(ctx, path, fetchFn),
+        })),
+      ),
+    ])
+
     const drums: SampleKit['drums'] = {}
-    await Promise.all(
-      DRUM_FILES.map(async ([id, path]) => {
-        drums[id] = await decodeAsset(ctx, path, fetchFn)
-      }),
-    )
-
-    const bass = await Promise.all(
-      BASS_FILES.map(async ([midi, path]) => ({
-        midi,
-        buffer: await decodeAsset(ctx, path, fetchFn),
-      })),
-    )
-
-    const piano = await Promise.all(
-      PIANO_FILES.map(async ([midi, path]) => ({
-        midi,
-        buffer: await decodeAsset(ctx, path, fetchFn),
-      })),
-    )
+    for (const [id, buffer] of drumEntries) {
+      drums[id] = buffer
+    }
 
     cachedKit = { drums, bass, piano }
     return cachedKit

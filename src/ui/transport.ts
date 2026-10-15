@@ -146,8 +146,8 @@ export class TransportController {
     try {
       // Safari/iPad needs a silent buffer kick; resume alone is not enough.
       await unlockAudioContext(ctx)
-      // Decode CC0 kit while still in the gesture turn when possible.
-      await ensureSampleKit(ctx).catch(() => undefined)
+      // Kick off sample decode without blocking transport start (avoids Play→Stop races).
+      void ensureSampleKit(ctx).catch(() => undefined)
     } catch {
       this.starting = false
       // A newer play()/stop() may own the session — don't clobber its state.
