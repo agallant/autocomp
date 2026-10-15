@@ -14,6 +14,7 @@ import { buildStyleBarContext, type StyleEngine, type StyleVoice } from '../styl
 import {
   DEFAULT_PRACTICE_LOOP,
   normalizePracticeLoop,
+  passIndexForFormBar,
   resolveLoopedFormBar,
   type PracticeLoop,
 } from './practiceLoop'
@@ -282,19 +283,25 @@ export class TransportController {
   /**
    * Seek to a 1-based form bar while playing (experimental Follow).
    * No-ops when stopped. Count-in offset is applied internally.
+   * With an A–B loop, the target is clamped into the window and mapped to a
+   * loop-relative scheduler pass so Follow lands on the requested chart bar.
    */
   seekToFormBar(formBar: number): void {
     if (!this.state.playing || !this.scheduler) return
     const chart = this.getChart?.()
     const total = chart ? expandChartBars(chart).length : 0
     if (total <= 0) return
-    const clamped = Math.min(total, Math.max(1, Math.floor(formBar)))
+    const { formBar: target, passIndex } = passIndexForFormBar(
+      formBar,
+      total,
+      this.practiceLoop,
+    )
     this.stopAudioSources()
     this.midiSink?.clear()
     this.clearUiTimers()
-    const schedulerBar = clamped + this.countInBars
+    const schedulerBar = passIndex + this.countInBars
     this.scheduler.seek(schedulerBar, 1)
-    this.state = { ...this.state, bar: clamped, beat: 1 }
+    this.state = { ...this.state, bar: target, beat: 1 }
     this.emit()
   }
 

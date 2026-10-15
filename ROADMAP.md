@@ -189,7 +189,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Toolbar voice toggles; live refresh without stopping transport
 - [x] Applies to live playback, MIDI export, and WAV bounce
 - [x] Unit tests for filter + muted `realizeBar`
-- [ ] Manual playback and export scenarios verified
+- [ ] Manual playback and export scenarios verified (deferred)
 - [ ] Per-voice volume / balance deferred
 
 ## M19 acceptance

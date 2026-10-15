@@ -50,3 +50,25 @@ export function resolveLoopedFormBar(
   const len = normalized.endBar - normalized.startBar + 1
   return normalized.startBar + ((pass - 1) % len)
 }
+
+/**
+ * Scheduler pass index (1-based, post-count-in) that plays `formBar`.
+ * With loop on, clamps into A–B and returns the offset within one cycle.
+ */
+export function passIndexForFormBar(
+  formBar: number,
+  totalBars: number,
+  loop: PracticeLoop,
+): { formBar: number; passIndex: number } {
+  if (totalBars <= 0) return { formBar: 1, passIndex: 1 }
+  const clamped = Math.min(totalBars, Math.max(1, Math.floor(formBar)))
+  const normalized = normalizePracticeLoop(loop, totalBars)
+  if (!normalized.enabled) {
+    return { formBar: clamped, passIndex: clamped }
+  }
+  const target = Math.min(normalized.endBar, Math.max(normalized.startBar, clamped))
+  return {
+    formBar: target,
+    passIndex: target - normalized.startBar + 1,
+  }
+}

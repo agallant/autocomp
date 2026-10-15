@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   normalizePracticeLoop,
+  passIndexForFormBar,
   resolveLoopedFormBar,
 } from '../../src/ui/practiceLoop'
 
@@ -34,5 +35,14 @@ describe('practice loop', () => {
     expect(resolveLoopedFormBar(3, 12, loop)).toBe(5)
     expect(resolveLoopedFormBar(4, 12, loop)).toBe(3)
     expect(resolveLoopedFormBar(7, 12, loop)).toBe(3)
+  })
+
+  it('maps seek targets to a loop-relative pass that resolves back', () => {
+    const loop = { enabled: true, startBar: 3, endBar: 6 }
+    const seek = passIndexForFormBar(5, 12, loop)
+    expect(seek.formBar).toBe(5)
+    expect(seek.passIndex).toBe(3)
+    expect(resolveLoopedFormBar(seek.passIndex, 12, loop)).toBe(5)
+    expect(passIndexForFormBar(2, 12, loop).formBar).toBe(3)
   })
 })

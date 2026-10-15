@@ -443,9 +443,23 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     }
   }
 
+  const syncPracticeLoop = (next: PracticeLoop = practiceLoop): void => {
+    const total = expandChartBars(editor.chart).length
+    practiceLoop = normalizePracticeLoop(next, total)
+    transport?.setPracticeLoop(practiceLoop)
+    const aBtn = root.querySelector('#loop-set-a')
+    const bBtn = root.querySelector('#loop-set-b')
+    if (aBtn) aBtn.textContent = `A=${practiceLoop.startBar}`
+    if (bBtn) bBtn.textContent = `B=${practiceLoop.endBar}`
+    const enable = root.querySelector<HTMLInputElement>('#loop-enable')
+    if (enable) enable.checked = practiceLoop.enabled
+  }
+
   const setEditor = (next: ChartEditorState): void => {
     editor = next
     refreshChart()
+    // Bar add/remove can shrink the form; keep A–B labels in range.
+    syncPracticeLoop()
     if (next.editing) {
       // Keep typing after a failed commit (innerHTML replaces the focused input).
       focusChordInput({ selectAll: next.error === null })
@@ -461,8 +475,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     if (opts.styleId) styleId = opts.styleId
     else if (chart.styleHint && isStyleId(chart.styleHint)) styleId = chart.styleHint
     else if (chart.styleHint === 'swing') styleId = 'jazz-swing'
-    practiceLoop = normalizePracticeLoop(practiceLoop, expandChartBars(chart).length)
-    transport?.setPracticeLoop(practiceLoop)
+    syncPracticeLoop(practiceLoop)
     refreshChart()
     refreshLibrary()
     transport?.setBeatsPerBar(chart.timeSignature.numerator)
@@ -892,17 +905,6 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
         if (!checked) transport?.silenceVoices([voice])
       })
     }
-    const syncPracticeLoop = (next: PracticeLoop): void => {
-      const total = expandChartBars(editor.chart).length
-      practiceLoop = normalizePracticeLoop(next, total)
-      transport?.setPracticeLoop(practiceLoop)
-      const aBtn = root.querySelector('#loop-set-a')
-      const bBtn = root.querySelector('#loop-set-b')
-      if (aBtn) aBtn.textContent = `A=${practiceLoop.startBar}`
-      if (bBtn) bBtn.textContent = `B=${practiceLoop.endBar}`
-      const enable = root.querySelector<HTMLInputElement>('#loop-enable')
-      if (enable) enable.checked = practiceLoop.enabled
-    }
     root.querySelector<HTMLInputElement>('#loop-enable')?.addEventListener('change', (event) => {
       syncPracticeLoop({
         ...practiceLoop,
@@ -910,16 +912,20 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       })
     })
     root.querySelector('#loop-set-a')?.addEventListener('click', () => {
+      const selectedBar = editor.selectedBarIndex + 1
       syncPracticeLoop({
         ...practiceLoop,
-        startBar: editor.selectedBarIndex + 1,
+        startBar: selectedBar,
+        endBar: Math.max(practiceLoop.endBar, selectedBar),
       })
       setPersistStatus(`Loop A = bar ${practiceLoop.startBar}.`)
     })
     root.querySelector('#loop-set-b')?.addEventListener('click', () => {
+      const selectedBar = editor.selectedBarIndex + 1
       syncPracticeLoop({
         ...practiceLoop,
-        endBar: editor.selectedBarIndex + 1,
+        startBar: Math.min(practiceLoop.startBar, selectedBar),
+        endBar: selectedBar,
       })
       setPersistStatus(`Loop B = bar ${practiceLoop.endBar}.`)
     })
