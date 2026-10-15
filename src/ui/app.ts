@@ -29,7 +29,7 @@ import {
   wavDownloadFilename,
   wavToDownloadBlob,
 } from '../render'
-import { formatRoot, parseRoot, type Chart, type Root } from '../music'
+import { formatRoot, parseRoot, transposeChart, type Chart, type Root } from '../music'
 import {
   STYLE_PACK,
   createStyleById,
@@ -301,6 +301,12 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
           </select>
         </label>
         <button type="button" class="btn" id="reharm-run">Apply to bar</button>
+      </div>
+      <div class="generate-controls" role="group" aria-label="Transpose chart">
+        <span class="style-picker__label">Transpose</span>
+        <span class="transpose-key" id="transpose-key" aria-live="polite">${escapeHtml(formatRoot(state.chart.key))}</span>
+        <button type="button" class="btn" id="transpose-down" aria-label="Transpose down one semitone">−1</button>
+        <button type="button" class="btn" id="transpose-up" aria-label="Transpose up one semitone">+1</button>
       </div>
       ${
         webMidiAvailable
@@ -842,6 +848,38 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
         setPersistStatus('Could not reharmonize bar.')
       }
     })
+    const applyTranspose = (semitones: number): void => {
+      try {
+        // Commit any in-progress chord edit first (pointerdown can interrupt blur).
+        const base = editor.editing ? commitEdit(editor) : editor
+        if (editor.editing && base.error) {
+          setEditor(base)
+          return
+        }
+        const next = transposeChart(base.chart, semitones)
+        setEditor(selectBar(createEditorState(next), base.selectedBarIndex))
+        syncTransportStyle({ stopSources: false })
+        setPersistStatus(`Transposed to ${formatRoot(next.key)}.`)
+      } catch {
+        setPersistStatus('Could not transpose chart.')
+      }
+    }
+    // pointerdown fires before input blur (pointer); click with detail===0 covers keyboard.
+    const bindTranspose = (id: string, semitones: number): void => {
+      const button = root.querySelector(id)
+      button?.addEventListener('pointerdown', (event: Event) => {
+        const pointer = event as PointerEvent
+        if (pointer.button !== 0) return
+        pointer.preventDefault()
+        applyTranspose(semitones)
+      })
+      button?.addEventListener('click', (event: Event) => {
+        const mouse = event as MouseEvent
+        if (mouse.detail === 0) applyTranspose(semitones)
+      })
+    }
+    bindTranspose('#transpose-down', -1)
+    bindTranspose('#transpose-up', 1)
     root.querySelector('#midi-out-select')?.addEventListener('focus', () => {
       void refreshMidiOutputs()
     })
