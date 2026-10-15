@@ -96,4 +96,47 @@ describe('webmidi helpers', () => {
     expect(timers.length).toBe(0)
     expect(sent.some((msg) => msg[0] === 0xb0 && msg[1] === 123)).toBe(true)
   })
+
+  it('clearVoices cancels only the muted voice timers', () => {
+    const sent: number[][] = []
+    const output = {
+      send: (data: number[]) => {
+        sent.push([...data])
+      },
+    } as MIDIOutput
+
+    const timers: Array<{ id: number; fn: () => void; delay: number }> = []
+    let nextId = 1
+    const sink = createWebMidiSink(output, {
+      setTimeoutFn: ((fn: () => void, delay?: number) => {
+        const id = nextId++
+        timers.push({ id, fn, delay: delay ?? 0 })
+        return id as unknown as ReturnType<typeof setTimeout>
+      }) as typeof setTimeout,
+      clearTimeoutFn: ((id: ReturnType<typeof setTimeout>) => {
+        const idx = timers.findIndex((t) => t.id === (id as unknown as number))
+        if (idx >= 0) timers.splice(idx, 1)
+      }) as typeof clearTimeout,
+    })
+
+    sink.scheduleNote(
+      { voice: 'bass', midi: 36, startBeat: 0, durationBeats: 1, velocity: 0.5 },
+      1.0,
+      0.5,
+      0.5,
+    )
+    sink.scheduleNote(
+      { voice: 'piano', midi: 60, startBeat: 0, durationBeats: 1, velocity: 0.5 },
+      1.0,
+      0.5,
+      0.5,
+    )
+    expect(timers.length).toBe(4)
+    sink.clearVoices(['piano'])
+    expect(timers.length).toBe(2)
+    expect(sent.some((msg) => msg[0] === (0xb0 | 1) && msg[1] === 123)).toBe(true)
+    for (const timer of [...timers]) timer.fn()
+    expect(sent.some((msg) => msg[0] === 0x90 && msg[1] === 36)).toBe(true)
+    expect(sent.some((msg) => msg[0] === 0x91 && msg[1] === 60)).toBe(false)
+  })
 })

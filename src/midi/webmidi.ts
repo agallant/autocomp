@@ -1,4 +1,4 @@
-import type { StyleNote } from '../style'
+import type { StyleNote, StyleVoice } from '../style'
 import { VOICE_CHANNEL, VOICE_PROGRAM } from './types'
 
 export type MidiOutputInfo = {
@@ -16,6 +16,8 @@ export type WebMidiSink = {
   ) => void
   /** Cancel pending note timers and send All Notes Off. */
   clear: () => void
+  /** Cancel pending timers / All Notes Off for the given voices only. */
+  clearVoices: (voices: readonly StyleVoice[]) => void
   dispose: () => void
 }
 
@@ -61,7 +63,8 @@ export function createWebMidiSink(
     clearTimeoutFn: clearTimeout,
   },
 ): WebMidiSink {
-  const pending = new Set<ReturnType<typeof setTimeout>>()
+  type Pending = { timer: ReturnType<typeof setTimeout>; voice: StyleVoice }
+  const pending = new Set<Pending>()
   let programsSent = false
 
   const sendPrograms = (): void => {
@@ -75,19 +78,33 @@ export function createWebMidiSink(
     }
   }
 
-  const clear = (): void => {
-    for (const timer of pending) {
-      timers.clearTimeoutFn(timer)
-    }
-    pending.clear()
-    for (const channel of [VOICE_CHANNEL.bass, VOICE_CHANNEL.piano, VOICE_CHANNEL.drums]) {
+  const allNotesOff = (voices: readonly StyleVoice[]): void => {
+    for (const voice of voices) {
       try {
         // CC 123 All Notes Off
-        output.send([0xb0 | channel, 123, 0])
+        output.send([0xb0 | VOICE_CHANNEL[voice], 123, 0])
       } catch {
         // ignore disconnect
       }
     }
+  }
+
+  const clearVoices = (voices: readonly StyleVoice[]): void => {
+    const mute = new Set(voices)
+    for (const entry of [...pending]) {
+      if (!mute.has(entry.voice)) continue
+      timers.clearTimeoutFn(entry.timer)
+      pending.delete(entry)
+    }
+    allNotesOff(voices)
+  }
+
+  const clear = (): void => {
+    for (const entry of pending) {
+      timers.clearTimeoutFn(entry.timer)
+    }
+    pending.clear()
+    allNotesOff(['bass', 'piano', 'drums'])
   }
 
   return {
@@ -100,27 +117,34 @@ export function createWebMidiSink(
       const onDelay = Math.max(0, (whenAudioTime - audioCurrentTime) * 1000)
       const offDelay = onDelay + Math.max(0.01, note.durationBeats) * secondsPerBeat * 1000
 
-      const onTimer = timers.setTimeoutFn(() => {
-        pending.delete(onTimer)
-        try {
-          output.send([0x90 | channel, midi, velocity])
-        } catch {
-          // ignore
-        }
-      }, onDelay)
-      pending.add(onTimer)
+      const onEntry: Pending = {
+        voice: note.voice,
+        timer: timers.setTimeoutFn(() => {
+          pending.delete(onEntry)
+          try {
+            output.send([0x90 | channel, midi, velocity])
+          } catch {
+            // ignore
+          }
+        }, onDelay),
+      }
+      pending.add(onEntry)
 
-      const offTimer = timers.setTimeoutFn(() => {
-        pending.delete(offTimer)
-        try {
-          output.send([0x80 | channel, midi, 0])
-        } catch {
-          // ignore
-        }
-      }, offDelay)
-      pending.add(offTimer)
+      const offEntry: Pending = {
+        voice: note.voice,
+        timer: timers.setTimeoutFn(() => {
+          pending.delete(offEntry)
+          try {
+            output.send([0x80 | channel, midi, 0])
+          } catch {
+            // ignore
+          }
+        }, offDelay),
+      }
+      pending.add(offEntry)
     },
     clear,
+    clearVoices,
     dispose: clear,
   }
 }

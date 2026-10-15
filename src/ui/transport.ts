@@ -10,7 +10,12 @@ import {
 } from '../audio'
 import type { WebMidiSink } from '../midi'
 import { beatsPerBar, expandChartBars, type Chart } from '../music'
-import { buildStyleBarContext, type StyleEngine } from '../style'
+import { buildStyleBarContext, type StyleEngine, type StyleVoice } from '../style'
+
+type TrackedAudioSource = {
+  voice: StyleVoice | 'metronome'
+  source: ScheduledSource
+}
 
 export type TransportState = {
   playing: boolean
@@ -80,7 +85,7 @@ export class TransportController {
   private ctx: AudioContext | null = null
   private scheduler: LookaheadScheduler | null = null
   private uiTimers = new Set<ReturnType<typeof setTimeout>>()
-  private audioSources = new Set<ScheduledSource>()
+  private audioSources = new Set<TrackedAudioSource>()
   /** Monotonic token so overlapping async `play()` calls can be invalidated. */
   private playGeneration = 0
   private starting = false
@@ -155,6 +160,25 @@ export class TransportController {
 
   getCountInBars(): number {
     return this.countInBars
+  }
+
+  /**
+   * Stop ringing / pending notes for specific voices without stopping transport.
+   * Used when muting a voice mid-playback.
+   */
+  silenceVoices(voices: readonly StyleVoice[]): void {
+    if (voices.length === 0) return
+    const mute = new Set(voices)
+    for (const tracked of [...this.audioSources]) {
+      if (tracked.voice === 'metronome' || !mute.has(tracked.voice)) continue
+      try {
+        tracked.source.stop(0)
+      } catch {
+        // already stopped
+      }
+      this.audioSources.delete(tracked)
+    }
+    this.midiSink?.clearVoices(voices)
   }
 
   toggle(): void {
@@ -280,7 +304,7 @@ export class TransportController {
   private handleScheduledBeat(ctx: AudioContext, beat: ScheduledBeat): void {
     const inCountIn = beat.bar <= this.countInBars
     if (this.metronomeEnabled || inCountIn) {
-      this.trackAudioSource(scheduleMetronomeClick(ctx, beat.time, beat.accent))
+      this.trackAudioSource('metronome', scheduleMetronomeClick(ctx, beat.time, beat.accent))
     }
     this.scheduleStyleBeat(ctx, beat)
     const delayMs = Math.max(0, (beat.time - ctx.currentTime) * 1000)
@@ -312,27 +336,28 @@ export class TransportController {
       if (note.startBeat < beatIndex || note.startBeat >= beatIndex + 1) continue
       const when = beat.time + (note.startBeat - beatIndex) * secondsPerBeat
       for (const source of scheduleStyleNote(ctx, note, when, secondsPerBeat)) {
-        this.trackAudioSource(source)
+        this.trackAudioSource(note.voice, source)
       }
       this.midiSink?.scheduleNote(note, when, ctx.currentTime, secondsPerBeat)
     }
   }
 
-  private trackAudioSource(source: ScheduledSource): void {
-    this.audioSources.add(source)
+  private trackAudioSource(voice: StyleVoice | 'metronome', source: ScheduledSource): void {
+    const tracked: TrackedAudioSource = { voice, source }
+    this.audioSources.add(tracked)
     // Drop finished nodes so long sessions do not retain every past hit.
     const node = source as ScheduledSource & { onended: ((ev: Event) => void) | null }
     if ('onended' in node) {
       node.onended = () => {
-        this.audioSources.delete(source)
+        this.audioSources.delete(tracked)
       }
     }
   }
 
   private stopAudioSources(): void {
-    for (const source of this.audioSources) {
+    for (const tracked of this.audioSources) {
       try {
-        source.stop(0)
+        tracked.source.stop(0)
       } catch {
         // already stopped
       }

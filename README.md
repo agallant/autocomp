@@ -6,7 +6,7 @@ Automatic musical accompaniment as a **client-side TypeScript PWA** — chord ch
 
 ## Status
 
-Milestone **M17** — form endings (penultimate fill + held last bar). See [ROADMAP.md](./ROADMAP.md) and [sample credits](./public/samples/LICENSE.md).
+Milestone **M18** — mute bass / piano / drums for practice. See [ROADMAP.md](./ROADMAP.md) and [sample credits](./public/samples/LICENSE.md).
 
 ## Chart format (preview)
 

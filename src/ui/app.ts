@@ -39,12 +39,17 @@ import {
   type Root,
 } from '../music'
 import {
+  DEFAULT_VOICE_MUTE,
   STYLE_PACK,
+  STYLE_VOICES,
+  createMutedStyle,
   createStyleById,
   getStyleDescriptor,
   isStyleId,
   type StyleEngine,
   type StyleId,
+  type StyleVoice,
+  type VoiceMuteState,
 } from '../style'
 import {
   COMP_DENSITY_OPTIONS,
@@ -108,6 +113,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
   let variationHumanize = DEFAULT_VARIATION.humanize
   let variationDensity: CompDensity = DEFAULT_VARIATION.density
   let variationEndings = DEFAULT_VARIATION.endings
+  let voiceEnabled: VoiceMuteState = { ...DEFAULT_VOICE_MUTE }
   let generateKind: ProgressionKind = styleGenerateHints(styleId).defaultKind
   let generateKey: Root = { letter: 'C', accidental: 0 }
   let reharmMode: ReharmMode = 'ii-before-v'
@@ -149,7 +155,13 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
   })
 
   const activeStyle = (chart: Chart, tempoBpm: number): StyleEngine =>
-    createVariedStyle(createStyleById(styleId), variationOptions(chart, tempoBpm))
+    createMutedStyle(
+      createVariedStyle(createStyleById(styleId), variationOptions(chart, tempoBpm)),
+      voiceEnabled,
+    )
+
+  const voiceToggleLabel = (voice: StyleVoice): string =>
+    voice === 'bass' ? 'Bass' : voice === 'piano' ? 'Piano' : 'Drums'
 
   const renderShell = (): void => {
     root.innerHTML = `
@@ -294,6 +306,15 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
             ).join('')}
           </select>
         </label>
+      </div>
+      <div class="variation-toggles" role="group" aria-label="Voices">
+        ${STYLE_VOICES.map(
+          (voice) => `
+        <label class="variation-toggle" title="Uncheck to mute ${voiceToggleLabel(voice).toLowerCase()}">
+          <input type="checkbox" id="voice-${voice}"${voiceEnabled[voice] ? ' checked' : ''} />
+          <span>${voiceToggleLabel(voice)}</span>
+        </label>`,
+        ).join('')}
       </div>
       <div class="generate-controls" role="group" aria-label="Generate progression">
         <label class="style-picker" for="generate-kind">
@@ -837,6 +858,16 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     bindVariationToggle('#var-endings', (checked) => {
       variationEndings = checked
     })
+    for (const voice of STYLE_VOICES) {
+      root.querySelector<HTMLInputElement>(`#voice-${voice}`)?.addEventListener('change', (event) => {
+        const checked = (event.target as HTMLInputElement).checked
+        voiceEnabled = { ...voiceEnabled, [voice]: checked }
+        // Keep transport running; only drop future realizations for unmuted peers.
+        syncTransportStyle({ stopSources: false })
+        // Immediately cut the muted voice's ringing audio + pending WebMIDI.
+        if (!checked) transport?.silenceVoices([voice])
+      })
+    }
     root.querySelector<HTMLSelectElement>('#var-density')?.addEventListener('change', (event) => {
       const value = (event.target as HTMLSelectElement).value as CompDensity
       if (COMP_DENSITY_OPTIONS.some((o) => o.id === value)) {
