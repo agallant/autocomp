@@ -66,6 +66,7 @@ describe('TransportController', () => {
       bar: 1,
       beat: 1,
       audioReady: false,
+      styleId: null,
     })
     expect(onChange).toHaveBeenCalledTimes(1)
     transport.dispose()
