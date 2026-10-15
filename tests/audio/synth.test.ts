@@ -98,8 +98,10 @@ describe('scheduleStyleNote', () => {
       velocity: 0.5,
     }
     const sources = scheduleStyleNote(ctx, note, 0.5, 0.5, { kit: null })
-    expect(sources.length).toBeGreaterThan(0)
+    expect(sources).toHaveLength(3)
     expect(osc.start).toHaveBeenCalledWith(0.5)
-    expect(osc.frequency.setValueAtTime).toHaveBeenCalled()
+    expect(osc.frequency.setValueAtTime).toHaveBeenNthCalledWith(1, 400, 0.5)
+    expect(osc.frequency.setValueAtTime).toHaveBeenNthCalledWith(2, 800, 0.5)
+    expect(osc.frequency.setValueAtTime).toHaveBeenNthCalledWith(3, 2400, 0.5)
   })
 })

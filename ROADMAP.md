@@ -24,7 +24,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M7 | Persistence | done | Local save/load charts (IndexedDB), import/export JSON |
 | M8 | MIDI I/O | done | MIDI file export; optional WebMIDI out where supported |
 | M9 | Audio render | done | Offline bounce to WAV (MP3 deferred); client-side encode |
-| M10 | Variation | done | Fills, intros/endings, solo density, humanization |
+| M10 | Variation | in progress | Fills, intros/endings, solo density, humanization |
 | M11 | Generative | planned | Style-conditioned progression / reharm helpers |
 | M12 | Listen & follow | planned | Experimental mic/chord following for dynamic backing |
 

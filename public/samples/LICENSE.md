@@ -12,10 +12,10 @@ Bundled as AAC/M4A for Safari `decodeAudioData` support.
   (1994), CC0 1.0 Universal.
 - **ride** — same TR-808 CC0 lineage, envelope-trimmed so overlapping swing
   rides do not smear into a noise wash.
-- **clave** — short modal woodblock one-shot authored for Autocomp (original;
-  free to use with the project).
-- **hat** — short closed-hat tonal one-shot authored for Autocomp (original;
-  free to use with the project).
+- **clave** — short modal woodblock one-shot authored for Autocomp (original),
+  dedicated to the public domain under [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/).
+- **hat** — short closed-hat tonal one-shot authored for Autocomp (original),
+  dedicated to the public domain under [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/).
 
 ## Bass
 
