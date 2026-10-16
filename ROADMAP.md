@@ -55,7 +55,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M38 | Center playhead | done | Optional centered playhead scroll while playing |
 | M39 | Tempo ramp | done | Hold tempo keys to fine-ramp ±1 BPM |
 | M40 | Click subdivision | done | Metronome Beat vs 8th subdivision |
-| M41 | Library shelves | planned | Practice / Standards / Generate shelves; default = Practice |
+| M41 | Library shelves | done | Practice / Standards / Generate shelves; default = Practice |
 | M42 | Practice pack v2 | planned | More educational drills; richer tags; keep landing assortment |
 | M43 | Practice shuffle | planned | Random pick / seeded variants of practice charts |
 | M44 | Full random chart | planned | Constrained fully-random progressions (key, length, density) |
@@ -133,7 +133,7 @@ Default first-run experience stays the **current compact Practice assortment** (
 - [x] Tag filter in the library UI
 - [x] Loading a tune replaces the editor chart and applies style + tempo
 - [x] Unit tests for catalog filtering and chart validity
-- [ ] Library shelves / categories (M41)
+- [x] Library shelves / categories (M41)
 - [ ] Expanded practice pack (M42)
 - [ ] Standards catalogue (M46)
 
@@ -407,11 +407,11 @@ Default first-run experience stays the **current compact Practice assortment** (
 
 ## M41 acceptance
 
-- [ ] Library shelves: **Practice** (default) / **Standards** / **Generate**
-- [ ] Shelf switcher + tag/category filters scoped to the active shelf
-- [ ] Search still works across the active shelf (optional “all shelves” later)
-- [ ] Empty Standards/Generate shelves show clear CTA until packs/engines land
-- [ ] Unit tests for shelf filtering; default shelf remains Practice
+- [x] Library shelves: **Practice** (default) / **Standards** / **Generate**
+- [x] Shelf switcher + tag/category filters scoped to the active shelf
+- [x] Search still works across the active shelf (optional “all shelves” later)
+- [x] Empty Standards/Generate shelves show clear CTA until packs/engines land
+- [x] Unit tests for shelf filtering; default shelf remains Practice
 
 ## M42 acceptance
 

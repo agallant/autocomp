@@ -1,3 +1,14 @@
-export { TUNE_LIBRARY, allLibraryTags, getTuneById } from './catalog'
+export {
+  TUNE_LIBRARY,
+  allLibraryTags,
+  getTuneById,
+} from './catalog'
 export { filterTunes, type LibraryFilter } from './search'
-export type { TuneEntry, TuneTag } from './types'
+export {
+  DEFAULT_LIBRARY_SHELF,
+  LIBRARY_SHELVES,
+  isLibraryShelf,
+  type LibraryShelf,
+  type TuneEntry,
+  type TuneTag,
+} from './types'
