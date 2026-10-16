@@ -3,8 +3,8 @@
  * - Space: play / pause from the selected bar
  * - T: tap tempo
  * - M: toggle metronome click
- * - [ / ]: tempo −10 / +10
- * - - / = (and +): tempo −10 / +10
+ * - [ / ]: tempo −10 / +10 (hold: ramp ±1)
+ * - - / = (and +): tempo −10 / +10 (hold: ramp ±1)
  * - D: cycle comp density
  * - 1–4: Solo / Sparse / Normal / Dense
  */
@@ -63,6 +63,19 @@ export function densityFromPracticeAction(
     default:
       return null
   }
+}
+
+/**
+ * Tempo BPM delta for a practice tempo action.
+ * Initial keydown: ±10. Browser key-repeat while held: ±1 (fine ramp).
+ */
+export function practiceTempoDelta(
+  action: PracticeKeyAction,
+  repeat: boolean,
+): number | null {
+  if (action === 'tempo-down') return repeat ? -1 : -10
+  if (action === 'tempo-up') return repeat ? 1 : 10
+  return null
 }
 
 /**

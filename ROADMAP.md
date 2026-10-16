@@ -52,7 +52,8 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M35 | Density shortcut | done | D cycles Solo → Sparse → Normal → Dense |
 | M36 | Practice prefs | done | Persist mix / click / count-in / density locally |
 | M37 | Density keys | done | 1–4 jump to Solo / Sparse / Normal / Dense |
-| M38 | Center playhead | in progress | Optional centered playhead scroll while playing |
+| M38 | Center playhead | done | Optional centered playhead scroll while playing |
+| M39 | Tempo ramp | in progress | Hold tempo keys to fine-ramp ±1 BPM |
 
 ## M0 acceptance
 
@@ -336,7 +337,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] `[` / `-` decrease tempo 10 BPM; `]` / `=` / `+` increase
 - [x] Same guards as other practice keys (form fields, chord edit, key-repeat)
 - [x] Unit tests for tempo key mapping
-- [ ] Hold-to-ramp tempo deferred
+- [x] Hold-to-ramp tempo (M39)
 
 ## M35 acceptance
 
@@ -365,6 +366,13 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Center toggle in variation toolbar; persists via localStorage
 - [x] `syncBarPlayhead` uses `block`/`inline: 'center'` when enabled
 - [x] Unit tests for scroll options + prefs normalize
+
+## M39 acceptance
+
+- [x] Initial tempo key press still ±10 BPM
+- [x] Browser key-repeat while held ramps ±1 BPM
+- [x] Non-tempo practice keys still ignore key-repeat
+- [x] Unit tests for `practiceTempoDelta`
 
 ## Process notes
 
