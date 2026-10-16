@@ -64,6 +64,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M47 | Standards + engines v2 | done | More cleared standards; minor iiø–V–i chain engine |
 | M48 | Enharmonic respell | done | ♯↔♭ spelling flip without changing pitch |
 | M49 | Form slot reorder | done | Move selected form occurrence earlier/later |
+| M50 | Style swing defaults | done | Per-style default swing feel on style picker change |
 
 ## Library & generative depth (product intent)
 
@@ -283,7 +284,7 @@ Default first-run experience stays the **current compact Practice assortment** (
 - [x] Jazz swing ride skips authored as even eighths; default ~triplet
 - [x] Toolbar Swing range; shared live/MIDI/WAV path
 - [x] Unit tests for ratio mapping and ride skip warping
-- [ ] Per-style swing defaults deferred
+- [x] Per-style swing defaults (M50)
 
 ## M25 acceptance
 
@@ -468,6 +469,12 @@ Default first-run experience stays the **current compact Practice assortment** (
 - [x] `moveFormOccurrence` swaps the selected form slot with its neighbor
 - [x] Form ↑ / Form ↓ toolbar controls; caret stays on the moved occurrence
 - [x] Unit tests for move + edge no-ops
+
+## M50 acceptance
+
+- [x] Each style declares `defaultSwingFeel` (jazz ~triplet; bossa/latin straight)
+- [x] Changing the style picker applies that default and persists prefs
+- [x] Unit tests for pack defaults
 
 ## Process notes
 

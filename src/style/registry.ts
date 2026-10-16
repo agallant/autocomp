@@ -12,6 +12,11 @@ export type StyleDescriptor = {
   blurb: string
   /** Suggested default tempo when the user picks this style. */
   suggestedTempoBpm: number
+  /**
+   * Suggested swing feel (0–100) when the user picks this style.
+   * Jazz defaults near triplet; bossa/latin stay straight.
+   */
+  defaultSwingFeel: number
   create: () => StyleEngine
 }
 
@@ -21,6 +26,7 @@ export const STYLE_PACK: readonly StyleDescriptor[] = [
     label: 'Jazz Swing',
     blurb: 'Walking bass, guide-tone comps, swing ride',
     suggestedTempoBpm: 120,
+    defaultSwingFeel: 67,
     create: createJazzSwingStyle,
   },
   {
@@ -28,6 +34,7 @@ export const STYLE_PACK: readonly StyleDescriptor[] = [
     label: 'Bossa Nova',
     blurb: 'Root–fifth bass, soft syncopated shells, light hats',
     suggestedTempoBpm: 110,
+    defaultSwingFeel: 0,
     create: createBossaStyle,
   },
   {
@@ -35,6 +42,7 @@ export const STYLE_PACK: readonly StyleDescriptor[] = [
     label: 'Ballad',
     blurb: 'Sparse bass, sustained piano, soft pulse',
     suggestedTempoBpm: 70,
+    defaultSwingFeel: 25,
     create: createBalladStyle,
   },
   {
@@ -42,6 +50,7 @@ export const STYLE_PACK: readonly StyleDescriptor[] = [
     label: 'Latin',
     blurb: 'Tumbao bass, montuno shells, clave skeleton',
     suggestedTempoBpm: 180,
+    defaultSwingFeel: 0,
     create: createLatinStyle,
   },
 ] as const

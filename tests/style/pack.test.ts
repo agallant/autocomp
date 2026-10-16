@@ -16,6 +16,18 @@ describe('style pack', () => {
     expect(isStyleId('funk')).toBe(false)
   })
 
+  it('declares per-style default swing feels', () => {
+    expect(getStyleDescriptor('jazz-swing').defaultSwingFeel).toBe(67)
+    expect(getStyleDescriptor('bossa').defaultSwingFeel).toBe(0)
+    expect(getStyleDescriptor('latin').defaultSwingFeel).toBe(0)
+    expect(getStyleDescriptor('ballad').defaultSwingFeel).toBeGreaterThan(0)
+    expect(getStyleDescriptor('ballad').defaultSwingFeel).toBeLessThan(67)
+    for (const desc of STYLE_PACK) {
+      expect(desc.defaultSwingFeel).toBeGreaterThanOrEqual(0)
+      expect(desc.defaultSwingFeel).toBeLessThanOrEqual(100)
+    }
+  })
+
   it('realizes distinctive voices for each style', () => {
     const ctx = buildStyleBarContext(createAutumnPracticeChart(), 0)!
     for (const desc of STYLE_PACK) {
