@@ -5,7 +5,7 @@ import { validateChart } from '../../src/music'
 
 describe('standards pack', () => {
   it('ships only Standards-shelf entries with clearance notes', () => {
-    expect(STANDARDS_PACK.length).toBeGreaterThanOrEqual(8)
+    expect(STANDARDS_PACK.length).toBeGreaterThanOrEqual(14)
     expect(STANDARDS_PACK.every((t) => t.shelf === 'standards')).toBe(true)
     for (const tune of STANDARDS_PACK) {
       const chart = tune.createChart()
