@@ -113,6 +113,16 @@ export function libraryControlsHtml(state: LibraryViewState): string {
             .join('')}
         </select>
       </label>
+      ${
+        state.shelf === 'practice'
+          ? `<div class="library-field library-field--action">
+        <span class="library-field__label">Surprise</span>
+        <button type="button" class="library-shuffle" data-library-shuffle aria-label="Shuffle a practice chart">
+          Shuffle
+        </button>
+      </div>`
+          : ''
+      }
     </div>
   `
 }

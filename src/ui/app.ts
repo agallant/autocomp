@@ -24,6 +24,7 @@ import {
   TUNE_LIBRARY,
   getTuneById,
   isLibraryShelf,
+  shufflePractice,
   type TuneTag,
 } from '../library'
 import {
@@ -704,6 +705,29 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     applyChart(tune.createChart(), { styleId: tune.styleId, activeTuneId: tune.id })
   }
 
+  const shufflePracticeTune = (): void => {
+    const result = shufflePractice(TUNE_LIBRARY, {
+      filter: {
+        query: library.query,
+        tags: library.tag ? [library.tag] : [],
+      },
+      entropy: Date.now(),
+    })
+    if (!result) {
+      setPersistStatus('No practice charts match the current filters.')
+      return
+    }
+    applyChart(result.chart, { styleId: result.tune.styleId, activeTuneId: result.tune.id })
+    applyDensity(result.density)
+    const bits = [
+      result.tune.title,
+      result.transposeSemitones ? `+${result.transposeSemitones}` : null,
+      result.trimmed ? 'trim' : null,
+      result.density,
+    ].filter(Boolean)
+    setPersistStatus(`Shuffled → ${bits.join(' · ')}.`)
+  }
+
   const loadSaved = async (id: string): Promise<void> => {
     try {
       const chart = await charts.get(id)
@@ -1038,6 +1062,9 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
         library = { ...library, shelf: next, tag: '', query: '' }
         refreshLibrary({ controls: true })
       })
+    })
+    root.querySelector<HTMLButtonElement>('[data-library-shuffle]')?.addEventListener('click', () => {
+      shufflePracticeTune()
     })
   }
 
