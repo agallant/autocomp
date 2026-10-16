@@ -68,8 +68,8 @@ Default first-run experience stays the **current compact Practice assortment** (
 
 1. **More practice material** — expand the educational pack (M42) while Practice remains the default shelf.
 2. **Variation / randomization** — shuffle and seedable variants of existing drills (M43).
-3. **Full random + generative** — unconstrained random charts (M44) plus harmony-rule engines (M45: ii–V–I chains, blues, rhythm changes, Coltrane/Giant Steps matrices, etc.). Build on M11’s factories.
-4. **Standards library** — curated real-tune chord progressions (M46). Harmony/progressions are not copyrightable; charts are educational skeletons. Titles are practice labels only (no lyrics / lead sheets / copyrighted melodies).
+3. **Full random + generative** — fully randomized, constraint-bounded charts (M44) plus harmony-rule engines (M45: ii–V–I chains, blues, rhythm changes, Coltrane/Giant Steps matrices, etc.). Build on M11’s factories.
+4. **Standards library** — curated real-tune chord progressions (M46). Use only public-domain or otherwise cleared material; charts omit melodies, lyrics, and lead sheets. Titles are practice labels only. (Common stock progressions may be fine; original protected harmony is not assumed free just because melody/lyrics are omitted.)
 5. **Discoverability** — shelves, categories, tags, and filters (M41) so the default list stays simple while Standards / Generate are one shelf away and searchable.
 
 ## M0 acceptance
@@ -443,9 +443,9 @@ Default first-run experience stays the **current compact Practice assortment** (
 
 ## M46 acceptance
 
-- [ ] Curated standards pack: educational chord charts of well-known forms (no melodies/lyrics)
+- [ ] Curated standards pack: educational chord charts from public-domain or otherwise cleared sources (no melodies/lyrics/lead sheets)
 - [ ] Searchable via Standards shelf + tags (form, key feel, era/style labels)
-- [ ] Legal note in-repo: progressions only; practice titles as labels
+- [ ] In-repo legal note: clearance criteria; practice titles as labels only
 - [ ] Unit tests for chart validity; library search finds standards by tag/title
 
 ## Process notes
