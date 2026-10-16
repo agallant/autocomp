@@ -47,6 +47,8 @@ import {
   expandChartBars,
   formatRoot,
   parseRoot,
+  preferSharpsFromRoot,
+  respellChart,
   rootToPc,
   transposeChart,
   transposeChartToKey,
@@ -591,6 +593,13 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
           </select>
         </label>
         <button type="button" class="btn" id="transpose-to-key">Go</button>
+        <button
+          type="button"
+          class="btn"
+          id="respell-chart"
+          title="Flip enharmonic spelling (F♯↔G♭) without changing pitch"
+          aria-label="Respell chart enharmonically"
+        >♯↔♭</button>
       </div>
       ${
         webMidiAvailable
@@ -1509,6 +1518,24 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       })
     }
     bindTransposeAction('#transpose-to-key', applyTransposeToKey)
+    const applyRespell = (): void => {
+      try {
+        const base = editor.editing ? commitEdit(editor) : editor
+        if (editor.editing && base.error) {
+          setEditor(base)
+          return
+        }
+        // Flip opposite of the current key’s accidental preference.
+        const preferSharps = !preferSharpsFromRoot(base.chart.key)
+        const next = respellChart(base.chart, preferSharps)
+        setEditor(selectBar(createEditorState(next), base.selectedBarIndex))
+        syncTransportStyle({ stopSources: false })
+        setPersistStatus(`Respelled with ${preferSharps ? 'sharps' : 'flats'} (${formatRoot(next.key)}).`)
+      } catch {
+        setPersistStatus('Could not respell chart.')
+      }
+    }
+    bindTransposeAction('#respell-chart', applyRespell)
     root.querySelector('#midi-out-select')?.addEventListener('focus', () => {
       void refreshMidiOutputs()
     })

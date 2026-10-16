@@ -62,6 +62,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M45 | Harmonic engines | done | Rule-based generators: ii–V chains, rhythm changes, Coltrane/Giant Steps |
 | M46 | Standards library | done | Curated jazz-standard progressions + search into deep catalogue |
 | M47 | Standards + engines v2 | done | More cleared standards; minor iiø–V–i chain engine |
+| M48 | Enharmonic respell | done | ♯↔♭ spelling flip without changing pitch |
 
 ## Library & generative depth (product intent)
 
@@ -203,7 +204,7 @@ Default first-run experience stays the **current compact Practice assortment** (
 - [x] `transposeChartToKey` / `semitonesToKey` (shortest signed distance)
 - [x] Toolbar target-key select + Go (pointer + keyboard safe)
 - [x] Unit tests for jump and no-op
-- [ ] Enharmonic respell-only picker (F#↔Gb) deferred
+- [x] Enharmonic respell-only picker (F#↔Gb) (M48)
 
 ## M15 acceptance
 
@@ -454,6 +455,12 @@ Default first-run experience stays the **current compact Practice assortment** (
 - [x] Expand Standards pack with additional traditional + stock educational charts
 - [x] Minor iiø–V–i chain engine on the Generate shelf
 - [x] Unit tests for minor chain spelling + larger standards catalogue
+
+## M48 acceptance
+
+- [x] `respellChart` flips enharmonic spelling (key + all chords) without changing pitch classes
+- [x] Toolbar ♯↔♭ control next to transpose (pointer + keyboard safe)
+- [x] Unit tests for F♯↔G♭ round-trip
 
 ## Process notes
 

@@ -160,6 +160,29 @@ export function respellChord(chord: Chord, preferSharps: boolean): Chord {
   return next
 }
 
+/**
+ * Re-spell every chord (and the concert key) without changing pitch classes.
+ * Use for F♯↔G♭-style enharmonic flips.
+ */
+export function respellChart(chart: Chart, preferSharps: boolean): Chart {
+  return {
+    ...chart,
+    key: pcToRoot(rootToPc(chart.key), preferSharps),
+    sections: chart.sections.map((section) => ({
+      ...section,
+      bars: section.bars.map((bar) => ({
+        ...bar,
+        slots: bar.slots.map((slot) =>
+          slot.chord
+            ? { ...slot, chord: respellChord(slot.chord, preferSharps) }
+            : { ...slot, chord: null },
+        ),
+        ...(bar.timeSignature ? { timeSignature: { ...bar.timeSignature } } : {}),
+      })),
+    })),
+  }
+}
+
 function sameRoot(a: Root, b: Root): boolean {
   return a.letter === b.letter && a.accidental === b.accidental
 }

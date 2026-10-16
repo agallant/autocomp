@@ -36,6 +36,7 @@ export {
   preferSharpsForKeyPc,
   preferSharpsFromRoot,
   respellChord,
+  respellChart,
   semitonesToKey,
   transposeChart,
   transposeChartToKey,
