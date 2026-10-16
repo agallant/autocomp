@@ -54,7 +54,23 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M37 | Density keys | done | 1–4 jump to Solo / Sparse / Normal / Dense |
 | M38 | Center playhead | done | Optional centered playhead scroll while playing |
 | M39 | Tempo ramp | done | Hold tempo keys to fine-ramp ±1 BPM |
-| M40 | Click subdivision | in progress | Metronome Beat vs 8th subdivision |
+| M40 | Click subdivision | done | Metronome Beat vs 8th subdivision |
+| M41 | Library shelves | planned | Practice / Standards / Generate shelves; default = Practice |
+| M42 | Practice pack v2 | planned | More educational drills; richer tags; keep landing assortment |
+| M43 | Practice shuffle | planned | Random pick / seeded variants of practice charts |
+| M44 | Full random chart | planned | Constrained fully-random progressions (key, length, density) |
+| M45 | Harmonic engines | planned | Rule-based generators: ii–V chains, rhythm changes, Coltrane/Giant Steps |
+| M46 | Standards library | planned | Curated jazz-standard progressions + search into deep catalogue |
+
+## Library & generative depth (product intent)
+
+Default first-run experience stays the **current compact Practice assortment** (short educational charts). Advanced users should reach a deeper catalogue and stronger generators without cluttering that default:
+
+1. **More practice material** — expand the educational pack (M42) while Practice remains the default shelf.
+2. **Variation / randomization** — shuffle and seedable variants of existing drills (M43).
+3. **Full random + generative** — fully randomized, constraint-bounded charts (M44) plus harmony-rule engines (M45: ii–V–I chains, blues, rhythm changes, Coltrane/Giant Steps matrices, etc.). Build on M11’s factories.
+4. **Standards library** — curated real-tune chord progressions (M46). Use only public-domain or otherwise cleared material; charts omit melodies, lyrics, and lead sheets. Titles are practice labels only. (Common stock progressions may be fine; original protected harmony is not assumed free just because melody/lyrics are omitted.)
+5. **Discoverability** — shelves, categories, tags, and filters (M41) so the default list stays simple while Standards / Generate are one shelf away and searchable.
 
 ## M0 acceptance
 
@@ -117,6 +133,9 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Tag filter in the library UI
 - [x] Loading a tune replaces the editor chart and applies style + tempo
 - [x] Unit tests for catalog filtering and chart validity
+- [ ] Library shelves / categories (M41)
+- [ ] Expanded practice pack (M42)
+- [ ] Standards catalogue (M46)
 
 ## M7 acceptance
 
@@ -158,6 +177,9 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] UI: Generate kind/key → loads chart via existing apply path; Reharm applies to selection
 - [x] Unit tests for generators + reharm; charts validate
 - [x] Generative guide melody (M26)
+- [ ] Practice shuffle / seeded variants (M43)
+- [ ] Fully random constrained generator (M44)
+- [ ] Advanced harmonic engines — Coltrane/Giant Steps, extended ii–V chains, rhythm changes (M45)
 
 ## M12 acceptance
 
@@ -383,8 +405,52 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Unit tests for subdivision scheduling + prefs normalize
 - [ ] Manual playback and preference-persistence checks verified (deferred)
 
+## M41 acceptance
+
+- [ ] Library shelves: **Practice** (default) / **Standards** / **Generate**
+- [ ] Shelf switcher + tag/category filters scoped to the active shelf
+- [ ] Search still works across the active shelf (optional “all shelves” later)
+- [ ] Empty Standards/Generate shelves show clear CTA until packs/engines land
+- [ ] Unit tests for shelf filtering; default shelf remains Practice
+
+## M42 acceptance
+
+- [ ] Grow Practice catalogue (≥ ~20–30 educational charts) without changing default landing shelf
+- [ ] Richer tags (harmony device, feel, length, difficulty)
+- [ ] All new charts validate; existing search/filter still works
+- [ ] Unit tests for catalog size + tag coverage
+
+## M43 acceptance
+
+- [ ] “Shuffle practice” / random pick from Practice shelf
+- [ ] Seeded variants of practice charts (transpose, density hint, optional form trim)
+- [ ] UI affordance next to library (one click; no deep menus)
+- [ ] Unit tests for seeded determinism
+
+## M44 acceptance
+
+- [ ] Fully random chart generator with knobs: key, bar count, time sig, chord density, major/minor bias
+- [ ] Optional “avoid too-wild” filters (max consecutive non-diatonic, prefer ii–V gravity)
+- [ ] Generate shelf entry + Load into editor
+- [ ] Unit tests for constraints / validity
+
+## M45 acceptance
+
+- [ ] Harmonic rule engines (at least): extended ii–V–I / iiø–V–i chains; rhythm-changes A; Coltrane/Giant Steps matrix cycles
+- [ ] Parameterized length + starting key; style hint applied on load
+- [ ] Listed under Generate shelf alongside M44 random
+- [ ] Unit tests for cycle correctness and chart validation
+
+## M46 acceptance
+
+- [ ] Curated standards pack: educational chord charts from public-domain or otherwise cleared sources (no melodies/lyrics/lead sheets)
+- [ ] Searchable via Standards shelf + tags (form, key feel, era/style labels)
+- [ ] In-repo legal note: clearance criteria; practice titles as labels only
+- [ ] Unit tests for chart validity; library search finds standards by tag/title
+
 ## Process notes
 
 - Protected `main`: squash-only; Cubic required check; CodeQL scanning; conversation resolution.
 - Prefer ≤ ~100 files touched per PR; space PRs if Cubic free tier rate-limits.
 - After each merge, verify Pages deploy before starting the next milestone when deploy-related.
+- Library depth (M41–M46): ship shelves first so catalogue growth never buries the default Practice UX.
