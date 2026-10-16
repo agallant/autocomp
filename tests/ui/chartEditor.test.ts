@@ -15,6 +15,7 @@ import {
   commitEdit,
   createEditorState,
   formDraftString,
+  moveFormOccurrence,
   moveSelection,
   removeSelectedBar,
   removeSelectedSection,
@@ -196,6 +197,31 @@ describe('chartEditor', () => {
     expect(state.error).toBeNull()
     expect(selectedSectionId(state)).toBe('B')
     expect(state.selectedBarIndex).toBe(4) // A(2)+A(2)+B
+  })
+
+  it('moves the selected form occurrence earlier and later', () => {
+    // createAabaChart form is A B A with 2-bar sections: A(0-1) B(2-3) A(4-5)
+    let state = selectBar(createEditorState(createAabaChart()), 2) // first bar of B
+    expect(selectedSectionId(state)).toBe('B')
+    expect(state.chart.form).toEqual(['A', 'B', 'A'])
+    state = moveFormOccurrence(state, -1)
+    expect(state.error).toBeNull()
+    expect(state.chart.form).toEqual(['B', 'A', 'A'])
+    expect(selectedSectionId(state)).toBe('B')
+    expect(state.selectedBarIndex).toBe(0)
+    state = moveFormOccurrence(state, 1)
+    expect(state.chart.form).toEqual(['A', 'B', 'A'])
+    expect(selectedSectionId(state)).toBe('B')
+  })
+
+  it('no-ops at form edges without mutating order', () => {
+    let state = createEditorState(createAabaChart())
+    const form = [...state.chart.form]
+    state = moveFormOccurrence(state, -1)
+    expect(state.chart.form).toEqual(form)
+    state = selectBar(state, expandChartBars(state.chart).length - 1)
+    state = moveFormOccurrence(state, 1)
+    expect(state.chart.form).toEqual(form)
   })
 
   it('rejects unknown form tokens', () => {

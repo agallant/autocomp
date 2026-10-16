@@ -334,6 +334,44 @@ export function renameSelectedSection(
 }
 
 /**
+ * Swap the selected form occurrence with its neighbor (`delta` −1 = earlier, +1 = later).
+ * Keeps the caret on the same occurrence after the swap.
+ */
+export function moveFormOccurrence(
+  state: ChartEditorState,
+  delta: -1 | 1,
+): ChartEditorState {
+  const loc = locateBar(state.chart, state.selectedBarIndex)
+  if (!loc) return { ...state, error: 'No section selected' }
+  const to = loc.formIndex + delta
+  if (to < 0 || to >= state.chart.form.length) {
+    return { ...state, error: null }
+  }
+  if (state.chart.form.length < 2) {
+    return { ...state, error: 'Form needs at least two slots to reorder' }
+  }
+  const chart = cloneChart(state.chart)
+  const form = [...chart.form]
+  const tmp = form[loc.formIndex]!
+  form[loc.formIndex] = form[to]!
+  form[to] = tmp
+  chart.form = form
+  assertValidChart(chart)
+  const barInSection = Math.min(
+    loc.barInSection,
+    (chart.sections.find((s) => s.id === form[to])?.bars.length ?? 1) - 1,
+  )
+  return {
+    ...state,
+    chart,
+    selectedBarIndex: expandedIndexAt(chart, to, Math.max(0, barInSection)),
+    editing: false,
+    draftSymbol: '',
+    error: null,
+  }
+}
+
+/**
  * Remove the selected section from the chart and strip it from the form.
  * Keeps at least one section; if the form would be empty, defaults to the
  * first remaining section once.

@@ -101,6 +101,7 @@ import {
   commitEdit,
   createEditorState,
   formDraftString,
+  moveFormOccurrence,
   moveSelection,
   removeSelectedBar,
   removeSelectedSection,
@@ -369,6 +370,22 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
           aria-label="Form order (space-separated section ids)"
         />
       </label>
+      <button
+        type="button"
+        class="btn"
+        id="form-move-earlier"
+        title="Move the selected form slot earlier"
+        aria-label="Move form slot earlier"
+        ${state.chart.form.length < 2 ? ' disabled' : ''}
+      >Form ↑</button>
+      <button
+        type="button"
+        class="btn"
+        id="form-move-later"
+        title="Move the selected form slot later"
+        aria-label="Move form slot later"
+        ${state.chart.form.length < 2 ? ' disabled' : ''}
+      >Form ↓</button>
       <button type="button" class="btn" id="add-section" title="Append a new empty section to the form">Add section</button>
       <label
         class="style-picker form-editor"
@@ -1138,6 +1155,18 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       setEditor(next)
       const added = next.chart.sections.at(-1)?.id
       setPersistStatus(added ? `Added section ${added}.` : 'Added section.')
+    })
+    const applyFormMove = (delta: -1 | 1): void => {
+      const next = moveFormOccurrence(editor, delta)
+      setEditor(next)
+      if (next.error) setPersistStatus(next.error)
+      else setPersistStatus(`Form ${next.chart.form.join('')}.`)
+    }
+    root.querySelector('#form-move-earlier')?.addEventListener('click', () => {
+      applyFormMove(-1)
+    })
+    root.querySelector('#form-move-later')?.addEventListener('click', () => {
+      applyFormMove(1)
     })
     const formInput = root.querySelector<HTMLInputElement>('#form-input')
     const commitForm = (opts: { deferRebuild?: boolean } = {}): void => {
