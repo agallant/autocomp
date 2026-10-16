@@ -21,19 +21,23 @@ function stubTune(partial: Partial<TuneEntry> & Pick<TuneEntry, 'id' | 'shelf' |
 
 describe('tune library', () => {
   it('registers built-in practice progressions on the Practice shelf', () => {
-    expect(TUNE_LIBRARY.map((t) => t.id).sort()).toEqual([
-      'autumn-practice',
-      'ballad-holds',
-      'blues-workshop',
-      'bossa-loop',
-      'latin-clave',
-      'minor-path',
-      'rhythm-lab',
-      'turnaround-drill',
-    ])
+    expect(TUNE_LIBRARY.length).toBeGreaterThanOrEqual(20)
+    expect(new Set(TUNE_LIBRARY.map((t) => t.id)).size).toBe(TUNE_LIBRARY.length)
     expect(TUNE_LIBRARY.every((t) => t.shelf === 'practice')).toBe(true)
     expect(getTuneById('autumn-practice')?.title).toBe('Autumn Practice')
     expect(getTuneById('blues-workshop')?.styleId).toBe('jazz-swing')
+    expect(getTuneById('circle-fourths')?.tags).toContain('cycle')
+    expect(getTuneById('waltz-three')?.createChart().timeSignature).toEqual({
+      numerator: 3,
+      denominator: 4,
+    })
+  })
+
+  it('covers difficulty and harmony device tags across the Practice pack', () => {
+    const tags = allLibraryTags('practice')
+    for (const needed of ['beginner', 'intermediate', 'ii-v-i', 'cycle', 'modal', 'dominant'] as const) {
+      expect(tags).toContain(needed)
+    }
   })
 
   it('defaults the library view to the Practice shelf', () => {

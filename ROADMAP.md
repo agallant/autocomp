@@ -56,7 +56,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M39 | Tempo ramp | done | Hold tempo keys to fine-ramp ±1 BPM |
 | M40 | Click subdivision | done | Metronome Beat vs 8th subdivision |
 | M41 | Library shelves | done | Practice / Standards / Generate shelves; default = Practice |
-| M42 | Practice pack v2 | planned | More educational drills; richer tags; keep landing assortment |
+| M42 | Practice pack v2 | done | More educational drills; richer tags; keep landing assortment |
 | M43 | Practice shuffle | planned | Random pick / seeded variants of practice charts |
 | M44 | Full random chart | planned | Constrained fully-random progressions (key, length, density) |
 | M45 | Harmonic engines | planned | Rule-based generators: ii–V chains, rhythm changes, Coltrane/Giant Steps |
@@ -134,7 +134,7 @@ Default first-run experience stays the **current compact Practice assortment** (
 - [x] Loading a tune replaces the editor chart and applies style + tempo
 - [x] Unit tests for catalog filtering and chart validity
 - [x] Library shelves / categories (M41)
-- [ ] Expanded practice pack (M42)
+- [x] Expanded practice pack (M42)
 - [ ] Standards catalogue (M46)
 
 ## M7 acceptance
@@ -415,10 +415,10 @@ Default first-run experience stays the **current compact Practice assortment** (
 
 ## M42 acceptance
 
-- [ ] Grow Practice catalogue (≥ ~20–30 educational charts) without changing default landing shelf
-- [ ] Richer tags (harmony device, feel, length, difficulty)
-- [ ] All new charts validate; existing search/filter still works
-- [ ] Unit tests for catalog size + tag coverage
+- [x] Grow Practice catalogue (≥ ~20–30 educational charts) without changing default landing shelf
+- [x] Richer tags (harmony device, feel, length, difficulty)
+- [x] All new charts validate; existing search/filter still works
+- [x] Unit tests for catalog size + tag coverage
 
 ## M43 acceptance
 

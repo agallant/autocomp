@@ -13,6 +13,14 @@ export type TuneTag =
   | 'turnaround'
   | 'rhythm'
   | 'practice'
+  | 'beginner'
+  | 'intermediate'
+  | 'short'
+  | 'long'
+  | 'cycle'
+  | 'modal'
+  | 'dominant'
+  | 'waltz'
 
 /** Top-level library shelf. Default UX lands on Practice. */
 export type LibraryShelf = 'practice' | 'standards' | 'generate'
