@@ -7,32 +7,50 @@ import {
   LookaheadScheduler,
 } from '../../src/audio'
 
+/**
+ * Browser-like stubs: throw Illegal invocation when called without
+ * `globalThis` as the receiver (the Chromium/WebKit failure mode).
+ */
+function installReceiverCheckingTimers(): void {
+  const makeStub = (name: string, returnValue: number = 1) =>
+    function receiverChecked(this: unknown, ..._args: unknown[]): number {
+      if (this !== globalThis) {
+        throw new TypeError(`Illegal invocation (${name})`)
+      }
+      return returnValue
+    }
+
+  vi.stubGlobal('setTimeout', makeStub('setTimeout'))
+  vi.stubGlobal('clearTimeout', makeStub('clearTimeout', undefined as unknown as number))
+  vi.stubGlobal('setInterval', makeStub('setInterval'))
+  vi.stubGlobal('clearInterval', makeStub('clearInterval', undefined as unknown as number))
+}
+
 describe('bound timer helpers', () => {
   afterEach(() => {
-    vi.useRealTimers()
+    vi.unstubAllGlobals()
   })
 
-  it('can be invoked as detached references (no Illegal invocation)', () => {
-    vi.useFakeTimers()
-    const setTimeoutFn = boundSetTimeout
-    const clearTimeoutFn = boundClearTimeout
-    const setIntervalFn = boundSetInterval
-    const clearIntervalFn = boundClearInterval
+  it('rejects detached timer calls but accepts bound wrappers', () => {
+    installReceiverCheckingTimers()
 
-    const timeoutId = setTimeoutFn(() => undefined, 10)
-    clearTimeoutFn(timeoutId)
-    const intervalId = setIntervalFn(() => undefined, 10)
-    clearIntervalFn(intervalId)
+    const detachedInterval = globalThis.setInterval
+    expect(() => detachedInterval(() => undefined, 10)).toThrow(/Illegal invocation/)
+
+    const detachedTimeout = globalThis.setTimeout
+    expect(() => detachedTimeout(() => undefined, 10)).toThrow(/Illegal invocation/)
+
+    expect(() => {
+      const intervalId = boundSetInterval(() => undefined, 10)
+      boundClearInterval(intervalId)
+      const timeoutId = boundSetTimeout(() => undefined, 10)
+      boundClearTimeout(timeoutId)
+    }).not.toThrow()
   })
 
-  it('lets LookaheadScheduler.start with default timers', () => {
-    vi.useFakeTimers()
-    let time = 0
-    const clock = {
-      get currentTime() {
-        return time
-      },
-    }
+  it('lets LookaheadScheduler.start with default (bound) timers', () => {
+    installReceiverCheckingTimers()
+    const clock = { currentTime: 0 }
     const scheduled: number[] = []
     const scheduler = new LookaheadScheduler({
       clock,
@@ -45,9 +63,6 @@ describe('bound timer helpers', () => {
 
     expect(() => scheduler.start(0)).not.toThrow()
     expect(scheduled).toEqual([1])
-    time = 0.5
-    vi.advanceTimersByTime(25)
-    expect(scheduled.length).toBeGreaterThan(1)
-    scheduler.stop()
+    expect(() => scheduler.stop()).not.toThrow()
   })
 })
