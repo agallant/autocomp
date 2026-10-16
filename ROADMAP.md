@@ -59,7 +59,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M42 | Practice pack v2 | done | More educational drills; richer tags; keep landing assortment |
 | M43 | Practice shuffle | done | Random pick / seeded variants of practice charts |
 | M44 | Full random chart | done | Constrained fully-random progressions (key, length, density) |
-| M45 | Harmonic engines | planned | Rule-based generators: ii–V chains, rhythm changes, Coltrane/Giant Steps |
+| M45 | Harmonic engines | done | Rule-based generators: ii–V chains, rhythm changes, Coltrane/Giant Steps |
 | M46 | Standards library | planned | Curated jazz-standard progressions + search into deep catalogue |
 
 ## Library & generative depth (product intent)
@@ -179,7 +179,7 @@ Default first-run experience stays the **current compact Practice assortment** (
 - [x] Generative guide melody (M26)
 - [x] Practice shuffle / seeded variants (M43)
 - [x] Fully random constrained generator (M44)
-- [ ] Advanced harmonic engines — Coltrane/Giant Steps, extended ii–V chains, rhythm changes (M45)
+- [x] Advanced harmonic engines — Coltrane/Giant Steps, extended ii–V chains, rhythm changes (M45)
 
 ## M12 acceptance
 
@@ -436,10 +436,10 @@ Default first-run experience stays the **current compact Practice assortment** (
 
 ## M45 acceptance
 
-- [ ] Harmonic rule engines (at least): extended ii–V–I / iiø–V–i chains; rhythm-changes A; Coltrane/Giant Steps matrix cycles
-- [ ] Parameterized length + starting key; style hint applied on load
-- [ ] Listed under Generate shelf alongside M44 random
-- [ ] Unit tests for cycle correctness and chart validation
+- [x] Harmonic rule engines (at least): extended ii–V–I / iiø–V–i chains; rhythm-changes A; Coltrane/Giant Steps matrix cycles
+- [x] Parameterized length + starting key; style hint applied on load
+- [x] Listed under Generate shelf alongside M44 random
+- [x] Unit tests for cycle correctness and chart validation
 
 ## M46 acceptance
 

@@ -32,6 +32,7 @@ describe('tune library', () => {
       denominator: 4,
     })
     expect(getTuneById('full-random')?.shelf).toBe('generate')
+    expect(getTuneById('engine-coltrane')?.shelf).toBe('generate')
   })
 
   it('covers difficulty and harmony device tags across the Practice pack', () => {

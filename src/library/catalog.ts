@@ -9,8 +9,11 @@ import {
   createTurnaroundDrillChart,
 } from '../data/practiceCharts'
 import { PRACTICE_PACK_V2 } from '../data/practicePackV2'
-import { generateRandomChart } from '../generate'
+import { generateEngine, generateRandomChart } from '../generate'
 import type { TuneEntry, TuneTag } from './types'
+
+const C = { letter: 'C' as const, accidental: 0 as const }
+const BB = { letter: 'B' as const, accidental: -1 as const }
 
 /** Core Practice assortment (default landing shelf). */
 const PRACTICE_CORE: readonly TuneEntry[] = [
@@ -88,6 +91,34 @@ const PRACTICE_CORE: readonly TuneEntry[] = [
   },
 ]
 
+function engineEntry(
+  id: string,
+  title: string,
+  blurb: string,
+  kind: 'ii-v-chain' | 'rhythm-a' | 'coltrane',
+  key: { letter: 'C' | 'B'; accidental: 0 | -1 },
+  length: number,
+  tags: TuneEntry['tags'],
+): TuneEntry {
+  return {
+    id,
+    title,
+    blurb,
+    tags,
+    shelf: 'generate',
+    styleId: 'jazz-swing',
+    createChart: () => {
+      const chart = generateEngine({
+        kind,
+        key,
+        styleId: 'jazz-swing',
+        length,
+      })
+      return { ...chart, id, title }
+    },
+  }
+}
+
 /** Generate-shelf presets (engines / random). */
 const GENERATE_PRESETS: readonly TuneEntry[] = [
   {
@@ -108,6 +139,33 @@ const GENERATE_PRESETS: readonly TuneEntry[] = [
       return { ...chart, id: 'full-random', title: 'Full Random' }
     },
   },
+  engineEntry(
+    'engine-ii-v-chain',
+    'ii–V Chain',
+    'Extended cadences around the circle',
+    'ii-v-chain',
+    C,
+    12,
+    ['jazz', 'ii-v-i', 'cycle', 'intermediate'],
+  ),
+  engineEntry(
+    'engine-rhythm-a',
+    'Rhythm A',
+    'Rhythm-changes A-section lab',
+    'rhythm-a',
+    BB,
+    8,
+    ['jazz', 'rhythm', 'turnaround', 'intermediate'],
+  ),
+  engineEntry(
+    'engine-coltrane',
+    'Coltrane Matrix',
+    'Major-thirds tonic cycle (Giant Steps lab)',
+    'coltrane',
+    C,
+    8,
+    ['jazz', 'cycle', 'major', 'intermediate'],
+  ),
 ]
 
 /** Built-in library (Practice pack + Generate presets). */
