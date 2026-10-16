@@ -2,13 +2,17 @@
 
 Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Band-in-a-Box style depth). Deployed to GitHub Pages; runs offline on-device.
 
+## Ops pause (Cubic LOC)
+
+Cubic reviewed-line limit hit (**20,197 / 20,000**). Reviews paused for `agallant` until **2026-10-21T23:44:00Z**. Until then: **no new milestone PRs**. After reset: keep PRs **LOC-efficient** (prefer ≤~80 changed lines; one vertical slice; no drive-by refactors).
+
 ## Principles
 
 - **Practice first**: live accompaniment is the north star; rendering/export follow.
 - **Charts are data**: a stable JSON chart format is the source of truth.
 - **Styles are engines**: backing styles generate bass / comping / drums from the chart.
 - **Offline by default**: no server runtime; optional later features may use APIs.
-- **Small PRs**: one milestone per PR when practical; keep Cubic/CodeQL green.
+- **Small PRs**: one milestone per PR when practical; keep Cubic/CodeQL green; after Cubic reset, bias hard toward tiny LOC.
 
 ## Milestones
 
