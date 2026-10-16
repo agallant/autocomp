@@ -8,6 +8,7 @@ import {
   parseChordSymbol,
   preferSharpsForKey,
   preferSharpsForKeyPc,
+  respellChart,
   rootToPc,
   sectionFromBarSymbols,
   semitonesToKey,
@@ -176,5 +177,32 @@ describe('transposeChartToKey', () => {
     // Am→C (+3): G7 → Bb7 (not A#7) under minor-aware flat preference.
     expect(formatRoot(next.key)).toBe('C')
     expect(chartBarSymbols(next)[1]).toBe('Bb7')
+  })
+})
+
+describe('respellChart', () => {
+  it('flips F♯ key and chords to G♭ without changing pitch classes', () => {
+    const chart: Chart = {
+      version: 1,
+      id: 'fs-lab',
+      title: 'F# Lab',
+      key: { letter: 'F', accidental: 1 },
+      timeSignature: { numerator: 4, denominator: 4 },
+      defaultTempoBpm: 120,
+      form: ['A'],
+      sections: [
+        sectionFromBarSymbols('A', 'A', [['F#maj7'], ['C#7'], ['D#m7'], ['G#7']]),
+      ],
+    }
+    assertValidChart(chart)
+    const flat = respellChart(chart, false)
+    assertValidChart(flat)
+    expect(formatRoot(flat.key)).toBe('Gb')
+    expect(chartBarSymbols(flat)).toEqual(['Gbmaj7', 'Db7', 'Ebm7', 'Ab7'])
+    expect(rootToPc(flat.key)).toBe(rootToPc(chart.key))
+    // Round-trip back to sharps.
+    const sharp = respellChart(flat, true)
+    expect(formatRoot(sharp.key)).toBe('F#')
+    expect(chartBarSymbols(sharp)).toEqual(['F#maj7', 'C#7', 'D#m7', 'G#7'])
   })
 })
