@@ -381,6 +381,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] 8th schedules unaccented off-beat mid-beat (live + count-in)
 - [x] Persisted in practice prefs; invalid values fall back to Beat
 - [x] Unit tests for subdivision scheduling + prefs normalize
+- [ ] Manual playback and preference-persistence checks verified (deferred)
 
 ## Process notes
 
