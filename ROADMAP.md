@@ -53,7 +53,8 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M36 | Practice prefs | done | Persist mix / click / count-in / density locally |
 | M37 | Density keys | done | 1–4 jump to Solo / Sparse / Normal / Dense |
 | M38 | Center playhead | done | Optional centered playhead scroll while playing |
-| M39 | Tempo ramp | in progress | Hold tempo keys to fine-ramp ±1 BPM |
+| M39 | Tempo ramp | done | Hold tempo keys to fine-ramp ±1 BPM |
+| M40 | Click subdivision | in progress | Metronome Beat vs 8th subdivision |
 
 ## M0 acceptance
 
@@ -233,7 +234,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Toolbar **Click** toggle wired to `setMetronomeEnabled`
 - [x] Count-in still clicks when the toggle is off
 - [x] Unit test for enabling clicks mid-session
-- [ ] Click volume / subdivision deferred
+- [x] Click volume (M30); subdivision (M40)
 
 ## M22 acceptance
 
@@ -373,6 +374,14 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - [x] Browser key-repeat while held ramps ±1 BPM
 - [x] Non-tempo practice keys still ignore key-repeat
 - [x] Unit tests for `practiceTempoDelta`
+
+## M40 acceptance
+
+- [x] Click subdivision select: Beat / 8th
+- [x] 8th schedules unaccented off-beat mid-beat (live + count-in)
+- [x] Persisted in practice prefs; invalid values fall back to Beat
+- [x] Unit tests for subdivision scheduling + prefs normalize
+- [ ] Manual playback and preference-persistence checks verified (deferred)
 
 ## Process notes
 

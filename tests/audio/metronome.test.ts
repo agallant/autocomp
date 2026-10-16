@@ -1,5 +1,10 @@
 import { describe, expect, it, vi } from 'vitest'
-import { clampClickLevel, scheduleMetronomeClick } from '../../src/audio/metronome'
+import {
+  clampClickLevel,
+  isClickSubdivision,
+  scheduleMetronomeClick,
+  scheduleMetronomeSubdivision,
+} from '../../src/audio/metronome'
 
 function createFakeContext() {
   const osc = {
@@ -24,6 +29,38 @@ function createFakeContext() {
     createGain: vi.fn(() => gain as unknown as GainNode),
   }
   return { ctx: ctx as unknown as BaseAudioContext, osc, gain }
+}
+
+function createMultiOscContext() {
+  const oscCalls: Array<{
+    start: ReturnType<typeof vi.fn>
+    freq: ReturnType<typeof vi.fn>
+  }> = []
+  const gain = {
+    gain: {
+      setValueAtTime: vi.fn(),
+      linearRampToValueAtTime: vi.fn(),
+      cancelScheduledValues: vi.fn(),
+      exponentialRampToValueAtTime: vi.fn(),
+    },
+    connect: vi.fn(),
+  }
+  const ctx = {
+    destination: {} as AudioDestinationNode,
+    createOscillator: vi.fn(() => {
+      const osc = {
+        type: 'square' as OscillatorType,
+        frequency: { setValueAtTime: vi.fn() },
+        connect: vi.fn(),
+        start: vi.fn(),
+        stop: vi.fn(),
+      }
+      oscCalls.push({ start: osc.start, freq: osc.frequency.setValueAtTime })
+      return osc as unknown as OscillatorNode
+    }),
+    createGain: vi.fn(() => gain as unknown as GainNode),
+  }
+  return { ctx: ctx as unknown as BaseAudioContext, oscCalls }
 }
 
 describe('scheduleMetronomeClick', () => {
@@ -58,5 +95,31 @@ describe('scheduleMetronomeClick', () => {
     expect(clampClickLevel(-1)).toBe(0)
     expect(clampClickLevel(2)).toBe(1)
     expect(clampClickLevel(Number.NaN)).toBe(1)
+  })
+
+  it('recognizes click subdivision ids', () => {
+    expect(isClickSubdivision('beat')).toBe(true)
+    expect(isClickSubdivision('eighth')).toBe(true)
+    expect(isClickSubdivision('16th')).toBe(false)
+  })
+})
+
+describe('scheduleMetronomeSubdivision', () => {
+  it('schedules only the on-beat click for beat subdivision', () => {
+    const { ctx, osc } = createFakeContext()
+    const sources = scheduleMetronomeSubdivision(ctx, 1, true, 1, 'beat', 0.5)
+    expect(sources).toHaveLength(1)
+    expect(osc.start).toHaveBeenCalledTimes(1)
+    expect(osc.start).toHaveBeenCalledWith(1)
+  })
+
+  it('adds an unaccented off-beat for eighth subdivision', () => {
+    const { ctx, oscCalls } = createMultiOscContext()
+    const sources = scheduleMetronomeSubdivision(ctx, 2, true, 1, 'eighth', 0.5)
+    expect(sources).toHaveLength(2)
+    expect(oscCalls[0]!.start).toHaveBeenCalledWith(2)
+    expect(oscCalls[0]!.freq).toHaveBeenCalledWith(1200, 2)
+    expect(oscCalls[1]!.start).toHaveBeenCalledWith(2.25)
+    expect(oscCalls[1]!.freq).toHaveBeenCalledWith(900, 2.25)
   })
 })

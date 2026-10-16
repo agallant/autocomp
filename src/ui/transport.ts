@@ -8,9 +8,11 @@ import {
   ensureSampleKit,
   getAudioContext,
   LookaheadScheduler,
-  scheduleMetronomeClick,
+  DEFAULT_CLICK_SUBDIVISION,
+  scheduleMetronomeSubdivision,
   scheduleStyleNote,
   unlockAudioContext,
+  type ClickSubdivision,
   type ScheduledBeat,
   type ScheduledSource,
 } from '../audio'
@@ -57,6 +59,8 @@ export type TransportOptions = TransportCallbacks & {
   metronomeEnabled?: boolean
   /** Click track level 0–1 (also scales count-in clicks). */
   clickLevel?: number
+  /** Beat vs 8th metronome subdivision. */
+  clickSubdivision?: ClickSubdivision
   /** Optional accompaniment style realized per beat. */
   style?: StyleEngine | null
   /** Live chart provider used by the style engine. */
@@ -92,6 +96,7 @@ export class TransportController {
   private readonly clearIntervalFn: typeof clearInterval
   private metronomeEnabled: boolean
   private clickLevel: number
+  private clickSubdivision: ClickSubdivision
   private style: StyleEngine | null
   private getChart: (() => Chart) | null
   private midiSink: WebMidiSink | null
@@ -139,6 +144,7 @@ export class TransportController {
     this.clickLevel = clampClickLevel(
       options.clickLevel !== undefined ? options.clickLevel : DEFAULT_CLICK_LEVEL,
     )
+    this.clickSubdivision = options.clickSubdivision ?? DEFAULT_CLICK_SUBDIVISION
     this.state = { ...this.state, styleId: this.style?.id ?? null }
     this.callbacks.onChange(this.getState())
   }
@@ -185,6 +191,14 @@ export class TransportController {
 
   getClickLevel(): number {
     return this.clickLevel
+  }
+
+  setClickSubdivision(subdivision: ClickSubdivision): void {
+    this.clickSubdivision = subdivision
+  }
+
+  getClickSubdivision(): ClickSubdivision {
+    return this.clickSubdivision
   }
 
   setCountInBars(bars: number): void {
@@ -409,8 +423,17 @@ export class TransportController {
   private handleScheduledBeat(ctx: AudioContext, beat: ScheduledBeat): void {
     const inCountIn = beat.bar <= this.countInBars
     if (this.metronomeEnabled || inCountIn) {
-      const click = scheduleMetronomeClick(ctx, beat.time, beat.accent, this.clickLevel)
-      if (click) this.trackAudioSource('metronome', click)
+      const secondsPerBeat = 60 / Math.max(1, this.state.tempoBpm)
+      for (const click of scheduleMetronomeSubdivision(
+        ctx,
+        beat.time,
+        beat.accent,
+        this.clickLevel,
+        this.clickSubdivision,
+        secondsPerBeat,
+      )) {
+        this.trackAudioSource('metronome', click)
+      }
     }
     this.scheduleStyleBeat(ctx, beat)
     const delayMs = Math.max(0, (beat.time - ctx.currentTime) * 1000)

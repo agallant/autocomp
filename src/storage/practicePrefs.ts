@@ -1,4 +1,10 @@
-import { DEFAULT_CLICK_LEVEL, clampClickLevel } from '../audio'
+import {
+  DEFAULT_CLICK_LEVEL,
+  DEFAULT_CLICK_SUBDIVISION,
+  clampClickLevel,
+  isClickSubdivision,
+  type ClickSubdivision,
+} from '../audio'
 import {
   DEFAULT_VOICE_LEVELS,
   DEFAULT_VOICE_MUTE,
@@ -22,6 +28,7 @@ export type PracticePrefs = {
   voiceEnabled: VoiceMuteState
   clickLevel: number
   metronomeEnabled: boolean
+  clickSubdivision: ClickSubdivision
   countInBars: number
   density: CompDensity
   swingFeel: number
@@ -76,6 +83,7 @@ export function defaultPracticePrefs(): PracticePrefs {
     voiceEnabled: { ...DEFAULT_VOICE_MUTE },
     clickLevel: DEFAULT_CLICK_LEVEL,
     metronomeEnabled: false,
+    clickSubdivision: DEFAULT_CLICK_SUBDIVISION,
     countInBars: clampCountInBars(DEFAULT_VARIATION.countInBars),
     density: DEFAULT_VARIATION.density,
     swingFeel: DEFAULT_VARIATION.swingFeel,
@@ -125,6 +133,9 @@ export function normalizePracticePrefs(raw: unknown): PracticePrefs {
       typeof data.metronomeEnabled === 'boolean'
         ? data.metronomeEnabled
         : base.metronomeEnabled,
+    clickSubdivision: isClickSubdivision(data.clickSubdivision)
+      ? data.clickSubdivision
+      : base.clickSubdivision,
     countInBars: clampCountInBars(
       typeof data.countInBars === 'number' ? data.countInBars : base.countInBars,
     ),

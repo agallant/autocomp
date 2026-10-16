@@ -6,7 +6,7 @@ Automatic musical accompaniment as a **client-side TypeScript PWA** — chord ch
 
 ## Status
 
-Milestone **M39** — hold tempo keys to fine-ramp. See [ROADMAP.md](./ROADMAP.md) and [sample credits](./public/samples/LICENSE.md).
+Milestone **M40** — metronome Beat / 8th subdivision. See [ROADMAP.md](./ROADMAP.md) and [sample credits](./public/samples/LICENSE.md).
 
 ## Chart format (preview)
 

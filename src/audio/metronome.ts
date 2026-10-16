@@ -3,9 +3,52 @@ import type { ScheduledSource } from './synth'
 
 export const DEFAULT_CLICK_LEVEL = 1
 
+export type ClickSubdivision = 'beat' | 'eighth'
+
+export const CLICK_SUBDIVISION_OPTIONS: ReadonlyArray<{
+  id: ClickSubdivision
+  label: string
+}> = [
+  { id: 'beat', label: 'Beat' },
+  { id: 'eighth', label: '8th' },
+]
+
+export const DEFAULT_CLICK_SUBDIVISION: ClickSubdivision = 'beat'
+
+export function isClickSubdivision(value: unknown): value is ClickSubdivision {
+  return value === 'beat' || value === 'eighth'
+}
+
 export function clampClickLevel(level: number): number {
   if (!Number.isFinite(level)) return DEFAULT_CLICK_LEVEL
   return Math.min(1, Math.max(0, level))
+}
+
+/**
+ * Schedule the on-beat click, plus an off-beat 8th when subdivision is `eighth`.
+ * Off-beats are always unaccented (and slightly quieter via the non-accent path).
+ */
+export function scheduleMetronomeSubdivision(
+  ctx: BaseAudioContext,
+  beatTime: number,
+  accent: boolean,
+  level: number,
+  subdivision: ClickSubdivision,
+  secondsPerBeat: number,
+): ScheduledSource[] {
+  const sources: ScheduledSource[] = []
+  const onBeat = scheduleMetronomeClick(ctx, beatTime, accent, level)
+  if (onBeat) sources.push(onBeat)
+  if (subdivision === 'eighth' && secondsPerBeat > 0) {
+    const off = scheduleMetronomeClick(
+      ctx,
+      beatTime + secondsPerBeat * 0.5,
+      false,
+      level,
+    )
+    if (off) sources.push(off)
+  }
+  return sources
 }
 
 /**

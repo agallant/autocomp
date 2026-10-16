@@ -23,6 +23,7 @@ describe('practicePrefs', () => {
     prefs.humanize = false
     prefs.endings = true
     prefs.centerPlayhead = true
+    prefs.clickSubdivision = 'eighth'
     savePracticePrefs(prefs, storage)
     expect(storage.getItem(PRACTICE_PREFS_KEY)).toContain('"density":"sparse"')
     const loaded = loadPracticePrefs(storage)
@@ -37,6 +38,7 @@ describe('practicePrefs', () => {
     expect(loaded.humanize).toBe(false)
     expect(loaded.endings).toBe(true)
     expect(loaded.centerPlayhead).toBe(true)
+    expect(loaded.clickSubdivision).toBe('eighth')
   })
 
   it('returns defaults for missing or invalid storage', () => {
@@ -77,5 +79,13 @@ describe('practicePrefs', () => {
     expect(normalizePracticePrefs({}).centerPlayhead).toBe(false)
     expect(normalizePracticePrefs({ centerPlayhead: 'yes' }).centerPlayhead).toBe(false)
     expect(normalizePracticePrefs({ centerPlayhead: true }).centerPlayhead).toBe(true)
+  })
+
+  it('defaults clickSubdivision to beat and rejects unknown values', () => {
+    expect(defaultPracticePrefs().clickSubdivision).toBe('beat')
+    expect(normalizePracticePrefs({ clickSubdivision: '16th' }).clickSubdivision).toBe('beat')
+    expect(normalizePracticePrefs({ clickSubdivision: 'eighth' }).clickSubdivision).toBe(
+      'eighth',
+    )
   })
 })
