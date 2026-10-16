@@ -54,4 +54,16 @@ describe('generateRandomChart', () => {
     expect(validateChart(chart)).toEqual([])
     expect(chart.title.toLowerCase()).toContain('random')
   })
+
+  it('honors barCount and chordDensity via generateProgression', () => {
+    const chart = generateProgression({
+      kind: 'random',
+      key: C,
+      styleId: 'jazz-swing',
+      barCount: 8,
+      chordDensity: 2,
+    })
+    expect(validateChart(chart)).toEqual([])
+    expect(chart.sections[0]!.bars).toHaveLength(8)
+  })
 })

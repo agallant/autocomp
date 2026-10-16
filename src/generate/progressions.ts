@@ -180,6 +180,10 @@ export function generateProgression(options: GenerateProgressionOptions): Chart 
       styleId: options.styleId,
       preferIiV: true,
       maxNonDiatonicStreak: 2,
+      ...(options.barCount !== undefined ? { barCount: options.barCount } : {}),
+      ...(options.chordDensity !== undefined
+        ? { chordDensity: options.chordDensity }
+        : {}),
     })
   }
   const hints = styleGenerateHints(options.styleId)

@@ -184,6 +184,8 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
   const tapTempoState = createTapTempoState()
   let generateKind: ProgressionKind = styleGenerateHints(styleId).defaultKind
   let generateKey: Root = { letter: 'C', accidental: 0 }
+  let generateBarCount: 8 | 12 | 16 = 12
+  let generateChordDensity: 1 | 2 = 1
   let reharmMode: ReharmMode = 'ii-before-v'
   let followEnabled = false
   let followEngine: FollowEngine | null = null
@@ -578,6 +580,32 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
               const selected = formatRoot(generateKey) === label
               return `<option value="${escapeAttr(label)}"${selected ? ' selected' : ''}>${escapeHtml(label)}</option>`
             }).join('')}
+          </select>
+        </label>
+        <label
+          class="style-picker"
+          for="generate-bars"
+          title="Bar count for Full random (ignored by other generators)"
+        >
+          <span class="style-picker__label">Bars</span>
+          <select id="generate-bars" class="style-picker__select" aria-label="Random chart bar count">
+            ${([8, 12, 16] as const)
+              .map(
+                (n) =>
+                  `<option value="${n}"${n === generateBarCount ? ' selected' : ''}>${n}</option>`,
+              )
+              .join('')}
+          </select>
+        </label>
+        <label
+          class="style-picker"
+          for="generate-density"
+          title="Chords per bar for Full random (ignored by other generators)"
+        >
+          <span class="style-picker__label">Density</span>
+          <select id="generate-density" class="style-picker__select" aria-label="Random chart chord density">
+            <option value="1"${generateChordDensity === 1 ? ' selected' : ''}>1 / bar</option>
+            <option value="2"${generateChordDensity === 2 ? ' selected' : ''}>2 / bar</option>
           </select>
         </label>
         <button type="button" class="btn" id="generate-run">New chart</button>
@@ -1452,12 +1480,22 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       const parsed = parseRoot((event.target as HTMLSelectElement).value)
       if (parsed) generateKey = parsed
     })
+    root.querySelector<HTMLSelectElement>('#generate-bars')?.addEventListener('change', (event) => {
+      const n = Number((event.target as HTMLSelectElement).value)
+      if (n === 8 || n === 12 || n === 16) generateBarCount = n
+    })
+    root.querySelector<HTMLSelectElement>('#generate-density')?.addEventListener('change', (event) => {
+      const n = Number((event.target as HTMLSelectElement).value)
+      if (n === 1 || n === 2) generateChordDensity = n
+    })
     root.querySelector('#generate-run')?.addEventListener('click', () => {
       try {
         const chart = generateProgression({
           kind: generateKind,
           key: generateKey,
           styleId,
+          barCount: generateBarCount,
+          chordDensity: generateChordDensity,
         })
         applyChart(chart, { styleId, activeTuneId: chart.id })
         setPersistStatus(`Generated “${chart.title}”.`)
