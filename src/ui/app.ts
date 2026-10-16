@@ -12,10 +12,13 @@ import {
 import { FollowEngine, MicCapture, type FollowSnapshot } from '../listen'
 import { APP_VERSION } from '../lib/version'
 import {
+  CLICK_SUBDIVISION_OPTIONS,
   DEFAULT_CLICK_LEVEL,
   clampClickLevel,
   getAudioContext,
+  isClickSubdivision,
   unlockAudioContext,
+  type ClickSubdivision,
 } from '../audio'
 import { TUNE_LIBRARY, getTuneById, type TuneTag } from '../library'
 import {
@@ -160,6 +163,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
   let metronomeEnabled = savedPrefs.metronomeEnabled
   /** Click / count-in level 0–1. */
   let clickLevel = savedPrefs.clickLevel
+  let clickSubdivision: ClickSubdivision = savedPrefs.clickSubdivision
   let variationHumanize = savedPrefs.humanize
   let variationDensity: CompDensity = savedPrefs.density
   let variationEndings = savedPrefs.endings
@@ -192,6 +196,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
         voiceEnabled,
         clickLevel,
         metronomeEnabled,
+        clickSubdivision,
         countInBars: variationCountInBars,
         density: variationDensity,
         swingFeel: variationSwingFeel,
@@ -413,6 +418,15 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
         <label class="variation-toggle" title="Audible click on every beat (count-in always clicks). Shortcut: M">
           <input type="checkbox" id="var-metronome"${metronomeEnabled ? ' checked' : ''} />
           <span>Click</span>
+        </label>
+        <label class="style-picker" for="var-click-sub" title="Metronome subdivision (Beat or 8th)">
+          <span class="style-picker__label">Subdiv</span>
+          <select id="var-click-sub" class="style-picker__select" aria-label="Click subdivision">
+            ${CLICK_SUBDIVISION_OPTIONS.map(
+              (opt) =>
+                `<option value="${opt.id}"${opt.id === clickSubdivision ? ' selected' : ''}>${escapeHtml(opt.label)}</option>`,
+            ).join('')}
+          </select>
         </label>
         <label
           class="style-picker style-picker--swing"
@@ -914,6 +928,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       getChart: () => editor.chart,
       metronomeEnabled,
       clickLevel,
+      clickSubdivision,
       midiSink,
       countInBars: variationCountInBars,
       practiceLoop,
@@ -1220,6 +1235,13 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     root.querySelector<HTMLInputElement>('#var-metronome')?.addEventListener('change', (event) => {
       metronomeEnabled = (event.target as HTMLInputElement).checked
       transport?.setMetronomeEnabled(metronomeEnabled)
+      persistPracticePrefs()
+    })
+    root.querySelector<HTMLSelectElement>('#var-click-sub')?.addEventListener('change', (event) => {
+      const value = (event.target as HTMLSelectElement).value
+      if (!isClickSubdivision(value)) return
+      clickSubdivision = value
+      transport?.setClickSubdivision(clickSubdivision)
       persistPracticePrefs()
     })
     const clickLevelInput = root.querySelector<HTMLInputElement>('#var-click-level')

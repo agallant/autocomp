@@ -7,9 +7,14 @@ export {
 } from './context'
 export { applyAmpEnvelope } from './envelope'
 export {
+  CLICK_SUBDIVISION_OPTIONS,
   DEFAULT_CLICK_LEVEL,
+  DEFAULT_CLICK_SUBDIVISION,
   clampClickLevel,
+  isClickSubdivision,
   scheduleMetronomeClick,
+  scheduleMetronomeSubdivision,
+  type ClickSubdivision,
 } from './metronome'
 export { LookaheadScheduler, secondsPerBeat } from './scheduler'
 export {
