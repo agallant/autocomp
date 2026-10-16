@@ -10,7 +10,7 @@ import type { StyleId } from '../style'
 import { degreeChord } from './degree'
 import { styleGenerateHints } from './styleHints'
 
-export type EngineKind = 'ii-v-chain' | 'rhythm-a' | 'coltrane'
+export type EngineKind = 'ii-v-chain' | 'ii-v-chain-minor' | 'rhythm-a' | 'coltrane'
 
 export type EngineOptions = {
   kind: EngineKind
@@ -26,7 +26,8 @@ export const ENGINE_CATALOG: ReadonlyArray<{
   label: string
   blurb: string
 }> = [
-  { id: 'ii-v-chain', label: 'ii–V chain', blurb: 'Descending fourths cadences' },
+  { id: 'ii-v-chain', label: 'ii–V chain', blurb: 'Major cadences around the circle' },
+  { id: 'ii-v-chain-minor', label: 'iiø–V–i chain', blurb: 'Minor cadences around the circle' },
   { id: 'rhythm-a', label: 'Rhythm A', blurb: 'Rhythm-changes A section lab' },
   { id: 'coltrane', label: 'Coltrane matrix', blurb: 'Major-thirds tonic cycle' },
 ]
@@ -35,7 +36,7 @@ function clampLength(kind: EngineKind, n: number | undefined): number {
   const raw = n ?? (kind === 'rhythm-a' ? 8 : 12)
   if (kind === 'rhythm-a') return raw <= 8 ? 8 : 16
   if (kind === 'coltrane') return raw <= 8 ? 8 : 16
-  // ii–V chain: even bar counts 8–16
+  // ii–V chains: even bar counts 8–16
   if (raw <= 8) return 8
   if (raw <= 12) return 12
   return 16
@@ -158,6 +159,9 @@ export function generateEngine(options: EngineOptions): Chart {
   switch (options.kind) {
     case 'ii-v-chain':
       bars = iiVChainBars(options.key, length, 'major', preferSharps)
+      break
+    case 'ii-v-chain-minor':
+      bars = iiVChainBars(options.key, length, 'minor', preferSharps)
       break
     case 'rhythm-a':
       bars = rhythmABars(options.key, length, preferSharps)

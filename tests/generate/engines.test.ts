@@ -36,6 +36,19 @@ describe('harmonic engines', () => {
     expect(bars[3]).toEqual(['C7'])
   })
 
+  it('builds a minor iiø–V–i chain', () => {
+    const chart = generateEngine({
+      kind: 'ii-v-chain-minor',
+      key: C,
+      styleId: 'jazz-swing',
+      length: 8,
+    })
+    expect(validateChart(chart)).toEqual([])
+    const symbols = chartBarSymbols(chart)
+    expect(symbols[0]).toBe('Dm7b5')
+    expect(symbols[1]).toBe('G7')
+  })
+
   it('builds an 8-bar rhythm-changes A lab in Bb', () => {
     const chart = generateEngine({
       kind: 'rhythm-a',

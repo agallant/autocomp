@@ -61,6 +61,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M44 | Full random chart | done | Constrained fully-random progressions (key, length, density) |
 | M45 | Harmonic engines | done | Rule-based generators: ii–V chains, rhythm changes, Coltrane/Giant Steps |
 | M46 | Standards library | done | Curated jazz-standard progressions + search into deep catalogue |
+| M47 | Standards + engines v2 | done | More cleared standards; minor iiø–V–i chain engine |
 
 ## Library & generative depth (product intent)
 
@@ -447,6 +448,12 @@ Default first-run experience stays the **current compact Practice assortment** (
 - [x] Searchable via Standards shelf + tags (form, key feel, era/style labels)
 - [x] In-repo legal note: clearance criteria; practice titles as labels only
 - [x] Unit tests for chart validity; library search finds standards by tag/title
+
+## M47 acceptance
+
+- [x] Expand Standards pack with additional traditional + stock educational charts
+- [x] Minor iiø–V–i chain engine on the Generate shelf
+- [x] Unit tests for minor chain spelling + larger standards catalogue
 
 ## Process notes
 
