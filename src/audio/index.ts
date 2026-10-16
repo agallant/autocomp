@@ -12,6 +12,12 @@ export {
   scheduleMetronomeClick,
 } from './metronome'
 export { LookaheadScheduler, secondsPerBeat } from './scheduler'
+export {
+  boundClearInterval,
+  boundClearTimeout,
+  boundSetInterval,
+  boundSetTimeout,
+} from './timers'
 export { scheduleStyleNote, type ScheduledSource, type ScheduleStyleNoteOptions } from './synth'
 export {
   decodeAudioDataCompat,

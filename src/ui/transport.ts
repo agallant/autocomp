@@ -1,4 +1,8 @@
 import {
+  boundClearInterval,
+  boundClearTimeout,
+  boundSetInterval,
+  boundSetTimeout,
   clampClickLevel,
   DEFAULT_CLICK_LEVEL,
   ensureSampleKit,
@@ -117,10 +121,10 @@ export class TransportController {
     this.defaultBeatsPerBar = Math.max(1, Math.round(options.beatsPerBar ?? 4))
     this.injectedContext = options.audioContext
     this.createAudioContext = options.createAudioContext ?? getAudioContext
-    this.setTimeoutFn = options.setTimeoutFn ?? setTimeout
-    this.clearTimeoutFn = options.clearTimeoutFn ?? clearTimeout
-    this.setIntervalFn = options.setIntervalFn ?? setInterval
-    this.clearIntervalFn = options.clearIntervalFn ?? clearInterval
+    this.setTimeoutFn = options.setTimeoutFn ?? boundSetTimeout
+    this.clearTimeoutFn = options.clearTimeoutFn ?? boundClearTimeout
+    this.setIntervalFn = options.setIntervalFn ?? boundSetInterval
+    this.clearIntervalFn = options.clearIntervalFn ?? boundClearInterval
     this.style = options.style ?? null
     this.getChart = options.getChart ?? null
     this.midiSink = options.midiSink ?? null

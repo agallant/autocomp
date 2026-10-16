@@ -1,3 +1,4 @@
+import { boundClearInterval, boundSetInterval } from '../audio/timers'
 import { expandChartBars, type Chart } from '../music'
 import { bestChordMatch, candidatesFromBars } from './match'
 import { MicCapture } from './mic'
@@ -55,8 +56,8 @@ export class FollowEngine {
     this.minScore = options.minScore ?? 0.14
     this.lockFrames = options.lockFrames ?? 3
     this.intervalMs = options.intervalMs ?? 220
-    this.setIntervalFn = options.setIntervalFn ?? setInterval
-    this.clearIntervalFn = options.clearIntervalFn ?? clearInterval
+    this.setIntervalFn = options.setIntervalFn ?? boundSetInterval
+    this.clearIntervalFn = options.clearIntervalFn ?? boundClearInterval
     this.mic =
       options.mic ??
       (MicCapture.isSupported()

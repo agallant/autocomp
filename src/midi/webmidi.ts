@@ -1,3 +1,4 @@
+import { boundClearTimeout, boundSetTimeout } from '../audio/timers'
 import type { StyleNote, StyleVoice } from '../style'
 import { VOICE_CHANNEL, VOICE_PROGRAM } from './types'
 
@@ -59,8 +60,8 @@ export async function getMidiOutput(id: string): Promise<MIDIOutput | null> {
 export function createWebMidiSink(
   output: MIDIOutput,
   timers: TimerFns = {
-    setTimeoutFn: setTimeout,
-    clearTimeoutFn: clearTimeout,
+    setTimeoutFn: boundSetTimeout,
+    clearTimeoutFn: boundClearTimeout,
   },
 ): WebMidiSink {
   type Pending = { timer: ReturnType<typeof setTimeout>; voice: StyleVoice }
