@@ -33,6 +33,8 @@ describe('tune library', () => {
     })
     expect(getTuneById('full-random')?.shelf).toBe('generate')
     expect(getTuneById('engine-coltrane')?.shelf).toBe('generate')
+    expect(getTuneById('std-greensleeves')?.shelf).toBe('standards')
+    expect(getTuneById('std-stock-rhythm-aaba')?.tags).toContain('aaba')
   })
 
   it('covers difficulty and harmony device tags across the Practice pack', () => {
@@ -50,13 +52,19 @@ describe('tune library', () => {
   it('filters by shelf before query and tags', () => {
     const practiceCount = TUNE_LIBRARY.filter((t) => t.shelf === 'practice').length
     expect(filterTunes(TUNE_LIBRARY, { shelf: 'practice' })).toHaveLength(practiceCount)
-    expect(filterTunes(TUNE_LIBRARY, { shelf: 'standards' })).toEqual([])
+    expect(filterTunes(TUNE_LIBRARY, { shelf: 'standards' }).length).toBeGreaterThan(0)
     expect(filterTunes(TUNE_LIBRARY, { shelf: 'generate' }).map((t) => t.id)).toContain(
       'full-random',
     )
     expect(
       filterTunes(TUNE_LIBRARY, { shelf: 'standards', query: 'Autumn' }),
     ).toEqual([])
+    expect(
+      filterTunes(TUNE_LIBRARY, { shelf: 'standards', query: 'Greensleeves' }).map((t) => t.id),
+    ).toContain('std-greensleeves')
+    expect(
+      filterTunes(TUNE_LIBRARY, { shelf: 'standards', tags: ['traditional'] }).length,
+    ).toBeGreaterThan(0)
 
     const mixed: TuneEntry[] = [
       stubTune({ id: 'practice-jazz', shelf: 'practice', tags: ['jazz', 'practice'] }),
@@ -73,7 +81,7 @@ describe('tune library', () => {
 
   it('scopes tag lists to the active shelf', () => {
     expect(allLibraryTags('practice').length).toBeGreaterThan(0)
-    expect(allLibraryTags('standards')).toEqual([])
+    expect(allLibraryTags('standards')).toContain('traditional')
     expect(allLibraryTags('generate').length).toBeGreaterThan(0)
   })
 

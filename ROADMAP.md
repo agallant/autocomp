@@ -60,7 +60,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M43 | Practice shuffle | done | Random pick / seeded variants of practice charts |
 | M44 | Full random chart | done | Constrained fully-random progressions (key, length, density) |
 | M45 | Harmonic engines | done | Rule-based generators: ii–V chains, rhythm changes, Coltrane/Giant Steps |
-| M46 | Standards library | planned | Curated jazz-standard progressions + search into deep catalogue |
+| M46 | Standards library | done | Curated jazz-standard progressions + search into deep catalogue |
 
 ## Library & generative depth (product intent)
 
@@ -135,7 +135,7 @@ Default first-run experience stays the **current compact Practice assortment** (
 - [x] Unit tests for catalog filtering and chart validity
 - [x] Library shelves / categories (M41)
 - [x] Expanded practice pack (M42)
-- [ ] Standards catalogue (M46)
+- [x] Standards catalogue (M46)
 
 ## M7 acceptance
 
@@ -443,10 +443,10 @@ Default first-run experience stays the **current compact Practice assortment** (
 
 ## M46 acceptance
 
-- [ ] Curated standards pack: educational chord charts from public-domain or otherwise cleared sources (no melodies/lyrics/lead sheets)
-- [ ] Searchable via Standards shelf + tags (form, key feel, era/style labels)
-- [ ] In-repo legal note: clearance criteria; practice titles as labels only
-- [ ] Unit tests for chart validity; library search finds standards by tag/title
+- [x] Curated standards pack: educational chord charts from public-domain or otherwise cleared sources (no melodies/lyrics/lead sheets)
+- [x] Searchable via Standards shelf + tags (form, key feel, era/style labels)
+- [x] In-repo legal note: clearance criteria; practice titles as labels only
+- [x] Unit tests for chart validity; library search finds standards by tag/title
 
 ## Process notes
 

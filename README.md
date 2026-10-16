@@ -6,7 +6,7 @@ Automatic musical accompaniment as a **client-side TypeScript PWA** — chord ch
 
 ## Status
 
-Milestone **M41** — library shelves (Practice / Standards / Generate). See [ROADMAP.md](./ROADMAP.md) and [sample credits](./public/samples/LICENSE.md).
+Library shelves: **Practice** (default) / **Standards** / **Generate**. Standards clearance notes live in [docs/STANDARDS_CLEARANCE.md](./docs/STANDARDS_CLEARANCE.md). See [ROADMAP.md](./ROADMAP.md) and [sample credits](./public/samples/LICENSE.md).
 
 ## Chart format (preview)
 

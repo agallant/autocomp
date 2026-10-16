@@ -9,6 +9,7 @@ import {
   createTurnaroundDrillChart,
 } from '../data/practiceCharts'
 import { PRACTICE_PACK_V2 } from '../data/practicePackV2'
+import { STANDARDS_PACK } from '../data/standardsPack'
 import { generateEngine, generateRandomChart } from '../generate'
 import type { TuneEntry, TuneTag } from './types'
 
@@ -168,10 +169,11 @@ const GENERATE_PRESETS: readonly TuneEntry[] = [
   ),
 ]
 
-/** Built-in library (Practice pack + Generate presets). */
+/** Built-in library (Practice + Standards + Generate). */
 export const TUNE_LIBRARY: readonly TuneEntry[] = [
   ...PRACTICE_CORE,
   ...PRACTICE_PACK_V2,
+  ...STANDARDS_PACK,
   ...GENERATE_PRESETS,
 ]
 
