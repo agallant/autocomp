@@ -21,6 +21,9 @@ export type TuneTag =
   | 'modal'
   | 'dominant'
   | 'waltz'
+  | 'standard'
+  | 'traditional'
+  | 'aaba'
 
 /** Top-level library shelf. Default UX lands on Practice. */
 export type LibraryShelf = 'practice' | 'standards' | 'generate'

@@ -28,7 +28,7 @@ export function createLibraryViewState(activeTuneId: string): LibraryViewState {
 const EMPTY_SHELF_COPY: Record<LibraryShelf, string> = {
   practice: 'No practice tunes match.',
   standards:
-    'No standards yet. A curated catalogue of cleared progressions is coming — Practice stays the default home.',
+    'No standards match. Try clearing filters — Practice stays the default home; Standards holds cleared / traditional progressions.',
   generate:
     'No generate presets match. Try clearing filters, or use Full Random / the Generate controls above.',
 }
