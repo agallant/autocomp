@@ -633,6 +633,9 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       if (host) {
         host.innerHTML = libraryControlsHtml(library)
         bindLibraryControls()
+        host
+          .querySelector<HTMLButtonElement>(`[data-library-shelf="${library.shelf}"]`)
+          ?.focus()
       }
     }
     const results = root.querySelector('#library-results')
@@ -1032,7 +1035,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       button.addEventListener('click', () => {
         const next = button.dataset.libraryShelf
         if (!isLibraryShelf(next) || next === library.shelf) return
-        library = { ...library, shelf: next, tag: '', query: library.query }
+        library = { ...library, shelf: next, tag: '', query: '' }
         refreshLibrary({ controls: true })
       })
     })

@@ -5,8 +5,19 @@ import {
   allLibraryTags,
   filterTunes,
   getTuneById,
+  type TuneEntry,
 } from '../../src/library'
 import { createLibraryViewState } from '../../src/ui/libraryView'
+
+function stubTune(partial: Partial<TuneEntry> & Pick<TuneEntry, 'id' | 'shelf' | 'tags'>): TuneEntry {
+  return {
+    title: partial.title ?? partial.id,
+    blurb: partial.blurb ?? '',
+    styleId: partial.styleId ?? 'jazz-swing',
+    createChart: partial.createChart ?? (() => ({}) as never),
+    ...partial,
+  }
+}
 
 describe('tune library', () => {
   it('registers built-in practice progressions on the Practice shelf', () => {
@@ -37,6 +48,18 @@ describe('tune library', () => {
     expect(
       filterTunes(TUNE_LIBRARY, { shelf: 'standards', query: 'Autumn' }),
     ).toEqual([])
+
+    const mixed: TuneEntry[] = [
+      stubTune({ id: 'practice-jazz', shelf: 'practice', tags: ['jazz', 'practice'] }),
+      stubTune({ id: 'standard-jazz', shelf: 'standards', tags: ['jazz'] }),
+      stubTune({ id: 'standard-blues', shelf: 'standards', tags: ['blues'] }),
+    ]
+    expect(filterTunes(mixed, { shelf: 'standards', tags: ['jazz'] }).map((t) => t.id)).toEqual([
+      'standard-jazz',
+    ])
+    expect(filterTunes(mixed, { shelf: 'practice', tags: ['jazz'] }).map((t) => t.id)).toEqual([
+      'practice-jazz',
+    ])
   })
 
   it('scopes tag lists to the active shelf', () => {

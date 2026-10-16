@@ -55,7 +55,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M38 | Center playhead | done | Optional centered playhead scroll while playing |
 | M39 | Tempo ramp | done | Hold tempo keys to fine-ramp ±1 BPM |
 | M40 | Click subdivision | done | Metronome Beat vs 8th subdivision |
-| M41 | Library shelves | in progress | Practice / Standards / Generate shelves; default = Practice |
+| M41 | Library shelves | done | Practice / Standards / Generate shelves; default = Practice |
 | M42 | Practice pack v2 | planned | More educational drills; richer tags; keep landing assortment |
 | M43 | Practice shuffle | planned | Random pick / seeded variants of practice charts |
 | M44 | Full random chart | planned | Constrained fully-random progressions (key, length, density) |

@@ -30,7 +30,7 @@ const EMPTY_SHELF_COPY: Record<LibraryShelf, string> = {
   standards:
     'No standards yet. A curated catalogue of cleared progressions is coming — Practice stays the default home.',
   generate:
-    'No generate presets here yet. Use the Generate controls below for ii–V / blues factories; deeper engines are on the way.',
+    'No generate presets here yet. Use the Generate controls above for ii–V / blues factories; deeper engines are on the way.',
 }
 
 export function libraryListHtml(state: LibraryViewState, tunes: readonly TuneEntry[]): string {
@@ -42,7 +42,7 @@ export function libraryListHtml(state: LibraryViewState, tunes: readonly TuneEnt
   })
   if (matches.length === 0) {
     const empty =
-      state.query || state.tag
+      state.query.trim() || state.tag
         ? 'No tunes match on this shelf.'
         : EMPTY_SHELF_COPY[state.shelf]
     return `<p class="library-empty" role="status">${escapeHtml(empty)}</p>`
@@ -74,17 +74,16 @@ export function libraryListHtml(state: LibraryViewState, tunes: readonly TuneEnt
 export function libraryControlsHtml(state: LibraryViewState): string {
   const tags = allLibraryTags(state.shelf)
   return `
-    <div class="library-shelves" role="tablist" aria-label="Library shelf">
+    <div class="library-shelves" role="group" aria-label="Library shelf">
       ${LIBRARY_SHELVES.map((shelf) => {
         const selected = state.shelf === shelf.id
         return `
           <button
             type="button"
             class="library-shelf${selected ? ' library-shelf--active' : ''}"
-            role="tab"
             id="library-shelf-${escapeAttr(shelf.id)}"
             data-library-shelf="${escapeAttr(shelf.id)}"
-            aria-selected="${selected ? 'true' : 'false'}"
+            aria-pressed="${selected ? 'true' : 'false'}"
           >${escapeHtml(shelf.label)}</button>
         `
       }).join('')}
