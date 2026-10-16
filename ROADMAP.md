@@ -63,6 +63,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M46 | Standards library | done | Curated jazz-standard progressions + search into deep catalogue |
 | M47 | Standards + engines v2 | done | More cleared standards; minor iiø–V–i chain engine |
 | M48 | Enharmonic respell | done | ♯↔♭ spelling flip without changing pitch |
+| M49 | Form slot reorder | done | Move selected form occurrence earlier/later |
 
 ## Library & generative depth (product intent)
 
@@ -348,7 +349,7 @@ Default first-run experience stays the **current compact Practice assortment** (
 - [x] Delete selected section; strip from form; keep ≥1 section
 - [x] Toolbar Section field + Delete section control
 - [x] Unit tests for rename, delete, and last-section guard
-- [ ] Reorder sections list UI deferred
+- [x] Reorder form slots (Form ↑ / Form ↓) (M49)
 
 ## M33 acceptance
 
@@ -461,6 +462,12 @@ Default first-run experience stays the **current compact Practice assortment** (
 - [x] `respellChart` flips enharmonic spelling (key + all chords) without changing pitch classes
 - [x] Toolbar ♯↔♭ control next to transpose (pointer + keyboard safe)
 - [x] Unit tests for F♯↔G♭ round-trip
+
+## M49 acceptance
+
+- [x] `moveFormOccurrence` swaps the selected form slot with its neighbor
+- [x] Form ↑ / Form ↓ toolbar controls; caret stays on the moved occurrence
+- [x] Unit tests for move + edge no-ops
 
 ## Process notes
 
