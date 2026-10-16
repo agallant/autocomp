@@ -892,16 +892,22 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
 
   const applyStyle = (nextId: StyleId, opts: { adjustTempo: boolean }): void => {
     styleId = nextId
-    // Only reset Generate kind when the user changes the style picker (adjustTempo),
-    // not when applyChart re-applies the same style after Generate.
+    // Only reset Generate kind / swing when the user changes the style picker
+    // (adjustTempo), not when applyChart re-applies the same style after Generate.
     if (opts.adjustTempo) {
       generateKind = styleGenerateHints(nextId).defaultKind
       const kindSelect = root.querySelector<HTMLSelectElement>('#generate-kind')
       if (kindSelect) kindSelect.value = generateKind
     }
     const desc = getStyleDescriptor(nextId)
-    if (opts.adjustTempo && transport) {
-      transport.setTempo(desc.suggestedTempoBpm)
+    if (opts.adjustTempo) {
+      if (transport) transport.setTempo(desc.suggestedTempoBpm)
+      variationSwingFeel = desc.defaultSwingFeel
+      const swingInput = root.querySelector<HTMLInputElement>('#var-swing')
+      const swingReadout = root.querySelector<HTMLElement>('#var-swing-readout')
+      if (swingInput) swingInput.value = String(variationSwingFeel)
+      if (swingReadout) swingReadout.textContent = String(variationSwingFeel)
+      persistPracticePrefs()
     }
     // Style picker changes should cut the previous engine's ringing notes.
     syncTransportStyle({ stopSources: true })
