@@ -28,16 +28,32 @@ export type TuneTag =
 /** Top-level library shelf. Default UX lands on Practice. */
 export type LibraryShelf = 'practice' | 'standards' | 'generate'
 
+/** Shelf filter in the library UI — includes an All-shelves view. */
+export type LibraryShelfFilter = LibraryShelf | 'all'
+
 export const LIBRARY_SHELVES: ReadonlyArray<{ id: LibraryShelf; label: string }> = [
   { id: 'practice', label: 'Practice' },
   { id: 'standards', label: 'Standards' },
   { id: 'generate', label: 'Generate' },
 ]
 
+/** Shelf switcher order: Practice first (default), then Standards / Generate / All. */
+export const LIBRARY_SHELF_FILTERS: ReadonlyArray<{
+  id: LibraryShelfFilter
+  label: string
+}> = [
+  ...LIBRARY_SHELVES,
+  { id: 'all', label: 'All' },
+]
+
 export const DEFAULT_LIBRARY_SHELF: LibraryShelf = 'practice'
 
 export function isLibraryShelf(value: unknown): value is LibraryShelf {
   return value === 'practice' || value === 'standards' || value === 'generate'
+}
+
+export function isLibraryShelfFilter(value: unknown): value is LibraryShelfFilter {
+  return value === 'all' || isLibraryShelf(value)
 }
 
 export type TuneEntry = {

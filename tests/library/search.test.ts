@@ -85,6 +85,18 @@ describe('tune library', () => {
     expect(allLibraryTags('generate').length).toBeGreaterThan(0)
   })
 
+  it('searches across all shelves when shelf is all', () => {
+    const all = filterTunes(TUNE_LIBRARY, { shelf: 'all' })
+    expect(all).toHaveLength(TUNE_LIBRARY.length)
+    expect(
+      filterTunes(TUNE_LIBRARY, { shelf: 'all', query: 'Greensleeves' }).map((t) => t.id),
+    ).toContain('std-greensleeves')
+    expect(
+      filterTunes(TUNE_LIBRARY, { shelf: 'all', query: 'Coltrane' }).map((t) => t.id),
+    ).toEqual(expect.arrayContaining(['engine-coltrane', 'coltrane-matrix']))
+    expect(allLibraryTags('all').length).toBeGreaterThan(allLibraryTags('practice').length)
+  })
+
   it('filters by query across title, blurb, and tags', () => {
     const title = filterTunes(TUNE_LIBRARY, { query: 'Autumn', shelf: 'practice' })
     expect(title.map((t) => t.id)).toContain('autumn-practice')
