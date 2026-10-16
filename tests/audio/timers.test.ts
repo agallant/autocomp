@@ -7,23 +7,55 @@ import {
   LookaheadScheduler,
 } from '../../src/audio'
 
+type TimerHandler = (...args: unknown[]) => void
+
 /**
  * Browser-like stubs: throw Illegal invocation when called without
  * `globalThis` as the receiver (the Chromium/WebKit failure mode).
+ * Captures the latest setInterval callback so tests can drive ticks.
  */
-function installReceiverCheckingTimers(): void {
-  const makeStub = (name: string, returnValue: number = 1) =>
-    function receiverChecked(this: unknown, ..._args: unknown[]): number {
+function installReceiverCheckingTimers(): {
+  lastIntervalHandler: () => TimerHandler | null
+} {
+  let intervalHandler: TimerHandler | null = null
+
+  const makeClearStub = (name: string) =>
+    function receiverChecked(this: unknown, ..._args: unknown[]): void {
       if (this !== globalThis) {
         throw new TypeError(`Illegal invocation (${name})`)
       }
-      return returnValue
     }
 
-  vi.stubGlobal('setTimeout', makeStub('setTimeout'))
-  vi.stubGlobal('clearTimeout', makeStub('clearTimeout', undefined as unknown as number))
-  vi.stubGlobal('setInterval', makeStub('setInterval'))
-  vi.stubGlobal('clearInterval', makeStub('clearInterval', undefined as unknown as number))
+  const setTimeoutStub = function receiverChecked(
+    this: unknown,
+    ..._args: unknown[]
+  ): number {
+    if (this !== globalThis) {
+      throw new TypeError('Illegal invocation (setTimeout)')
+    }
+    return 1
+  }
+
+  const setIntervalStub = function receiverChecked(
+    this: unknown,
+    handler: TimerHandler,
+    ..._rest: unknown[]
+  ): number {
+    if (this !== globalThis) {
+      throw new TypeError('Illegal invocation (setInterval)')
+    }
+    intervalHandler = handler
+    return 1
+  }
+
+  vi.stubGlobal('setTimeout', setTimeoutStub)
+  vi.stubGlobal('clearTimeout', makeClearStub('clearTimeout'))
+  vi.stubGlobal('setInterval', setIntervalStub)
+  vi.stubGlobal('clearInterval', makeClearStub('clearInterval'))
+
+  return {
+    lastIntervalHandler: () => intervalHandler,
+  }
 }
 
 describe('bound timer helpers', () => {
@@ -49,8 +81,13 @@ describe('bound timer helpers', () => {
   })
 
   it('lets LookaheadScheduler.start with default (bound) timers', () => {
-    installReceiverCheckingTimers()
-    const clock = { currentTime: 0 }
+    const timers = installReceiverCheckingTimers()
+    let time = 0
+    const clock = {
+      get currentTime() {
+        return time
+      },
+    }
     const scheduled: number[] = []
     const scheduler = new LookaheadScheduler({
       clock,
@@ -63,6 +100,13 @@ describe('bound timer helpers', () => {
 
     expect(() => scheduler.start(0)).not.toThrow()
     expect(scheduled).toEqual([1])
+
+    const handler = timers.lastIntervalHandler()
+    expect(handler).not.toBeNull()
+    time = 0.5
+    handler!()
+    expect(scheduled.length).toBeGreaterThan(1)
+
     expect(() => scheduler.stop()).not.toThrow()
   })
 })
