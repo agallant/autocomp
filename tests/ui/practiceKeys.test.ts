@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   densityFromPracticeAction,
   practiceKeyAction,
+  practiceTempoDelta,
 } from '../../src/ui/practiceKeys'
 
 describe('practiceKeyAction', () => {
@@ -27,6 +28,15 @@ describe('practiceKeyAction', () => {
     expect(practiceKeyAction(']', free)).toBe('tempo-up')
     expect(practiceKeyAction('=', free)).toBe('tempo-up')
     expect(practiceKeyAction('+', free)).toBe('tempo-up')
+  })
+
+  it('ramps tempo ±1 on key-repeat; ±10 on the initial press', () => {
+    expect(practiceTempoDelta('tempo-down', false)).toBe(-10)
+    expect(practiceTempoDelta('tempo-up', false)).toBe(10)
+    expect(practiceTempoDelta('tempo-down', true)).toBe(-1)
+    expect(practiceTempoDelta('tempo-up', true)).toBe(1)
+    expect(practiceTempoDelta('toggle-play', true)).toBeNull()
+    expect(practiceTempoDelta('cycle-density', false)).toBeNull()
   })
 
   it('maps D to cycle density', () => {

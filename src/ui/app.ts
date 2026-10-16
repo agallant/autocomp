@@ -122,7 +122,11 @@ import {
   type PracticeLoop,
 } from './practiceLoop'
 import { savedListHtml } from './savedView'
-import { densityFromPracticeAction, practiceKeyAction } from './practiceKeys'
+import {
+  densityFromPracticeAction,
+  practiceKeyAction,
+  practiceTempoDelta,
+} from './practiceKeys'
 import { createTapTempoState, tapTempo } from './tapTempo'
 import { TransportController, type TransportState } from './transport'
 
@@ -1527,8 +1531,14 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       withModifier: event.ctrlKey || event.metaKey || event.altKey,
     })
     if (practice !== null) {
-      // Prevent page scroll / browser search; ignore key-repeat holds.
+      // Prevent page scroll / browser search.
       event.preventDefault()
+      const tempoDelta = practiceTempoDelta(practice, event.repeat)
+      if (tempoDelta !== null) {
+        nudgeTempo(tempoDelta)
+        return
+      }
+      // Ignore key-repeat for non-tempo actions (Space, T, M, D, digits).
       if (event.repeat) return
       if (practice === 'toggle-play') {
         transport?.toggle({ formBar: editor.selectedBarIndex + 1 })
@@ -1536,10 +1546,6 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
         applyTapTempo()
       } else if (practice === 'toggle-click') {
         toggleMetronomeClick()
-      } else if (practice === 'tempo-down') {
-        nudgeTempo(-10)
-      } else if (practice === 'tempo-up') {
-        nudgeTempo(10)
       } else if (practice === 'cycle-density') {
         cycleDensity()
       } else {
