@@ -66,6 +66,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M49 | Form slot reorder | done | Move selected form occurrence earlier/later |
 | M50 | Style swing defaults | done | Per-style default swing feel on style picker change |
 | M51 | All-shelves search | done | Library All filter searches Practice + Standards + Generate |
+| M52 | Random knobs | done | Full random bar count + chord density controls |
 
 ## Library & generative depth (product intent)
 
@@ -482,6 +483,12 @@ Default first-run experience stays the **current compact Practice assortment** (
 - [x] Library shelf switcher includes **All** (default remains Practice)
 - [x] All-shelf search/filter spans Practice + Standards + Generate; list shows shelf labels
 - [x] Unit tests for all-shelf filtering and tag union
+
+## M52 acceptance
+
+- [x] Generate toolbar Bars (8/12/16) and Density (1–2 / bar) knobs for Full random
+- [x] Options flow through `generateProgression` → `generateRandomChart`
+- [x] Unit tests for knobs via generateProgression
 
 ## Process notes
 

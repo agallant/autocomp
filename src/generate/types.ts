@@ -20,6 +20,10 @@ export type GenerateProgressionOptions = {
   styleId: StyleId
   /** Prefer sharps when spelling non-diatonic roots; defaults to the style hint. */
   preferSharps?: boolean
+  /** Full-random only: bar count (8 / 12 / 16). */
+  barCount?: number
+  /** Full-random only: chords per bar (1 or 2). */
+  chordDensity?: 1 | 2
 }
 
 export type ProgressionDescriptor = {
