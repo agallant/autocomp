@@ -23,7 +23,7 @@ import {
 import {
   TUNE_LIBRARY,
   getTuneById,
-  isLibraryShelf,
+  isLibraryShelfFilter,
   shufflePractice,
   type TuneTag,
 } from '../library'
@@ -1090,7 +1090,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     root.querySelectorAll<HTMLButtonElement>('[data-library-shelf]').forEach((button) => {
       button.addEventListener('click', () => {
         const next = button.dataset.libraryShelf
-        if (!isLibraryShelf(next) || next === library.shelf) return
+        if (!isLibraryShelfFilter(next) || next === library.shelf) return
         library = { ...library, shelf: next, tag: '', query: '' }
         refreshLibrary({ controls: true })
       })

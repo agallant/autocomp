@@ -11,7 +11,7 @@ import {
 import { PRACTICE_PACK_V2 } from '../data/practicePackV2'
 import { STANDARDS_PACK } from '../data/standardsPack'
 import { generateEngine, generateRandomChart } from '../generate'
-import type { TuneEntry, TuneTag } from './types'
+import type { LibraryShelfFilter, TuneEntry, TuneTag } from './types'
 
 const C = { letter: 'C' as const, accidental: 0 as const }
 const BB = { letter: 'B' as const, accidental: -1 as const }
@@ -191,11 +191,11 @@ export function getTuneById(id: string): TuneEntry | undefined {
 }
 
 /** Stable tag list for filter UI (catalog order of first appearance). */
-export function allLibraryTags(shelf?: TuneEntry['shelf']): TuneTag[] {
+export function allLibraryTags(shelf?: LibraryShelfFilter): TuneTag[] {
   const seen = new Set<TuneTag>()
   const tags: TuneTag[] = []
   for (const tune of TUNE_LIBRARY) {
-    if (shelf && tune.shelf !== shelf) continue
+    if (shelf && shelf !== 'all' && tune.shelf !== shelf) continue
     for (const tag of tune.tags) {
       if (seen.has(tag)) continue
       seen.add(tag)

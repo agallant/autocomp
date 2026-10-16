@@ -65,6 +65,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M48 | Enharmonic respell | done | ♯↔♭ spelling flip without changing pitch |
 | M49 | Form slot reorder | done | Move selected form occurrence earlier/later |
 | M50 | Style swing defaults | done | Per-style default swing feel on style picker change |
+| M51 | All-shelves search | done | Library All filter searches Practice + Standards + Generate |
 
 ## Library & generative depth (product intent)
 
@@ -413,7 +414,7 @@ Default first-run experience stays the **current compact Practice assortment** (
 
 - [x] Library shelves: **Practice** (default) / **Standards** / **Generate**
 - [x] Shelf switcher + tag/category filters scoped to the active shelf
-- [x] Search still works across the active shelf (optional “all shelves” later)
+- [x] Search still works across the active shelf; All shelves filter (M51)
 - [x] Empty Standards/Generate shelves show clear CTA until packs/engines land
 - [x] Unit tests for shelf filtering; default shelf remains Practice
 
@@ -475,6 +476,12 @@ Default first-run experience stays the **current compact Practice assortment** (
 - [x] Each style declares `defaultSwingFeel` (jazz ~triplet; bossa/latin straight)
 - [x] Changing the style picker applies that default and persists prefs
 - [x] Unit tests for pack defaults
+
+## M51 acceptance
+
+- [x] Library shelf switcher includes **All** (default remains Practice)
+- [x] All-shelf search/filter spans Practice + Standards + Generate; list shows shelf labels
+- [x] Unit tests for all-shelf filtering and tag union
 
 ## Process notes
 

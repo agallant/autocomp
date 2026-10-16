@@ -1,9 +1,10 @@
 import {
   DEFAULT_LIBRARY_SHELF,
-  LIBRARY_SHELVES,
+  LIBRARY_SHELF_FILTERS,
   allLibraryTags,
   filterTunes,
   type LibraryShelf,
+  type LibraryShelfFilter,
   type TuneEntry,
   type TuneTag,
 } from '../library'
@@ -12,7 +13,7 @@ import { escapeAttr, escapeHtml } from './html'
 export type LibraryViewState = {
   query: string
   tag: TuneTag | ''
-  shelf: LibraryShelf
+  shelf: LibraryShelfFilter
   activeTuneId: string
 }
 
@@ -25,12 +26,19 @@ export function createLibraryViewState(activeTuneId: string): LibraryViewState {
   }
 }
 
-const EMPTY_SHELF_COPY: Record<LibraryShelf, string> = {
+const EMPTY_SHELF_COPY: Record<LibraryShelfFilter, string> = {
   practice: 'No practice tunes match.',
   standards:
     'No standards match. Try clearing filters — Practice stays the default home; Standards holds cleared / traditional progressions.',
   generate:
     'No generate presets match. Try clearing filters, or use Full Random / the Generate controls above.',
+  all: 'No tunes match across shelves. Try clearing filters.',
+}
+
+const SHELF_LABEL: Record<LibraryShelf, string> = {
+  practice: 'Practice',
+  standards: 'Standards',
+  generate: 'Generate',
 }
 
 export function libraryListHtml(state: LibraryViewState, tunes: readonly TuneEntry[]): string {
@@ -43,7 +51,9 @@ export function libraryListHtml(state: LibraryViewState, tunes: readonly TuneEnt
   if (matches.length === 0) {
     const empty =
       state.query.trim() || state.tag
-        ? 'No tunes match on this shelf.'
+        ? state.shelf === 'all'
+          ? 'No tunes match across shelves.'
+          : 'No tunes match on this shelf.'
         : EMPTY_SHELF_COPY[state.shelf]
     return `<p class="library-empty" role="status">${escapeHtml(empty)}</p>`
   }
@@ -52,6 +62,8 @@ export function libraryListHtml(state: LibraryViewState, tunes: readonly TuneEnt
       ${matches
         .map((tune) => {
           const active = tune.id === state.activeTuneId
+          const shelfBit =
+            state.shelf === 'all' ? `${SHELF_LABEL[tune.shelf]} · ` : ''
           return `
             <li>
               <button
@@ -61,7 +73,7 @@ export function libraryListHtml(state: LibraryViewState, tunes: readonly TuneEnt
                 aria-current="${active ? 'true' : 'false'}"
               >
                 <span class="library-item__title">${escapeHtml(tune.title)}</span>
-                <span class="library-item__meta">${escapeHtml(tune.blurb)} · ${escapeHtml(tune.tags.join(', '))}</span>
+                <span class="library-item__meta">${escapeHtml(shelfBit)}${escapeHtml(tune.blurb)} · ${escapeHtml(tune.tags.join(', '))}</span>
               </button>
             </li>
           `
@@ -72,10 +84,10 @@ export function libraryListHtml(state: LibraryViewState, tunes: readonly TuneEnt
 }
 
 export function libraryControlsHtml(state: LibraryViewState): string {
-  const tags = allLibraryTags(state.shelf)
+  const tags = allLibraryTags(state.shelf === 'all' ? undefined : state.shelf)
   return `
     <div class="library-shelves" role="group" aria-label="Library shelf">
-      ${LIBRARY_SHELVES.map((shelf) => {
+      ${LIBRARY_SHELF_FILTERS.map((shelf) => {
         const selected = state.shelf === shelf.id
         return `
           <button
