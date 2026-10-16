@@ -17,6 +17,15 @@ export {
   realizeGuideMelody,
 } from './melody'
 export {
+  ENGINE_CATALOG,
+  coltraneBars,
+  generateEngine,
+  iiVChainBars,
+  rhythmABars,
+  type EngineKind,
+  type EngineOptions,
+} from './engines'
+export {
   PROGRESSION_CATALOG,
   generateProgression,
 } from './progressions'
