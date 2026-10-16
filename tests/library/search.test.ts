@@ -1,8 +1,15 @@
 import { describe, expect, it } from 'vitest'
-import { TUNE_LIBRARY, filterTunes, getTuneById } from '../../src/library'
+import {
+  DEFAULT_LIBRARY_SHELF,
+  TUNE_LIBRARY,
+  allLibraryTags,
+  filterTunes,
+  getTuneById,
+} from '../../src/library'
+import { createLibraryViewState } from '../../src/ui/libraryView'
 
 describe('tune library', () => {
-  it('registers built-in practice progressions', () => {
+  it('registers built-in practice progressions on the Practice shelf', () => {
     expect(TUNE_LIBRARY.map((t) => t.id).sort()).toEqual([
       'autumn-practice',
       'ballad-holds',
@@ -13,12 +20,33 @@ describe('tune library', () => {
       'rhythm-lab',
       'turnaround-drill',
     ])
+    expect(TUNE_LIBRARY.every((t) => t.shelf === 'practice')).toBe(true)
     expect(getTuneById('autumn-practice')?.title).toBe('Autumn Practice')
     expect(getTuneById('blues-workshop')?.styleId).toBe('jazz-swing')
   })
 
+  it('defaults the library view to the Practice shelf', () => {
+    expect(DEFAULT_LIBRARY_SHELF).toBe('practice')
+    expect(createLibraryViewState('autumn-practice').shelf).toBe('practice')
+  })
+
+  it('filters by shelf before query and tags', () => {
+    expect(filterTunes(TUNE_LIBRARY, { shelf: 'practice' })).toHaveLength(TUNE_LIBRARY.length)
+    expect(filterTunes(TUNE_LIBRARY, { shelf: 'standards' })).toEqual([])
+    expect(filterTunes(TUNE_LIBRARY, { shelf: 'generate' })).toEqual([])
+    expect(
+      filterTunes(TUNE_LIBRARY, { shelf: 'standards', query: 'Autumn' }),
+    ).toEqual([])
+  })
+
+  it('scopes tag lists to the active shelf', () => {
+    expect(allLibraryTags('practice').length).toBeGreaterThan(0)
+    expect(allLibraryTags('standards')).toEqual([])
+    expect(allLibraryTags('generate')).toEqual([])
+  })
+
   it('filters by query across title, blurb, and tags', () => {
-    const title = filterTunes(TUNE_LIBRARY, { query: 'Autumn' })
+    const title = filterTunes(TUNE_LIBRARY, { query: 'Autumn', shelf: 'practice' })
     expect(title.map((t) => t.id)).toContain('autumn-practice')
 
     const blurb = filterTunes(TUNE_LIBRARY, { query: 'Twelve-bar' })

@@ -17,6 +17,7 @@ export const TUNE_LIBRARY: readonly TuneEntry[] = [
     title: 'Autumn Practice',
     blurb: 'Major ii–V–I family in C',
     tags: ['jazz', 'major', 'ii-v-i', 'practice'],
+    shelf: 'practice',
     styleId: 'jazz-swing',
     createChart: createAutumnPracticeChart,
   },
@@ -25,6 +26,7 @@ export const TUNE_LIBRARY: readonly TuneEntry[] = [
     title: 'Blues Workshop',
     blurb: 'Twelve-bar blues in F',
     tags: ['blues', 'jazz', 'practice'],
+    shelf: 'practice',
     styleId: 'jazz-swing',
     createChart: createBluesWorkshopChart,
   },
@@ -33,6 +35,7 @@ export const TUNE_LIBRARY: readonly TuneEntry[] = [
     title: 'Minor Path',
     blurb: 'Minor ii–V–i and related moves',
     tags: ['jazz', 'minor', 'ii-v-i', 'practice'],
+    shelf: 'practice',
     styleId: 'jazz-swing',
     createChart: createMinorPathChart,
   },
@@ -41,6 +44,7 @@ export const TUNE_LIBRARY: readonly TuneEntry[] = [
     title: 'Bossa Loop',
     blurb: 'Soft major cycle for bossa feel',
     tags: ['bossa', 'major', 'practice'],
+    shelf: 'practice',
     styleId: 'bossa',
     createChart: createBossaLoopChart,
   },
@@ -49,6 +53,7 @@ export const TUNE_LIBRARY: readonly TuneEntry[] = [
     title: 'Ballad Holds',
     blurb: 'Slow shells with long sustains',
     tags: ['ballad', 'jazz', 'practice'],
+    shelf: 'practice',
     styleId: 'ballad',
     createChart: createBalladHoldsChart,
   },
@@ -57,6 +62,7 @@ export const TUNE_LIBRARY: readonly TuneEntry[] = [
     title: 'Rhythm Lab',
     blurb: 'AABA workshop form for up-tempo swing',
     tags: ['jazz', 'rhythm', 'practice'],
+    shelf: 'practice',
     styleId: 'jazz-swing',
     createChart: createRhythmLabChart,
   },
@@ -65,6 +71,7 @@ export const TUNE_LIBRARY: readonly TuneEntry[] = [
     title: 'Turnaround Drill',
     blurb: 'I–VI–ii–V endings on repeat',
     tags: ['jazz', 'turnaround', 'practice'],
+    shelf: 'practice',
     styleId: 'jazz-swing',
     createChart: createTurnaroundDrillChart,
   },
@@ -73,6 +80,7 @@ export const TUNE_LIBRARY: readonly TuneEntry[] = [
     title: 'Latin Clave',
     blurb: 'Two-chord vamp with a short bridge',
     tags: ['latin', 'minor', 'practice'],
+    shelf: 'practice',
     styleId: 'latin',
     createChart: createLatinClaveChart,
   },
@@ -83,10 +91,11 @@ export function getTuneById(id: string): TuneEntry | undefined {
 }
 
 /** Stable tag list for filter UI (catalog order of first appearance). */
-export function allLibraryTags(): TuneTag[] {
+export function allLibraryTags(shelf?: TuneEntry['shelf']): TuneTag[] {
   const seen = new Set<TuneTag>()
   const tags: TuneTag[] = []
   for (const tune of TUNE_LIBRARY) {
+    if (shelf && tune.shelf !== shelf) continue
     for (const tag of tune.tags) {
       if (seen.has(tag)) continue
       seen.add(tag)

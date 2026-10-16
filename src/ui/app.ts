@@ -20,7 +20,12 @@ import {
   unlockAudioContext,
   type ClickSubdivision,
 } from '../audio'
-import { TUNE_LIBRARY, getTuneById, type TuneTag } from '../library'
+import {
+  TUNE_LIBRARY,
+  getTuneById,
+  isLibraryShelf,
+  type TuneTag,
+} from '../library'
 import {
   chartToMidiBytes,
   createWebMidiSink,
@@ -281,9 +286,11 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
           <section class="panel" aria-labelledby="library-heading">
             <h2 id="library-heading" class="panel__title">Library</h2>
             <p class="panel__copy">
-              Built-in practice progressions — search or filter by tag, then load a chart.
+              Practice drills by default — switch shelves for Standards or Generate when those packs land.
             </p>
-            ${libraryControlsHtml(library)}
+            <div id="library-controls-host">
+              ${libraryControlsHtml(library)}
+            </div>
             <div id="library-results">
               ${libraryListHtml(library, TUNE_LIBRARY)}
             </div>
@@ -620,7 +627,14 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     bindChart()
   }
 
-  const refreshLibrary = (): void => {
+  const refreshLibrary = (opts: { controls?: boolean } = {}): void => {
+    if (opts.controls) {
+      const host = root.querySelector('#library-controls-host')
+      if (host) {
+        host.innerHTML = libraryControlsHtml(library)
+        bindLibraryControls()
+      }
+    }
     const results = root.querySelector('#library-results')
     if (!results) return
     results.innerHTML = libraryListHtml(library, TUNE_LIBRARY)
@@ -1002,7 +1016,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     })
   }
 
-  const bindLibrary = (): void => {
+  const bindLibraryControls = (): void => {
     const search = root.querySelector<HTMLInputElement>('#library-search')
     const tagSelect = root.querySelector<HTMLSelectElement>('#library-tag')
     search?.addEventListener('input', () => {
@@ -1014,6 +1028,18 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       library = { ...library, tag: (value || '') as TuneTag | '' }
       refreshLibrary()
     })
+    root.querySelectorAll<HTMLButtonElement>('[data-library-shelf]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const next = button.dataset.libraryShelf
+        if (!isLibraryShelf(next) || next === library.shelf) return
+        library = { ...library, shelf: next, tag: '', query: library.query }
+        refreshLibrary({ controls: true })
+      })
+    })
+  }
+
+  const bindLibrary = (): void => {
+    bindLibraryControls()
     bindLibraryItems()
   }
 

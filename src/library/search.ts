@@ -1,12 +1,14 @@
-import type { TuneEntry, TuneTag } from './types'
+import type { LibraryShelf, TuneEntry, TuneTag } from './types'
 
 export type LibraryFilter = {
   query?: string
+  /** When set, only tunes on this shelf are included. */
+  shelf?: LibraryShelf
   /** When set, tune must include every selected tag. */
   tags?: readonly TuneTag[]
 }
 
-/** Filter the library by free-text query (title/blurb/tags) and required tags. */
+/** Filter the library by shelf, free-text query (title/blurb/tags), and required tags. */
 export function filterTunes(
   tunes: readonly TuneEntry[],
   filter: LibraryFilter = {},
@@ -15,6 +17,7 @@ export function filterTunes(
   const required = filter.tags ?? []
 
   return tunes.filter((tune) => {
+    if (filter.shelf && tune.shelf !== filter.shelf) return false
     if (required.length > 0 && !required.every((tag) => tune.tags.includes(tag))) {
       return false
     }
