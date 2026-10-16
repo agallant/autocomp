@@ -3,6 +3,14 @@ export {
   allLibraryTags,
   getTuneById,
 } from './catalog'
+export {
+  pickPracticeTune,
+  practicePool,
+  practiceVariantFromSeed,
+  shufflePractice,
+  trimPracticeForm,
+  type PracticeShuffleResult,
+} from './practiceShuffle'
 export { filterTunes, type LibraryFilter } from './search'
 export {
   DEFAULT_LIBRARY_SHELF,
