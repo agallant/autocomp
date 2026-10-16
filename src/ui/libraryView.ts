@@ -30,7 +30,7 @@ const EMPTY_SHELF_COPY: Record<LibraryShelf, string> = {
   standards:
     'No standards yet. A curated catalogue of cleared progressions is coming — Practice stays the default home.',
   generate:
-    'No generate presets here yet. Use the Generate controls above for ii–V / blues factories; deeper engines are on the way.',
+    'No generate presets match. Try clearing filters, or use Full Random / the Generate controls above.',
 }
 
 export function libraryListHtml(state: LibraryViewState, tunes: readonly TuneEntry[]): string {

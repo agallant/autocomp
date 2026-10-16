@@ -12,7 +12,8 @@ import { mulberry32, seedFromString } from '../../src/variation'
 describe('practice shuffle', () => {
   it('pools only Practice-shelf tunes', () => {
     const pool = practicePool(TUNE_LIBRARY)
-    expect(pool.length).toBe(TUNE_LIBRARY.length)
+    const practiceCount = TUNE_LIBRARY.filter((t) => t.shelf === 'practice').length
+    expect(pool.length).toBe(practiceCount)
     expect(pool.every((t) => t.shelf === 'practice')).toBe(true)
   })
 

@@ -58,7 +58,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M41 | Library shelves | done | Practice / Standards / Generate shelves; default = Practice |
 | M42 | Practice pack v2 | done | More educational drills; richer tags; keep landing assortment |
 | M43 | Practice shuffle | done | Random pick / seeded variants of practice charts |
-| M44 | Full random chart | planned | Constrained fully-random progressions (key, length, density) |
+| M44 | Full random chart | done | Constrained fully-random progressions (key, length, density) |
 | M45 | Harmonic engines | planned | Rule-based generators: ii–V chains, rhythm changes, Coltrane/Giant Steps |
 | M46 | Standards library | planned | Curated jazz-standard progressions + search into deep catalogue |
 
@@ -178,7 +178,7 @@ Default first-run experience stays the **current compact Practice assortment** (
 - [x] Unit tests for generators + reharm; charts validate
 - [x] Generative guide melody (M26)
 - [x] Practice shuffle / seeded variants (M43)
-- [ ] Fully random constrained generator (M44)
+- [x] Fully random constrained generator (M44)
 - [ ] Advanced harmonic engines — Coltrane/Giant Steps, extended ii–V chains, rhythm changes (M45)
 
 ## M12 acceptance
@@ -429,10 +429,10 @@ Default first-run experience stays the **current compact Practice assortment** (
 
 ## M44 acceptance
 
-- [ ] Fully random chart generator with knobs: key, bar count, time sig, chord density, major/minor bias
-- [ ] Optional “avoid too-wild” filters (max consecutive non-diatonic, prefer ii–V gravity)
-- [ ] Generate shelf entry + Load into editor
-- [ ] Unit tests for constraints / validity
+- [x] Fully random chart generator with knobs: key, bar count, time sig, chord density, major/minor bias
+- [x] Optional “avoid too-wild” filters (max consecutive non-diatonic, prefer ii–V gravity)
+- [x] Generate shelf entry + Load into editor
+- [x] Unit tests for constraints / validity
 
 ## M45 acceptance
 

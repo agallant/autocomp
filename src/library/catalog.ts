@@ -9,6 +9,7 @@ import {
   createTurnaroundDrillChart,
 } from '../data/practiceCharts'
 import { PRACTICE_PACK_V2 } from '../data/practicePackV2'
+import { generateRandomChart } from '../generate'
 import type { TuneEntry, TuneTag } from './types'
 
 /** Core Practice assortment (default landing shelf). */
@@ -87,8 +88,34 @@ const PRACTICE_CORE: readonly TuneEntry[] = [
   },
 ]
 
-/** Built-in practice progressions (core + M42 pack). */
-export const TUNE_LIBRARY: readonly TuneEntry[] = [...PRACTICE_CORE, ...PRACTICE_PACK_V2]
+/** Generate-shelf presets (engines / random). */
+const GENERATE_PRESETS: readonly TuneEntry[] = [
+  {
+    id: 'full-random',
+    title: 'Full Random',
+    blurb: 'Constrained random harmony (ii–V gravity)',
+    tags: ['jazz', 'cycle', 'intermediate'],
+    shelf: 'generate',
+    styleId: 'jazz-swing',
+    createChart: () => {
+      const chart = generateRandomChart({
+        styleId: 'jazz-swing',
+        barCount: 12,
+        preferIiV: true,
+        maxNonDiatonicStreak: 2,
+      })
+      // Keep library id/title stable so the Generate shelf entry stays highlighted.
+      return { ...chart, id: 'full-random', title: 'Full Random' }
+    },
+  },
+]
+
+/** Built-in library (Practice pack + Generate presets). */
+export const TUNE_LIBRARY: readonly TuneEntry[] = [
+  ...PRACTICE_CORE,
+  ...PRACTICE_PACK_V2,
+  ...GENERATE_PRESETS,
+]
 
 export function getTuneById(id: string): TuneEntry | undefined {
   return TUNE_LIBRARY.find((tune) => tune.id === id)

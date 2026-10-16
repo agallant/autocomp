@@ -21,9 +21,9 @@ function stubTune(partial: Partial<TuneEntry> & Pick<TuneEntry, 'id' | 'shelf' |
 
 describe('tune library', () => {
   it('registers built-in practice progressions on the Practice shelf', () => {
-    expect(TUNE_LIBRARY.length).toBeGreaterThanOrEqual(20)
+    const practice = TUNE_LIBRARY.filter((t) => t.shelf === 'practice')
+    expect(practice.length).toBeGreaterThanOrEqual(20)
     expect(new Set(TUNE_LIBRARY.map((t) => t.id)).size).toBe(TUNE_LIBRARY.length)
-    expect(TUNE_LIBRARY.every((t) => t.shelf === 'practice')).toBe(true)
     expect(getTuneById('autumn-practice')?.title).toBe('Autumn Practice')
     expect(getTuneById('blues-workshop')?.styleId).toBe('jazz-swing')
     expect(getTuneById('circle-fourths')?.tags).toContain('cycle')
@@ -31,6 +31,7 @@ describe('tune library', () => {
       numerator: 3,
       denominator: 4,
     })
+    expect(getTuneById('full-random')?.shelf).toBe('generate')
   })
 
   it('covers difficulty and harmony device tags across the Practice pack', () => {
@@ -46,9 +47,12 @@ describe('tune library', () => {
   })
 
   it('filters by shelf before query and tags', () => {
-    expect(filterTunes(TUNE_LIBRARY, { shelf: 'practice' })).toHaveLength(TUNE_LIBRARY.length)
+    const practiceCount = TUNE_LIBRARY.filter((t) => t.shelf === 'practice').length
+    expect(filterTunes(TUNE_LIBRARY, { shelf: 'practice' })).toHaveLength(practiceCount)
     expect(filterTunes(TUNE_LIBRARY, { shelf: 'standards' })).toEqual([])
-    expect(filterTunes(TUNE_LIBRARY, { shelf: 'generate' })).toEqual([])
+    expect(filterTunes(TUNE_LIBRARY, { shelf: 'generate' }).map((t) => t.id)).toContain(
+      'full-random',
+    )
     expect(
       filterTunes(TUNE_LIBRARY, { shelf: 'standards', query: 'Autumn' }),
     ).toEqual([])
@@ -69,7 +73,7 @@ describe('tune library', () => {
   it('scopes tag lists to the active shelf', () => {
     expect(allLibraryTags('practice').length).toBeGreaterThan(0)
     expect(allLibraryTags('standards')).toEqual([])
-    expect(allLibraryTags('generate')).toEqual([])
+    expect(allLibraryTags('generate').length).toBeGreaterThan(0)
   })
 
   it('filters by query across title, blurb, and tags', () => {

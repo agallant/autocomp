@@ -50,4 +50,5 @@ export const PROGRESSION_KINDS: ProgressionKind[] = [
   'turnaround',
   'blues',
   'vamp',
+  'random',
 ]
