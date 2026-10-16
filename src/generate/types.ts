@@ -8,6 +8,7 @@ export type ProgressionKind =
   | 'turnaround'
   | 'blues'
   | 'vamp'
+  | 'random'
 
 /** Deterministic reharmonization transforms for selected bars. */
 export type ReharmMode = 'ii-before-v' | 'tritone-sub'

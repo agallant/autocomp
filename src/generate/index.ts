@@ -20,5 +20,10 @@ export {
   PROGRESSION_CATALOG,
   generateProgression,
 } from './progressions'
+export {
+  generateRandomChart,
+  type ChordDensity,
+  type RandomChartOptions,
+} from './randomChart'
 export { REHARM_CATALOG, reharmBar, secondaryIiV } from './reharm'
 export { PROGRESSION_KINDS, styleGenerateHints } from './styleHints'

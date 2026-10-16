@@ -20,6 +20,7 @@ describe('generateProgression', () => {
       'turnaround',
       'blues',
       'vamp',
+      'random',
     ])
   })
 

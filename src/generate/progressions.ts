@@ -7,6 +7,7 @@ import {
 } from '../music'
 import type { StyleId } from '../style'
 import { degreeChord } from './degree'
+import { generateRandomChart } from './randomChart'
 import { styleGenerateHints } from './styleHints'
 import type { GenerateProgressionOptions, ProgressionDescriptor, ProgressionKind } from './types'
 
@@ -16,6 +17,7 @@ export const PROGRESSION_CATALOG: ProgressionDescriptor[] = [
   { id: 'turnaround', label: 'Turnaround', blurb: 'I–vi–ii–V cycle' },
   { id: 'blues', label: 'Blues', blurb: '12-bar dominant blues' },
   { id: 'vamp', label: 'Vamp', blurb: 'Style-flavored short loop' },
+  { id: 'random', label: 'Full random', blurb: 'Constrained random harmony' },
 ]
 
 function slugKey(key: Root): string {
@@ -145,7 +147,7 @@ function vampBars(key: Root, styleId: StyleId, preferSharps: boolean): string[][
 }
 
 function barsForKind(
-  kind: ProgressionKind,
+  kind: Exclude<ProgressionKind, 'random'>,
   key: Root,
   styleId: StyleId,
   preferSharps: boolean,
@@ -172,6 +174,14 @@ function titleFor(kind: ProgressionKind, key: Root, styleId: StyleId): string {
 
 /** Build a valid practice chart for the requested progression + style. */
 export function generateProgression(options: GenerateProgressionOptions): Chart {
+  if (options.kind === 'random') {
+    return generateRandomChart({
+      key: options.key,
+      styleId: options.styleId,
+      preferIiV: true,
+      maxNonDiatonicStreak: 2,
+    })
+  }
   const hints = styleGenerateHints(options.styleId)
   const preferSharps = options.preferSharps ?? hints.preferSharps
   const bars = barsForKind(options.kind, options.key, options.styleId, preferSharps)
