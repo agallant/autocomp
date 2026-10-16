@@ -1,3 +1,4 @@
+import { boundClearInterval, boundSetInterval } from './timers'
 import type { AudioClock, BeatPosition, ScheduledBeat } from './types'
 
 export type LookaheadSchedulerOptions = {
@@ -41,8 +42,8 @@ export class LookaheadScheduler {
     this.onSchedule = options.onSchedule
     this.scheduleAheadTime = options.scheduleAheadTime ?? 0.1
     this.lookaheadMs = options.lookaheadMs ?? 25
-    this.setIntervalFn = options.setIntervalFn ?? setInterval
-    this.clearIntervalFn = options.clearIntervalFn ?? clearInterval
+    this.setIntervalFn = options.setIntervalFn ?? boundSetInterval
+    this.clearIntervalFn = options.clearIntervalFn ?? boundClearInterval
   }
 
   isRunning(): boolean {
