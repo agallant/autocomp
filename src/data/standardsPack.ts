@@ -84,6 +84,7 @@ const SONG_META: Readonly<Record<string, Pick<TuneEntry, 'composer' | 'era'>>> =
   'std-tune-up': { composer: 'Miles Davis', era: '1950s' },
   'std-so-what': { composer: 'Miles Davis', era: '1950s' },
   'std-freddie-freeloader': { composer: 'Miles Davis', era: '1950s' },
+  'std-footprints': { composer: 'Wayne Shorter', era: '1960s' },
 }
 
 function entry(spec: Spec): TuneEntry {
@@ -1506,6 +1507,36 @@ const PACK_ENTRIES: readonly TuneEntry[] = [
           ['Eb7'],
           ['Bb7'],
           ['F7'],
+        ],
+      },
+    ],
+  }),
+  entry({
+    id: 'std-footprints',
+    title: 'Footprints',
+    blurb: 'Wayne Shorter minor blues waltz feel; harmony only',
+    tags: ['standard', 'jazz', 'blues', 'minor', 'waltz', 'short'],
+    key: C,
+    tempo: 144,
+    styleId: 'jazz-swing',
+    clearance: 'harmony-only standard',
+    sectionBars: [
+      {
+        id: 'A',
+        label: 'A',
+        bars: [
+          ['Cm7'],
+          ['Cm7'],
+          ['Cm7'],
+          ['Cm7'],
+          ['Fm7'],
+          ['Fm7'],
+          ['Cm7'],
+          ['Cm7'],
+          ['F#m7b5', 'B7'],
+          ['Emaj7'],
+          ['Dm7b5', 'G7'],
+          ['Cm7'],
         ],
       },
     ],
