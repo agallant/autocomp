@@ -1241,7 +1241,7 @@ const PACK_ENTRIES: readonly TuneEntry[] = [
     tempo: 120,
     styleId: 'jazz-swing',
     clearance: 'harmony-only standard',
-    form: ['A', 'A', 'B', 'A'],
+    form: ['A', 'A2', 'B', 'A3'],
     sectionBars: [
       {
         id: 'A',
@@ -1258,6 +1258,20 @@ const PACK_ENTRIES: readonly TuneEntry[] = [
         ],
       },
       {
+        id: 'A2',
+        label: 'A2',
+        bars: [
+          ['Dm7', 'G7'],
+          ['Dm7', 'G7'],
+          ['Em7', 'A7'],
+          ['Em7', 'A7'],
+          ['Am7', 'D7'],
+          ['Abm7', 'Db7'],
+          ['Cmaj7'],
+          ['Cmaj7'],
+        ],
+      },
+      {
         id: 'B',
         label: 'B',
         bars: [
@@ -1269,6 +1283,20 @@ const PACK_ENTRIES: readonly TuneEntry[] = [
           ['D7'],
           ['Dm7'],
           ['G7'],
+        ],
+      },
+      {
+        id: 'A3',
+        label: 'A3',
+        bars: [
+          ['Dm7', 'G7'],
+          ['Dm7', 'G7'],
+          ['Em7', 'A7'],
+          ['Em7', 'A7'],
+          ['Am7', 'D7'],
+          ['Abm7', 'Db7'],
+          ['Cmaj7'],
+          ['Cmaj7'],
         ],
       },
     ],
