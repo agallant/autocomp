@@ -797,7 +797,7 @@ export const STANDARDS_PACK: readonly TuneEntry[] = [
     id: 'std-tritone-sub',
     title: 'Tritone Sub Lab',
     blurb: 'ii–V–I with tritone-subbed dominants (practice label)',
-    tags: ['standard', 'jazz', 'ii-v-i', 'dominant', 'intermediate'],
+    tags: ['standard', 'jazz', 'ii-v-i', 'dominant', 'aaba', 'intermediate'],
     key: C,
     tempo: 140,
     styleId: 'jazz-swing',
