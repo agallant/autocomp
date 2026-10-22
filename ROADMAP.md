@@ -82,7 +82,8 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M65 | Standards +1 | done | Add hip stock: Turnaround Lab (practice label) |
 | M66 | Real jazz standards | done | Real titles + chords (PD or not); Body and Soul + Autumn Leaves |
 | M67 | Standards +1 | done | Add All the Things You Are (harmony only) |
-| M68 | PD notation mode | planned | Optional melody/notation for public-domain jazz standards |
+| M68 | Standards +1 | done | Add Blue Bossa (harmony only) |
+| M69 | PD notation mode | planned | Optional melody/notation for public-domain jazz standards |
 
 ## Library & generative depth (product intent)
 
@@ -91,7 +92,7 @@ Default first-run experience stays the **current compact Practice assortment** (
 1. **More practice material** — expand the educational pack (M42) while Practice remains the default shelf.
 2. **Variation / randomization** — shuffle and seedable variants of existing drills (M43).
 3. **Full random + generative** — fully randomized, constraint-bounded charts (M44) plus harmony-rule engines (M45: ii–V–I chains, blues, rhythm changes, Coltrane/Giant Steps matrices, etc.). Build on M11’s factories.
-4. **Standards library** — **real song titles with chord charts** (M46+), **whether or not the song is public domain**. Progressions are practice material; omit copyrighted melodies/lyrics by default. PD status only unlocks optional heads/notation (M68)—it is not a gate for adding chords. Prefer true jazz over folk fillers.
+4. **Standards library** — **real song titles with chord charts** (M46+), **whether or not the song is public domain**. Progressions are practice material; omit copyrighted melodies/lyrics by default. PD status only unlocks optional heads/notation (M69)—it is not a gate for adding chords. Prefer true jazz over folk fillers.
 5. **Discoverability** — shelves, categories, tags, and filters (M41) so the default list stays simple while Standards / Generate are one shelf away and searchable.
 
 ## M0 acceptance
@@ -596,6 +597,12 @@ Default first-run experience stays the **current compact Practice assortment** (
 ## M67 acceptance
 
 - [x] Standards pack gains All the Things You Are (harmony-only standard; real title)
+- [x] Searchable on Standards shelf; clearance note present
+- [x] Unit tests for pack size + title search
+
+## M68 acceptance
+
+- [x] Standards pack gains Blue Bossa (harmony-only standard; real title)
 - [x] Searchable on Standards shelf; clearance note present
 - [x] Unit tests for pack size + title search
 
