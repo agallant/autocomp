@@ -178,12 +178,14 @@ export function generateProgression(options: GenerateProgressionOptions): Chart 
     return generateRandomChart({
       key: options.key,
       styleId: options.styleId,
-      preferIiV: true,
+      preferIiV: options.preferIiV ?? true,
       maxNonDiatonicStreak: 2,
       ...(options.barCount !== undefined ? { barCount: options.barCount } : {}),
       ...(options.chordDensity !== undefined
         ? { chordDensity: options.chordDensity }
         : {}),
+      ...(options.majorBias !== undefined ? { majorBias: options.majorBias } : {}),
+      ...(options.seed !== undefined ? { seed: options.seed } : {}),
     })
   }
   const hints = styleGenerateHints(options.styleId)

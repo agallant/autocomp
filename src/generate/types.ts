@@ -24,6 +24,12 @@ export type GenerateProgressionOptions = {
   barCount?: number
   /** Full-random only: chords per bar (1 or 2). */
   chordDensity?: 1 | 2
+  /** Full-random only: probability of major mode (0–1). */
+  majorBias?: number
+  /** Full-random only: prefer ii–V gravity when packing bars. */
+  preferIiV?: boolean
+  /** Full-random only: RNG seed (tests / reproducibility). */
+  seed?: number
 }
 
 export type ProgressionDescriptor = {

@@ -8,7 +8,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 - **Charts are data**: a stable JSON chart format is the source of truth.
 - **Styles are engines**: backing styles generate bass / comping / drums from the chart.
 - **Offline by default**: no server runtime; optional later features may use APIs.
-- **Small PRs**: one milestone per PR when practical; keep Cubic/CodeQL green.
+- **Small PRs**: one milestone per PR when practical; keep Cubic/CodeQL green; prefer ≤~80 changed lines.
 
 ## Milestones
 
@@ -67,6 +67,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M50 | Style swing defaults | done | Per-style default swing feel on style picker change |
 | M51 | All-shelves search | done | Library All filter searches Practice + Standards + Generate |
 | M52 | Random knobs | done | Full random bar count + chord density controls |
+| M53 | Random mode knobs | in progress | Full random major/minor bias + ii–V gravity toggles |
 
 ## Library & generative depth (product intent)
 
@@ -490,9 +491,15 @@ Default first-run experience stays the **current compact Practice assortment** (
 - [x] Options flow through `generateProgression` → `generateRandomChart`
 - [x] Unit tests for knobs via generateProgression
 
+## M53 acceptance
+
+- [ ] Generate toolbar Mode (Major / Mix / Minor) and ii–V (On / Off) knobs for Full random
+- [ ] Options flow through `generateProgression` → `generateRandomChart`
+- [ ] Unit tests for knobs via generateProgression
+
 ## Process notes
 
 - Protected `main`: squash-only; Cubic required check; CodeQL scanning; conversation resolution.
-- Prefer ≤ ~100 files touched per PR; space PRs if Cubic free tier rate-limits.
+- Prefer ≤ ~80 changed lines and ≤ ~100 files per PR; space PRs if Cubic reviewed-line quota is tight.
 - After each merge, verify Pages deploy before starting the next milestone when deploy-related.
 - Library depth (M41–M46): ship shelves first so catalogue growth never buries the default Practice UX.
