@@ -185,6 +185,7 @@ export function generateProgression(options: GenerateProgressionOptions): Chart 
         ? { chordDensity: options.chordDensity }
         : {}),
       ...(options.majorBias !== undefined ? { majorBias: options.majorBias } : {}),
+      ...(options.seed !== undefined ? { seed: options.seed } : {}),
     })
   }
   const hints = styleGenerateHints(options.styleId)

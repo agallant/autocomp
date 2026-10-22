@@ -28,6 +28,8 @@ export type GenerateProgressionOptions = {
   majorBias?: number
   /** Full-random only: prefer ii–V gravity when packing bars. */
   preferIiV?: boolean
+  /** Full-random only: RNG seed (tests / reproducibility). */
+  seed?: number
 }
 
 export type ProgressionDescriptor = {

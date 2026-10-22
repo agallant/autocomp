@@ -67,16 +67,26 @@ describe('generateRandomChart', () => {
     expect(chart.sections[0]!.bars).toHaveLength(8)
   })
 
-  it('honors majorBias and preferIiV via generateProgression', () => {
-    const chart = generateProgression({
-      kind: 'random',
+  it('forwards majorBias and preferIiV via generateProgression', () => {
+    const shared = {
       key: C,
-      styleId: 'jazz-swing',
-      barCount: 12,
+      styleId: 'jazz-swing' as const,
+      barCount: 12 as const,
       majorBias: 0.15,
       preferIiV: false,
+      seed: 99,
+    }
+    const via = generateProgression({ kind: 'random', ...shared })
+    const direct = generateRandomChart({ ...shared, maxNonDiatonicStreak: 2 })
+    expect(validateChart(via)).toEqual([])
+    expect(via.sections[0]!.bars).toEqual(direct.sections[0]!.bars)
+    expect(via.key).toEqual(direct.key)
+    // Same seed with ii–V on must diverge, proving preferIiV is not ignored.
+    const withIiV = generateRandomChart({
+      ...shared,
+      preferIiV: true,
+      maxNonDiatonicStreak: 2,
     })
-    expect(validateChart(chart)).toEqual([])
-    expect(chart.sections[0]!.bars).toHaveLength(12)
+    expect(withIiV.sections[0]!.bars).not.toEqual(direct.sections[0]!.bars)
   })
 })
