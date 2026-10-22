@@ -464,7 +464,7 @@ Default first-run experience stays the **current compact Practice assortment** (
 
 ## M46 acceptance
 
-- [x] Curated standards pack: educational chord charts from public-domain or otherwise cleared sources (no melodies/lyrics/lead sheets)
+- [x] Curated standards pack: real-title harmony charts (omit copyrighted melodies/lyrics by default)
 - [x] Searchable via Standards shelf + tags (form, key feel, era/style labels)
 - [x] In-repo legal note: clearance criteria (real titles + harmony-only; see docs/STANDARDS_CLEARANCE.md)
 - [x] Unit tests for chart validity; library search finds standards by tag/title
