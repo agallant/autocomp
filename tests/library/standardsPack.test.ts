@@ -52,6 +52,12 @@ describe('standards pack', () => {
     })
     expect(bebop.map((t) => t.id)).toContain('std-bebop-blues')
 
+    const bvi = filterTunes(TUNE_LIBRARY, {
+      shelf: 'standards',
+      query: 'Flat-Six',
+    })
+    expect(bvi.map((t) => t.id)).toContain('std-minor-bvi')
+
     const traditional = filterTunes(TUNE_LIBRARY, {
       shelf: 'standards',
       tags: ['traditional'],
