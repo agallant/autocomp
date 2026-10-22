@@ -52,6 +52,19 @@ describe('standards pack', () => {
     })
     expect(aTrain.map((t) => t.id)).toEqual(['std-a-train'])
     expect(aTrain[0]).toMatchObject({ composer: 'Billy Strayhorn', era: '1940s' })
+    const aTrainChart = aTrain[0]!.createChart()
+    const endSym = (id: string) =>
+      aTrainChart.sections
+        .find((s) => s.id === id)!
+        .bars.at(-1)!
+        .slots.map((slot) => slot.chord?.symbol ?? '')
+        .join(' ')
+    expect(endSym('A')).toBe('A7')
+    expect(endSym('A2')).toBe('Cmaj7')
+    expect(endSym('A3')).toBe('Cmaj7')
+    expect(aTrainChart.sections.find((s) => s.id === 'A2')!.bars.map((b) => b.slots[0]?.chord?.symbol)).not.toEqual(
+      aTrainChart.sections.find((s) => s.id === 'A3')!.bars.map((b) => b.slots[0]?.chord?.symbol),
+    )
 
     const all = filterTunes(TUNE_LIBRARY, { shelf: 'standards' })
     const titles = all.map((t) => t.title)

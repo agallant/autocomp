@@ -1365,7 +1365,7 @@ const PACK_ENTRIES: readonly TuneEntry[] = [
           ['D7'],
           ['Dm7'],
           ['G7'],
-          ['Cmaj7'],
+          ['G7'],
           ['Cmaj7'],
         ],
       },
