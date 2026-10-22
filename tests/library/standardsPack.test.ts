@@ -5,7 +5,7 @@ import { validateChart } from '../../src/music'
 
 describe('standards pack', () => {
   it('ships only Songs-shelf repertoire with clearance notes', () => {
-    expect(STANDARDS_PACK.length).toBeGreaterThanOrEqual(16)
+    expect(STANDARDS_PACK.length).toBeGreaterThanOrEqual(17)
     expect(STANDARDS_PACK.every((t) => t.shelf === 'standards')).toBe(true)
     expect(STANDARDS_PACK.every((t) => t.tags.includes('standard'))).toBe(true)
     for (const tune of STANDARDS_PACK) {
@@ -65,6 +65,29 @@ describe('standards pack', () => {
     expect(aTrainChart.sections.find((s) => s.id === 'A2')!.bars.map((b) => b.slots[0]?.chord?.symbol)).not.toEqual(
       aTrainChart.sections.find((s) => s.id === 'A3')!.bars.map((b) => b.slots[0]?.chord?.symbol),
     )
+
+    const solar = filterTunes(TUNE_LIBRARY, {
+      shelf: 'standards',
+      query: 'Solar',
+    })
+    expect(solar.map((t) => t.id)).toEqual(['std-solar'])
+    expect(solar[0]).toMatchObject({ composer: 'Miles Davis', era: '1960s' })
+    const solarBars = solar[0]!.createChart().sections[0]!.bars
+    expect(solarBars).toHaveLength(12)
+    expect(solarBars.map((b) => b.slots[0]?.chord?.symbol)).toEqual([
+      'CmMaj7',
+      'Gm7',
+      'C7',
+      'Fmaj7',
+      'Fm7',
+      'Bb7',
+      'Ebmaj7',
+      'Ebm7',
+      'Ab7',
+      'Dbmaj7',
+      'Dm7b5',
+      'G7',
+    ])
 
     const all = filterTunes(TUNE_LIBRARY, { shelf: 'standards' })
     const titles = all.map((t) => t.title)
