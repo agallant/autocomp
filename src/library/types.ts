@@ -33,7 +33,8 @@ export type LibraryShelfFilter = LibraryShelf | 'all'
 
 export const LIBRARY_SHELVES: ReadonlyArray<{ id: LibraryShelf; label: string }> = [
   { id: 'practice', label: 'Practice' },
-  { id: 'standards', label: 'Standards' },
+  /** Real repertoire (jazz/pop/etc.); id stays `standards` for compatibility. */
+  { id: 'standards', label: 'Songs' },
   { id: 'generate', label: 'Generate' },
 ]
 

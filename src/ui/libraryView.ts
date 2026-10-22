@@ -27,9 +27,8 @@ export function createLibraryViewState(activeTuneId: string): LibraryViewState {
 }
 
 const EMPTY_SHELF_COPY: Record<LibraryShelfFilter, string> = {
-  practice: 'No practice tunes match.',
-  standards:
-    'No standards match. Try clearing filters — Practice stays the default home; Standards holds cleared / traditional progressions.',
+  practice: 'No practice drills match.',
+  standards: 'No songs match. Try clearing filters — Songs is real repertoire; drills live under Practice.',
   generate:
     'No generate presets match. Try clearing filters, or use Full Random / the Generate controls above.',
   all: 'No tunes match across shelves. Try clearing filters.',
@@ -37,7 +36,7 @@ const EMPTY_SHELF_COPY: Record<LibraryShelfFilter, string> = {
 
 const SHELF_LABEL: Record<LibraryShelf, string> = {
   practice: 'Practice',
-  standards: 'Standards',
+  standards: 'Songs',
   generate: 'Generate',
 }
 
@@ -108,7 +107,7 @@ export function libraryControlsHtml(state: LibraryViewState): string {
           class="library-search"
           type="search"
           value="${escapeAttr(state.query)}"
-          placeholder="Title, tag, or feel"
+          placeholder="Title, tag, style…"
           autocomplete="off"
           spellcheck="false"
         />

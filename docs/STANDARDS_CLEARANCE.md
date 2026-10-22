@@ -12,10 +12,10 @@ Autocomp’s **Standards** shelf is a practice catalogue of **real song titles w
 
 ## What we include (priority order)
 
-1. **Real jazz standards (PD or not)** — session repertoire under **real titles**, with **harmony charts**. This is the main job of the shelf. Prefer jazz over folk fillers.
-2. **Public-domain jazz heads (later)** — for PD works only, optional melody/notation (M69+).
-3. **Stock workshop skeletons** — still useful extras under practice titles.
-4. **Traditional / folk** — fine as extras; do not crowd out jazz priorities.
+1. **Real songs (PD or not)** — jazz, pop, rock, R&B, funk, etc. under **real titles**, with **harmony charts**. This is the Songs shelf. Prefer session repertoire and gig-ready tunes.
+2. **Public-domain jazz heads (later)** — for PD works only, optional melody/notation (M71+).
+3. **Stock workshop skeletons** — live on the **Practice** shelf (not Songs), under practice titles.
+4. **Traditional / folk** — fine on Songs as playable repertoire.
 
 ## Chart notes field
 

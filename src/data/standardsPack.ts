@@ -62,19 +62,23 @@ function chartFromSpec(spec: Spec): Chart {
 }
 
 function entry(spec: Spec): TuneEntry {
+  const stock = spec.clearance === 'stock educational progression'
+  const tags: TuneTag[] = stock
+    ? [...spec.tags.filter((t) => t !== 'standard'), 'practice']
+    : [...spec.tags]
   return {
     id: spec.id,
     title: spec.title,
     blurb: spec.blurb,
-    tags: spec.tags,
-    shelf: 'standards',
+    tags,
+    shelf: stock ? 'practice' : 'standards',
     styleId: spec.styleId,
     createChart: () => chartFromSpec(spec),
   }
 }
 
-/** Cleared Standards-shelf charts (see docs/STANDARDS_CLEARANCE.md). */
-export const STANDARDS_PACK: readonly TuneEntry[] = [
+/** Real-song + stock drill specs (see docs/STANDARDS_CLEARANCE.md). */
+const PACK_ENTRIES: readonly TuneEntry[] = [
   entry({
     id: 'std-greensleeves',
     title: 'Greensleeves',
@@ -1208,3 +1212,13 @@ export const STANDARDS_PACK: readonly TuneEntry[] = [
     ],
   }),
 ]
+
+/** Real repertoire for the Songs (standards) shelf. */
+export const STANDARDS_PACK: readonly TuneEntry[] = PACK_ENTRIES.filter(
+  (t) => t.shelf === 'standards',
+)
+
+/** Stock educational drills moved off Songs onto Practice. */
+export const STOCK_DRILL_PACK: readonly TuneEntry[] = PACK_ENTRIES.filter(
+  (t) => t.shelf === 'practice',
+)

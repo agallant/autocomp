@@ -83,7 +83,9 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M66 | Real jazz standards | done | Real titles + chords (PD or not); Body and Soul + Autumn Leaves |
 | M67 | Standards +1 | done | Add All the Things You Are (harmony only) |
 | M68 | Standards +1 | done | Add Blue Bossa (harmony only) |
-| M69 | PD notation mode | planned | Optional melody/notation for public-domain jazz standards |
+| M69 | Songs shelf cleanup | done | Stock drills → Practice; Songs = repertoire; alpha sort |
+| M70 | Song metadata filters | planned | Composer/era/genre tags + clearer filter UI; scale toward hundreds |
+| M71 | PD notation mode | planned | Optional melody/notation for public-domain jazz standards |
 
 ## Library & generative depth (product intent)
 
@@ -92,7 +94,7 @@ Default first-run experience stays the **current compact Practice assortment** (
 1. **More practice material** — expand the educational pack (M42) while Practice remains the default shelf.
 2. **Variation / randomization** — shuffle and seedable variants of existing drills (M43).
 3. **Full random + generative** — fully randomized, constraint-bounded charts (M44) plus harmony-rule engines (M45: ii–V–I chains, blues, rhythm changes, Coltrane/Giant Steps matrices, etc.). Build on M11’s factories.
-4. **Standards library** — **real song titles with chord charts** (M46+), **whether or not the song is public domain**. Progressions are practice material; omit copyrighted melodies/lyrics by default. PD status only unlocks optional heads/notation (M69)—it is not a gate for adding chords. Prefer true jazz over folk fillers.
+4. **Songs library** — **real song titles with chord charts** (M46+), jazz through pop/rock/R&B/funk, **whether or not PD**. Stock drills stay on Practice. Progressions are practice material; omit copyrighted melodies/lyrics by default. PD unlocks optional heads/notation (M71). Scale toward hundreds of gig-ready tunes with rich filters (M70).
 5. **Discoverability** — shelves, categories, tags, and filters (M41) so the default list stays simple while Standards / Generate are one shelf away and searchable.
 
 ## M0 acceptance
@@ -605,6 +607,13 @@ Default first-run experience stays the **current compact Practice assortment** (
 - [x] Standards pack gains Blue Bossa (harmony-only standard; real title)
 - [x] Searchable on Standards shelf; clearance note present
 - [x] Unit tests for pack size + title search
+
+## M69 acceptance
+
+- [x] Stock educational charts move to Practice (not Songs)
+- [x] Songs shelf lists only real-title repertoire; UI label “Songs”
+- [x] Library results default to alphabetical by title
+- [x] Unit tests for shelf split + alpha sort
 
 ## Process notes
 
