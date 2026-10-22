@@ -1274,11 +1274,13 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
         // setEditor refreshes UI and clamps the practice loop to the new form length.
         setEditor(editor.editing ? cancelEdit(editor) : editor)
         setPersistStatus('View mode — turn on Edit mode to change chords.')
-        return
+      } else {
+        chartEditMode = true
+        refreshChart()
+        setPersistStatus('Edit mode on.')
       }
-      chartEditMode = true
-      refreshChart()
-      setPersistStatus('Edit mode on.')
+      // Stage rebuild replaces the toggle; restore focus for keyboard users.
+      root.querySelector<HTMLButtonElement>('#chart-edit-toggle')?.focus()
     }
     const editToggle = root.querySelector('#chart-edit-toggle')
     editToggle?.addEventListener('pointerdown', (event: Event) => {
