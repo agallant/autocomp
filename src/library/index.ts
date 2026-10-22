@@ -15,9 +15,11 @@ export { filterTunes, type LibraryFilter } from './search'
 export {
   DEFAULT_LIBRARY_SHELF,
   GENRE_TAGS,
+  HIDDEN_FILTER_TAGS,
   LIBRARY_SHELVES,
   LIBRARY_SHELF_FILTERS,
   isGenreTag,
+  isHiddenFilterTag,
   isLibraryShelf,
   isLibraryShelfFilter,
   type LibraryShelf,

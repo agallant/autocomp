@@ -4,6 +4,7 @@ import {
   allLibraryTags,
   filterTunes,
   isGenreTag,
+  isHiddenFilterTag,
   type LibraryShelf,
   type LibraryShelfFilter,
   type TuneEntry,
@@ -93,8 +94,9 @@ export function libraryListHtml(state: LibraryViewState, tunes: readonly TuneEnt
 function tagOptionsHtml(tags: readonly TuneTag[], selected: TuneTag | ''): string {
   const option = (tag: TuneTag) =>
     `<option value="${escapeAttr(tag)}"${selected === tag ? ' selected' : ''}>${escapeHtml(tag)}</option>`
-  const genres = tags.filter(isGenreTag)
-  const feels = tags.filter((tag) => !isGenreTag(tag))
+  const visible = tags.filter((tag) => !isHiddenFilterTag(tag))
+  const genres = visible.filter(isGenreTag)
+  const feels = visible.filter((tag) => !isGenreTag(tag))
   const groups = [
     genres.length ? `<optgroup label="Genre">${genres.map(option).join('')}</optgroup>` : '',
     feels.length ? `<optgroup label="Feel / form">${feels.map(option).join('')}</optgroup>` : '',

@@ -67,8 +67,15 @@ export const GENRE_TAGS: readonly TuneTag[] = [
   'traditional',
 ]
 
+/** Shelf/source markers — kept on entries for search, hidden from the tag UI. */
+export const HIDDEN_FILTER_TAGS: readonly TuneTag[] = ['standard', 'practice']
+
 export function isGenreTag(tag: TuneTag): boolean {
   return (GENRE_TAGS as readonly string[]).includes(tag)
+}
+
+export function isHiddenFilterTag(tag: TuneTag): boolean {
+  return (HIDDEN_FILTER_TAGS as readonly string[]).includes(tag)
 }
 
 export type TuneEntry = {

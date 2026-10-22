@@ -618,6 +618,12 @@ Default first-run experience stays the **current compact Practice assortment** (
 - [x] Library results default to alphabetical by title
 - [x] Unit tests for shelf split + alpha sort
 
+## M70 acceptance
+
+- [x] Songs entries carry optional composer + era; search matches them
+- [x] Library tag control groups Genre vs Feel / form
+- [x] List meta shows composer/era when present; unit coverage for meta search
+
 ## M72 acceptance
 
 - [x] Chord bars render above chart settings (progressive disclosure)
@@ -635,12 +641,6 @@ Default first-run experience stays the **current compact Practice assortment** (
 - [x] Chart defaults to view mode (bar click selects / play-from only)
 - [x] Edit / Done toggle unlocks chord editing, form controls, and destructive bar keys
 - [x] Leaving Edit cancels an in-progress chord draft
-
-## M70 acceptance
-
-- [x] Songs entries carry optional composer + era; search matches them
-- [x] Library tag control groups Genre vs Feel / form
-- [x] List meta shows composer/era when present; unit coverage for meta search
 
 ## Process notes
 
