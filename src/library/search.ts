@@ -24,7 +24,15 @@ export function filterTunes(
         return false
       }
       if (!query) return true
-      const haystack = [tune.title, tune.blurb, ...tune.tags].join(' ').toLowerCase()
+      const haystack = [
+        tune.title,
+        tune.blurb,
+        tune.composer ?? '',
+        tune.era ?? '',
+        ...tune.tags,
+      ]
+        .join(' ')
+        .toLowerCase()
       return haystack.includes(query)
     })
     .sort((a, b) => a.title.localeCompare(b.title, undefined, { sensitivity: 'base' }))

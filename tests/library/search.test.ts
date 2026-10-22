@@ -110,6 +110,21 @@ describe('tune library', () => {
     )
   })
 
+  it('matches Songs composer and era metadata in search', () => {
+    const kosma = filterTunes(TUNE_LIBRARY, { shelf: 'standards', query: 'Kosma' })
+    expect(kosma.map((t) => t.id)).toEqual(['std-autumn-leaves'])
+    expect(getTuneById('std-autumn-leaves')).toMatchObject({
+      composer: 'Joseph Kosma',
+      era: '1940s',
+    })
+    expect(
+      filterTunes(TUNE_LIBRARY, { shelf: 'standards', query: '1930s' }).map((t) => t.id),
+    ).toEqual(expect.arrayContaining(['std-body-and-soul', 'std-all-the-things']))
+    expect(
+      TUNE_LIBRARY.filter((t) => t.shelf === 'standards').every((t) => t.composer && t.era),
+    ).toBe(true)
+  })
+
   it('requires every selected tag', () => {
     const minorJazz = filterTunes(TUNE_LIBRARY, { tags: ['jazz', 'minor'] })
     expect(minorJazz.length).toBeGreaterThan(0)

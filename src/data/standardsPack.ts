@@ -61,6 +61,25 @@ function chartFromSpec(spec: Spec): Chart {
   return chart
 }
 
+/** Composer / era for real Songs (stock drills omit these). */
+const SONG_META: Readonly<Record<string, Pick<TuneEntry, 'composer' | 'era'>>> = {
+  'std-greensleeves': { composer: 'Traditional', era: 'folk' },
+  'std-st-james': { composer: 'Traditional', era: 'folk' },
+  'std-careless-love': { composer: 'Traditional', era: 'folk' },
+  'std-house-rising': { composer: 'Traditional', era: 'folk' },
+  'std-amazing-grace': { composer: 'Traditional', era: 'folk' },
+  'std-frankie-johnny': { composer: 'Traditional', era: 'folk' },
+  'std-saints': { composer: 'Traditional', era: 'folk' },
+  'std-down-riverside': { composer: 'Traditional', era: 'folk' },
+  'std-swing-low': { composer: 'Traditional', era: 'folk' },
+  'std-auld-lang-syne': { composer: 'Traditional', era: 'folk' },
+  'std-oh-susanna': { composer: 'Stephen Foster', era: '1840s' },
+  'std-body-and-soul': { composer: 'Johnny Green', era: '1930s' },
+  'std-autumn-leaves': { composer: 'Joseph Kosma', era: '1940s' },
+  'std-all-the-things': { composer: 'Jerome Kern', era: '1930s' },
+  'std-blue-bossa': { composer: 'Kenny Dorham', era: '1960s' },
+}
+
 function entry(spec: Spec): TuneEntry {
   const stock = spec.clearance === 'stock educational progression'
   const tags: TuneTag[] = stock
@@ -71,6 +90,7 @@ function entry(spec: Spec): TuneEntry {
     title: spec.title,
     blurb: spec.blurb,
     tags,
+    ...SONG_META[spec.id],
     shelf: stock ? 'practice' : 'standards',
     styleId: spec.styleId,
     createChart: () => chartFromSpec(spec),

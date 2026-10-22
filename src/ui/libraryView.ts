@@ -3,6 +3,8 @@ import {
   LIBRARY_SHELF_FILTERS,
   allLibraryTags,
   filterTunes,
+  isGenreTag,
+  isHiddenFilterTag,
   type LibraryShelf,
   type LibraryShelfFilter,
   type TuneEntry,
@@ -61,8 +63,15 @@ export function libraryListHtml(state: LibraryViewState, tunes: readonly TuneEnt
       ${matches
         .map((tune) => {
           const active = tune.id === state.activeTuneId
-          const shelfBit =
-            state.shelf === 'all' ? `${SHELF_LABEL[tune.shelf]} · ` : ''
+          const meta = [
+            state.shelf === 'all' ? SHELF_LABEL[tune.shelf] : '',
+            tune.composer,
+            tune.era,
+            tune.blurb,
+            tune.tags.join(', '),
+          ]
+            .filter(Boolean)
+            .join(' · ')
           return `
             <li>
               <button
@@ -72,7 +81,7 @@ export function libraryListHtml(state: LibraryViewState, tunes: readonly TuneEnt
                 aria-current="${active ? 'true' : 'false'}"
               >
                 <span class="library-item__title">${escapeHtml(tune.title)}</span>
-                <span class="library-item__meta">${escapeHtml(shelfBit)}${escapeHtml(tune.blurb)} · ${escapeHtml(tune.tags.join(', '))}</span>
+                <span class="library-item__meta">${escapeHtml(meta)}</span>
               </button>
             </li>
           `
@@ -80,6 +89,19 @@ export function libraryListHtml(state: LibraryViewState, tunes: readonly TuneEnt
         .join('')}
     </ul>
   `
+}
+
+function tagOptionsHtml(tags: readonly TuneTag[], selected: TuneTag | ''): string {
+  const option = (tag: TuneTag) =>
+    `<option value="${escapeAttr(tag)}"${selected === tag ? ' selected' : ''}>${escapeHtml(tag)}</option>`
+  const visible = tags.filter((tag) => !isHiddenFilterTag(tag))
+  const genres = visible.filter(isGenreTag)
+  const feels = visible.filter((tag) => !isGenreTag(tag))
+  const groups = [
+    genres.length ? `<optgroup label="Genre">${genres.map(option).join('')}</optgroup>` : '',
+    feels.length ? `<optgroup label="Feel / form">${feels.map(option).join('')}</optgroup>` : '',
+  ]
+  return groups.join('')
 }
 
 export function libraryControlsHtml(state: LibraryViewState): string {
@@ -107,21 +129,16 @@ export function libraryControlsHtml(state: LibraryViewState): string {
           class="library-search"
           type="search"
           value="${escapeAttr(state.query)}"
-          placeholder="Title, tag, or feel"
+          placeholder="Title, composer, era, or tag"
           autocomplete="off"
           spellcheck="false"
         />
       </label>
       <label class="library-field" for="library-tag">
         <span class="library-field__label">Tag</span>
-        <select id="library-tag" class="library-tag" aria-label="Filter by tag on this shelf">
+        <select id="library-tag" class="library-tag" aria-label="Filter by genre or feel on this shelf">
           <option value=""${state.tag === '' ? ' selected' : ''}>All tags</option>
-          ${tags
-            .map(
-              (tag) =>
-                `<option value="${escapeAttr(tag)}"${state.tag === tag ? ' selected' : ''}>${escapeHtml(tag)}</option>`,
-            )
-            .join('')}
+          ${tagOptionsHtml(tags, state.tag)}
         </select>
       </label>
       ${
