@@ -21,6 +21,17 @@ export type EngineOptions = {
   preferSharps?: boolean
 }
 
+/** Shared UI preference for Generate-shelf engines (8 / 12 / 16). */
+let preferredEngineLength: 8 | 12 | 16 = 12
+
+export function setPreferredEngineLength(n: 8 | 12 | 16): void {
+  preferredEngineLength = n
+}
+
+export function getPreferredEngineLength(): 8 | 12 | 16 {
+  return preferredEngineLength
+}
+
 export const ENGINE_CATALOG: ReadonlyArray<{
   id: EngineKind
   label: string
@@ -33,9 +44,10 @@ export const ENGINE_CATALOG: ReadonlyArray<{
 ]
 
 function clampLength(kind: EngineKind, n: number | undefined): number {
-  const raw = n ?? (kind === 'rhythm-a' ? 8 : 12)
-  if (kind === 'rhythm-a') return raw <= 8 ? 8 : 16
-  if (kind === 'coltrane') return raw <= 8 ? 8 : 16
+  const raw = n ?? (kind === 'rhythm-a' || kind === 'coltrane' ? 8 : 12)
+  // Rhythm A / Coltrane are 8- or 16-bar forms; Bars=12 maps to the short form
+  // so default UI Bars=12 keeps the historical 8-bar presets.
+  if (kind === 'rhythm-a' || kind === 'coltrane') return raw >= 16 ? 16 : 8
   // ii–V chains: even bar counts 8–16
   if (raw <= 8) return 8
   if (raw <= 12) return 12
@@ -153,7 +165,7 @@ export function coltraneBars(key: Root, length: number, preferSharps: boolean): 
 export function generateEngine(options: EngineOptions): Chart {
   const hints = styleGenerateHints(options.styleId)
   const preferSharps = options.preferSharps ?? hints.preferSharps
-  const length = clampLength(options.kind, options.length)
+  const length = clampLength(options.kind, options.length ?? preferredEngineLength)
   const label = ENGINE_CATALOG.find((e) => e.id === options.kind)?.label ?? options.kind
   let bars: string[][]
   switch (options.kind) {

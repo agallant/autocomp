@@ -2,9 +2,12 @@ import { describe, expect, it } from 'vitest'
 import {
   coltraneBars,
   generateEngine,
+  getPreferredEngineLength,
   iiVChainBars,
   rhythmABars,
+  setPreferredEngineLength,
 } from '../../src/generate'
+import { getTuneById } from '../../src/library'
 import { chartBarSymbols, validateChart, type Root } from '../../src/music'
 
 const C: Root = { letter: 'C', accidental: 0 }
@@ -78,5 +81,38 @@ describe('harmonic engines', () => {
     expect(bars[1]).toEqual(['Cmaj7'])
     expect(bars[2]).toEqual(['Eb7'])
     expect(bars[3]).toEqual(['Abmaj7'])
+  })
+
+  it('honors preferred engine length for Generate-shelf presets', () => {
+    setPreferredEngineLength(12)
+    expect(getPreferredEngineLength()).toBe(12)
+    // Default Bars=12 → ii–V stays 12; rhythm/coltrane stay short (8).
+    expect(
+      getTuneById('engine-ii-v-chain')!.createChart().sections[0]!.bars,
+    ).toHaveLength(12)
+    expect(
+      getTuneById('engine-rhythm-a')!.createChart().sections[0]!.bars,
+    ).toHaveLength(8)
+    expect(
+      getTuneById('engine-coltrane')!.createChart().sections[0]!.bars,
+    ).toHaveLength(8)
+
+    setPreferredEngineLength(16)
+    expect(
+      getTuneById('engine-ii-v-chain')!.createChart().sections[0]!.bars,
+    ).toHaveLength(16)
+    expect(
+      getTuneById('engine-rhythm-a')!.createChart().sections[0]!.bars,
+    ).toHaveLength(16)
+    expect(
+      getTuneById('engine-coltrane')!.createChart().sections[0]!.bars,
+    ).toHaveLength(16)
+    const direct = generateEngine({
+      kind: 'coltrane',
+      key: C,
+      styleId: 'jazz-swing',
+    })
+    expect(direct.sections[0]!.bars).toHaveLength(16)
+    setPreferredEngineLength(12)
   })
 })
