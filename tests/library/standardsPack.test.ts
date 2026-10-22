@@ -76,6 +76,12 @@ describe('standards pack', () => {
     })
     expect(secondary.map((t) => t.id)).toContain('std-secondary-dom')
 
+    const bossa = filterTunes(TUNE_LIBRARY, {
+      shelf: 'standards',
+      query: 'Bossa Cadence',
+    })
+    expect(bossa.map((t) => t.id)).toContain('std-bossa-cadence')
+
     const traditional = filterTunes(TUNE_LIBRARY, {
       shelf: 'standards',
       tags: ['traditional'],
