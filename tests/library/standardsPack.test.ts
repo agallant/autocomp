@@ -82,6 +82,12 @@ describe('standards pack', () => {
     })
     expect(bossa.map((t) => t.id)).toContain('std-bossa-cadence')
 
+    const turnaround = filterTunes(TUNE_LIBRARY, {
+      shelf: 'standards',
+      query: 'Turnaround Lab',
+    })
+    expect(turnaround.map((t) => t.id)).toContain('std-turnaround-lab')
+
     const traditional = filterTunes(TUNE_LIBRARY, {
       shelf: 'standards',
       tags: ['traditional'],
