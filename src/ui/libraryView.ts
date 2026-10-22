@@ -14,7 +14,10 @@ import { escapeAttr, escapeHtml } from './html'
 
 export type LibraryViewState = {
   query: string
-  tag: TuneTag | ''
+  /** Single top-level genre/style category (optional). */
+  genre: TuneTag | ''
+  /** Multi-select feel / form tags (AND with genre). */
+  feelTags: readonly TuneTag[]
   shelf: LibraryShelfFilter
   activeTuneId: string
 }
@@ -22,10 +25,18 @@ export type LibraryViewState = {
 export function createLibraryViewState(activeTuneId: string): LibraryViewState {
   return {
     query: '',
-    tag: '',
+    genre: '',
+    feelTags: [],
     shelf: DEFAULT_LIBRARY_SHELF,
     activeTuneId,
   }
+}
+
+function activeFilterTags(state: LibraryViewState): TuneTag[] {
+  return [
+    ...(state.genre ? [state.genre] : []),
+    ...state.feelTags,
+  ]
 }
 
 const EMPTY_SHELF_COPY: Record<LibraryShelfFilter, string> = {
@@ -42,8 +53,12 @@ const SHELF_LABEL: Record<LibraryShelf, string> = {
   generate: 'Generate',
 }
 
+function visibleTags(tune: TuneEntry): string {
+  return tune.tags.filter((tag) => !isHiddenFilterTag(tag)).join(', ')
+}
+
 export function libraryListHtml(state: LibraryViewState, tunes: readonly TuneEntry[]): string {
-  const tags = state.tag ? [state.tag] : []
+  const tags = activeFilterTags(state)
   const matches = filterTunes(tunes, {
     query: state.query,
     shelf: state.shelf,
@@ -51,7 +66,7 @@ export function libraryListHtml(state: LibraryViewState, tunes: readonly TuneEnt
   })
   if (matches.length === 0) {
     const empty =
-      state.query.trim() || state.tag
+      state.query.trim() || tags.length > 0
         ? state.shelf === 'all'
           ? 'No tunes match across shelves.'
           : 'No tunes match on this shelf.'
@@ -68,7 +83,7 @@ export function libraryListHtml(state: LibraryViewState, tunes: readonly TuneEnt
             tune.composer,
             tune.era,
             tune.blurb,
-            tune.tags.join(', '),
+            visibleTags(tune),
           ]
             .filter(Boolean)
             .join(' · ')
@@ -91,17 +106,25 @@ export function libraryListHtml(state: LibraryViewState, tunes: readonly TuneEnt
   `
 }
 
-function tagOptionsHtml(tags: readonly TuneTag[], selected: TuneTag | ''): string {
-  const option = (tag: TuneTag) =>
-    `<option value="${escapeAttr(tag)}"${selected === tag ? ' selected' : ''}>${escapeHtml(tag)}</option>`
-  const visible = tags.filter((tag) => !isHiddenFilterTag(tag))
-  const genres = visible.filter(isGenreTag)
-  const feels = visible.filter((tag) => !isGenreTag(tag))
-  const groups = [
-    genres.length ? `<optgroup label="Genre">${genres.map(option).join('')}</optgroup>` : '',
-    feels.length ? `<optgroup label="Feel / form">${feels.map(option).join('')}</optgroup>` : '',
-  ]
-  return groups.join('')
+function genreOptionsHtml(tags: readonly TuneTag[], selected: TuneTag | ''): string {
+  return tags
+    .filter(isGenreTag)
+    .map(
+      (tag) =>
+        `<option value="${escapeAttr(tag)}"${selected === tag ? ' selected' : ''}>${escapeHtml(tag)}</option>`,
+    )
+    .join('')
+}
+
+function feelOptionsHtml(tags: readonly TuneTag[], selected: readonly TuneTag[]): string {
+  const selectedSet = new Set(selected)
+  return tags
+    .filter((tag) => !isGenreTag(tag) && !isHiddenFilterTag(tag))
+    .map(
+      (tag) =>
+        `<option value="${escapeAttr(tag)}"${selectedSet.has(tag) ? ' selected' : ''}>${escapeHtml(tag)}</option>`,
+    )
+    .join('')
 }
 
 export function libraryControlsHtml(state: LibraryViewState): string {
@@ -134,11 +157,23 @@ export function libraryControlsHtml(state: LibraryViewState): string {
           spellcheck="false"
         />
       </label>
-      <label class="library-field" for="library-tag">
-        <span class="library-field__label">Tag</span>
-        <select id="library-tag" class="library-tag" aria-label="Filter by genre or feel on this shelf">
-          <option value=""${state.tag === '' ? ' selected' : ''}>All tags</option>
-          ${tagOptionsHtml(tags, state.tag)}
+      <label class="library-field" for="library-genre">
+        <span class="library-field__label">Category</span>
+        <select id="library-genre" class="library-tag" aria-label="Filter by genre category">
+          <option value=""${state.genre === '' ? ' selected' : ''}>All genres</option>
+          ${genreOptionsHtml(tags, state.genre)}
+        </select>
+      </label>
+      <label class="library-field library-field--feel" for="library-feel">
+        <span class="library-field__label">Feel tags</span>
+        <select
+          id="library-feel"
+          class="library-feel"
+          multiple
+          size="4"
+          aria-label="Filter by feel or form tags (multi-select)"
+        >
+          ${feelOptionsHtml(tags, state.feelTags)}
         </select>
       </label>
       ${

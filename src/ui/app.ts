@@ -45,8 +45,11 @@ import {
   wavToDownloadBlob,
 } from '../render'
 import {
+  INSTRUMENTS,
   expandChartBars,
   formatRoot,
+  instrumentSemitones,
+  isInstrumentId,
   parseRoot,
   preferSharpsFromRoot,
   respellChart,
@@ -54,6 +57,7 @@ import {
   transposeChart,
   transposeChartToKey,
   type Chart,
+  type InstrumentId,
   type Root,
 } from '../music'
 import {
@@ -179,6 +183,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
   let variationEndings = savedPrefs.endings
   let variationSwingFeel = savedPrefs.swingFeel
   let centerPlayhead = savedPrefs.centerPlayhead
+  let instrument: InstrumentId = savedPrefs.instrument
   let voiceEnabled: VoiceMuteState = { ...savedPrefs.voiceEnabled }
   let voiceLevels: VoiceLevels = { ...savedPrefs.voiceLevels }
   let practiceLoop: PracticeLoop = { ...DEFAULT_PRACTICE_LOOP }
@@ -224,6 +229,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
         humanize: variationHumanize,
         endings: variationEndings,
         centerPlayhead,
+        instrument,
       },
       prefsStorage,
     )
@@ -359,7 +365,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
   }
 
   const chartStageInner = (state: ChartEditorState): string => `
-    <div class="chart-stage__label">${chartMetaLine(state.chart)}</div>
+    <div class="chart-stage__label">${chartMetaLine(state.chart, instrumentSemitones(instrument))}</div>
     <div class="chart-mode">
       <label class="sr-only" for="title-input">Chart title</label>
       <input
@@ -380,7 +386,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       >Edit mode</button>
     </div>
     <div class="bars" id="bars">
-      ${renderEditableBars(state)}
+      ${renderEditableBars(state, { displaySemitones: instrumentSemitones(instrument) })}
     </div>
     <p class="chart-error" id="chart-error" role="status">${escapeHtml(state.error ?? persistStatus)}</p>
     <details class="chart-more"${chartMoreOpen ? ' open' : ''}>
@@ -468,6 +474,19 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
           ${STYLE_PACK.map(
             (style) =>
               `<option value="${style.id}"${style.id === styleId ? ' selected' : ''}>${escapeHtml(style.label)}</option>`,
+          ).join('')}
+        </select>
+      </label>
+      <label
+        class="style-picker"
+        for="instrument-select"
+        title="Written-pitch display for horns (accompaniment stays concert)"
+      >
+        <span class="style-picker__label">Instrument</span>
+        <select id="instrument-select" class="style-picker__select" aria-label="Transposing instrument">
+          ${INSTRUMENTS.map(
+            (item) =>
+              `<option value="${item.id}"${item.id === instrument ? ' selected' : ''}>${escapeHtml(item.label)}</option>`,
           ).join('')}
         </select>
       </label>
@@ -828,7 +847,10 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     const result = shufflePractice(TUNE_LIBRARY, {
       filter: {
         query: library.query,
-        tags: library.tag ? [library.tag] : [],
+        tags: [
+          ...(library.genre ? [library.genre] : []),
+          ...library.feelTags,
+        ],
       },
       entropy: Date.now(),
     })
@@ -1170,21 +1192,26 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
 
   const bindLibraryControls = (): void => {
     const search = root.querySelector<HTMLInputElement>('#library-search')
-    const tagSelect = root.querySelector<HTMLSelectElement>('#library-tag')
+    const genreSelect = root.querySelector<HTMLSelectElement>('#library-genre')
+    const feelSelect = root.querySelector<HTMLSelectElement>('#library-feel')
     search?.addEventListener('input', () => {
       library = { ...library, query: search.value }
       refreshLibrary()
     })
-    tagSelect?.addEventListener('change', () => {
-      const value = tagSelect.value
-      library = { ...library, tag: (value || '') as TuneTag | '' }
+    genreSelect?.addEventListener('change', () => {
+      library = { ...library, genre: (genreSelect.value || '') as TuneTag | '' }
+      refreshLibrary()
+    })
+    feelSelect?.addEventListener('change', () => {
+      const feelTags = [...feelSelect.selectedOptions].map((opt) => opt.value as TuneTag)
+      library = { ...library, feelTags }
       refreshLibrary()
     })
     root.querySelectorAll<HTMLButtonElement>('[data-library-shelf]').forEach((button) => {
       button.addEventListener('click', () => {
         const next = button.dataset.libraryShelf
         if (!isLibraryShelfFilter(next) || next === library.shelf) return
-        library = { ...library, shelf: next, tag: '', query: '' }
+        library = { ...library, shelf: next, genre: '', feelTags: [], query: '' }
         refreshLibrary({ controls: true })
       })
     })
@@ -1784,6 +1811,19 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       const value = (event.target as HTMLSelectElement).value
       if (!isStyleId(value)) return
       applyStyle(value, { adjustTempo: true })
+    })
+    root.querySelector<HTMLSelectElement>('#instrument-select')?.addEventListener('change', (event) => {
+      const value = (event.target as HTMLSelectElement).value
+      if (!isInstrumentId(value)) return
+      instrument = value
+      persistPracticePrefs()
+      refreshChart()
+      const label = INSTRUMENTS.find((item) => item.id === value)?.label ?? value
+      setPersistStatus(
+        value === 'concert'
+          ? 'Concert pitch display.'
+          : `Written for ${label} (accompaniment stays concert).`,
+      )
     })
 
     const titleInput = root.querySelector<HTMLInputElement>('#title-input')

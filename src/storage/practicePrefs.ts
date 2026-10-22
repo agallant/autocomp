@@ -19,6 +19,7 @@ import {
   clampCountInBars,
   type CompDensity,
 } from '../variation'
+import { isInstrumentId, type InstrumentId } from '../music/instrument'
 
 export const PRACTICE_PREFS_KEY = 'autocomp.practicePrefs.v1'
 
@@ -37,6 +38,8 @@ export type PracticePrefs = {
   endings: boolean
   /** Scroll the sounding bar to the center of the viewport while playing. */
   centerPlayhead: boolean
+  /** Written-pitch display transpose for horn players (audio stays concert). */
+  instrument: InstrumentId
 }
 
 export type PrefsStorage = {
@@ -91,6 +94,7 @@ export function defaultPracticePrefs(): PracticePrefs {
     humanize: DEFAULT_VARIATION.humanize,
     endings: DEFAULT_VARIATION.endings,
     centerPlayhead: false,
+    instrument: 'concert',
   }
 }
 
@@ -148,6 +152,7 @@ export function normalizePracticePrefs(raw: unknown): PracticePrefs {
       typeof data.centerPlayhead === 'boolean'
         ? data.centerPlayhead
         : base.centerPlayhead,
+    instrument: isInstrumentId(data.instrument) ? data.instrument : base.instrument,
   }
 }
 

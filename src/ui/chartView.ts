@@ -1,9 +1,27 @@
-import { formatChord, formatRoot, type Bar, type Chart } from '../music'
+import {
+  chartLooksMinor,
+  formatChord,
+  formatRoot,
+  preferSharpsForKey,
+  transposeChord,
+  writtenRoot,
+  type Bar,
+  type Chart,
+} from '../music'
 import { REST_TOKEN, type ChartEditorState } from './chartEditor'
 
-function slotLabel(bar: Bar): string {
+function slotLabel(bar: Bar, displaySemitones: number, preferSharps: boolean): string {
   if (bar.slots.every((s) => !s.chord)) return '·'
-  return bar.slots.map((s) => (s.chord ? formatChord(s.chord) : REST_TOKEN)).join(' ')
+  return bar.slots
+    .map((s) => {
+      if (!s.chord) return REST_TOKEN
+      const chord =
+        displaySemitones === 0
+          ? s.chord
+          : transposeChord(s.chord, displaySemitones, preferSharps)
+      return formatChord(chord)
+    })
+    .join(' ')
 }
 
 export type RenderBarsOptions = {
@@ -17,6 +35,8 @@ export type RenderBarsOptions = {
    * while stopped (or when it is not the live playhead).
    */
   showPlayFrom?: boolean
+  /** Semitones added for written-pitch display (Bb/Eb/F instruments). */
+  displaySemitones?: number
 }
 
 /** Expanded-form metadata for section boundary markers. */
@@ -53,6 +73,10 @@ export function renderEditableBars(
   const meta = expandBarMeta(state.chart)
   const playhead = options.playheadBarIndex
   const showPlayFrom = options.showPlayFrom !== false
+  const displaySemitones = options.displaySemitones ?? 0
+  const minor = chartLooksMinor(state.chart)
+  const written = writtenRoot(state.chart.key, displaySemitones, minor)
+  const sharpPref = preferSharpsForKey(written)
 
   return bars
     .map((bar, i) => {
@@ -63,7 +87,10 @@ export function renderEditableBars(
       const sectionStart = meta[i]?.isSectionStart
         ? meta[i]!.sectionLabel.trim() || meta[i]!.sectionId
         : null
-      const label = slotLabel(bar)
+      // Edit input stays concert pitch; view mode shows written for horns.
+      const label = editing
+        ? slotLabel(bar, 0, preferSharpsForKey(state.chart.key))
+        : slotLabel(bar, displaySemitones, sharpPref)
       const classes = [
         'bar',
         selected ? 'bar--selected' : '',
@@ -208,10 +235,15 @@ export function syncBarPlayhead(
   }
 }
 
-export function chartMetaLine(chart: Chart): string {
+export function chartMetaLine(chart: Chart, displaySemitones = 0): string {
   const style = chart.styleHint ? ` · ${capitalize(chart.styleHint)}` : ''
   const form = chart.form.length ? ` · Form ${escapeHtml(chart.form.join(''))}` : ''
-  return `${formatRoot(chart.key)} · ${chart.timeSignature.numerator}/${chart.timeSignature.denominator}${style}${form}`
+  const meter = `${chart.timeSignature.numerator}/${chart.timeSignature.denominator}`
+  if (!displaySemitones) {
+    return `${formatRoot(chart.key)} · ${meter}${style}${form}`
+  }
+  const written = writtenRoot(chart.key, displaySemitones, chartLooksMinor(chart))
+  return `Written ${formatRoot(written)} · Concert ${formatRoot(chart.key)} · ${meter}${style}${form}`
 }
 
 function capitalize(value: string): string {
