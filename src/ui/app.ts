@@ -1248,12 +1248,37 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       chartMoreOpen = (event.currentTarget as HTMLDetailsElement).open
     })
 
+    /** Commit title/form/section from live inputs before a stage rebuild. */
+    const flushPendingChartFields = (): void => {
+      const titleInput = root.querySelector<HTMLInputElement>('#title-input')
+      if (titleInput) editor = setTitle(editor, titleInput.value)
+      const formInput = root.querySelector<HTMLInputElement>('#form-input')
+      if (formInput) {
+        const next = setFormOrder(editor, formInput.value)
+        if (!next.error) editor = next
+        else setPersistStatus(next.error)
+      }
+      const sectionLabelInput = root.querySelector<HTMLInputElement>('#section-label-input')
+      if (sectionLabelInput) {
+        const next = renameSelectedSection(editor, sectionLabelInput.value)
+        if (!next.error) editor = next
+        else setPersistStatus(next.error)
+      }
+    }
+
     const toggleChartEditMode = (): void => {
-      const next = !chartEditMode
-      chartEditMode = next
-      if (!next && editor.editing) setEditor(cancelEdit(editor))
-      else refreshChart()
-      setPersistStatus(next ? 'Edit mode on.' : 'View mode — turn on Edit mode to change chords.')
+      if (chartEditMode) {
+        // Leaving Edit: keep typed title/form/section; cancel an open chord draft.
+        flushPendingChartFields()
+        chartEditMode = false
+        if (editor.editing) setEditor(cancelEdit(editor))
+        else refreshChart()
+        setPersistStatus('View mode — turn on Edit mode to change chords.')
+        return
+      }
+      chartEditMode = true
+      refreshChart()
+      setPersistStatus('Edit mode on.')
     }
     const editToggle = root.querySelector('#chart-edit-toggle')
     editToggle?.addEventListener('pointerdown', (event: Event) => {
