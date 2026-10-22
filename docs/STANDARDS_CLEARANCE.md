@@ -4,12 +4,12 @@ Autocomp’s **Standards** shelf lists educational chord charts only: harmony sk
 
 ## What we include
 
-1. **Public-domain / traditional material** — progressions associated with traditional songs believed to be in the public domain in the US (folk, spiritual, and early popular tradition). Titles are used as practice labels for those traditional forms.
-2. **Stock harmonic skeletons** — common workshop progressions (rhythm-changes A, cadence forms, blues stocks) with **practice titles** that are not commercial song titles.
+1. **Stock harmonic skeletons (preferred)** — workshop / session-vocabulary progressions (modal pedals, rhythm-changes A, jazz blues, cadence forms, cycle bridges) with **practice titles** that are not commercial song titles.
+2. **Public-domain / traditional material** — progressions associated with traditional songs believed to be in the public domain in the US. Titles are practice labels for those traditional forms.
 
 ## What we do not assume
 
-- Omitting melody/lyrics does **not** automatically clear a modern copyrighted harmony.
+- Omitting melody/lyrics does **not** automatically clear a modern copyrighted harmony (including Real Book / New Real Book repertoire).
 - Chart titles on this shelf are **practice labels**, not claims of ownership or official lead-sheet editions.
 - When in doubt, prefer a descriptive practice title over a protected commercial title.
 

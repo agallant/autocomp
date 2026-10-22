@@ -699,4 +699,27 @@ export const STANDARDS_PACK: readonly TuneEntry[] = [
       },
     ],
   }),
+  entry({
+    id: 'std-modal-pedal',
+    title: 'Modal Pedal Form',
+    blurb: 'Dorian pedal AABA workshop skeleton (practice label)',
+    tags: ['standard', 'jazz', 'modal', 'minor', 'aaba', 'intermediate'],
+    key: D,
+    tempo: 132,
+    styleId: 'jazz-swing',
+    clearance: 'stock educational progression',
+    form: ['A', 'A', 'B', 'A'],
+    sectionBars: [
+      {
+        id: 'A',
+        label: 'A',
+        bars: [['Dm7'], ['Dm7'], ['Dm7'], ['Dm7'], ['Dm7'], ['Dm7'], ['Dm7'], ['Dm7']],
+      },
+      {
+        id: 'B',
+        label: 'B',
+        bars: [['Ebm7'], ['Ebm7'], ['Ebm7'], ['Ebm7'], ['Dm7'], ['Dm7'], ['Dm7'], ['Dm7']],
+      },
+    ],
+  }),
 ]
