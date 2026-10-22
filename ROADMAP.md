@@ -87,6 +87,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M70 | Song metadata filters | planned | Composer/era/genre tags + clearer filter UI; scale toward hundreds |
 | M71 | PD notation mode | planned | Optional melody/notation for public-domain jazz standards |
 | M72 | Playback focus | done | Chords-first chart; settings after bars; collapsible library |
+| M73 | Build stamp | done | Semver bump + git SHA + build time in the shell header |
 
 ## Library & generative depth (product intent)
 
@@ -621,6 +622,12 @@ Default first-run experience stays the **current compact Practice assortment** (
 - [x] Chord bars render above chart settings (progressive disclosure)
 - [x] Settings wrapped in a collapsible details block (open by default; state survives re-renders)
 - [x] Library panel collapsible so the song list can be tucked away
+
+## M73 acceptance
+
+- [x] Header shows `v{semver}+{gitSha}` from package.json + `git rev-parse --short HEAD`
+- [x] Build ISO timestamp available (header tooltip); injected via Vite `define`
+- [x] Smoke test covers pkg version, SHA, and stamp composition
 
 ## Process notes
 
