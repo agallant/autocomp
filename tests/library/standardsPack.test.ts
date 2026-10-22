@@ -150,6 +150,31 @@ describe('standards pack', () => {
       'F7',
     ])
 
+    const footprints = filterTunes(TUNE_LIBRARY, {
+      shelf: 'standards',
+      query: 'Footprints',
+    })
+    expect(footprints.map((t) => t.id)).toEqual(['std-footprints'])
+    expect(footprints[0]).toMatchObject({ composer: 'Wayne Shorter', era: '1960s' })
+    const footprintsChart = footprints[0]!.createChart()
+    expect(footprintsChart.timeSignature).toEqual({ numerator: 6, denominator: 4 })
+    expect(footprintsChart.sections[0]!.bars.map((b) =>
+      b.slots.map((s) => s.chord?.symbol ?? '').filter(Boolean).join(' '),
+    )).toEqual([
+      'Cm7',
+      'Cm7',
+      'Cm7',
+      'Cm7',
+      'Fm7',
+      'Fm7',
+      'Cm7',
+      'Cm7',
+      'F#m7b5 B7',
+      'Emaj7',
+      'Dm7b5 G7',
+      'Cm7',
+    ])
+
     const all = filterTunes(TUNE_LIBRARY, { shelf: 'standards' })
     const titles = all.map((t) => t.title)
     expect(titles).toEqual([...titles].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })))

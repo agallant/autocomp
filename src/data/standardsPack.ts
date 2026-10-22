@@ -3,6 +3,7 @@ import {
   sectionFromBarSymbols,
   type Chart,
   type Root,
+  type TimeSignature,
 } from '../music'
 import type { StyleId } from '../style'
 import type { TuneEntry, TuneTag } from '../library/types'
@@ -26,6 +27,8 @@ type Spec = {
   tempo: number
   styleId: StyleId
   form?: readonly string[]
+  /** Defaults to 4/4 when omitted. */
+  meter?: TimeSignature
   clearance:
     | 'harmony-only standard'
     | 'public-domain jazz'
@@ -39,12 +42,13 @@ type Spec = {
 }
 
 function chartFromSpec(spec: Spec): Chart {
+  const meter = spec.meter ?? { numerator: 4, denominator: 4 }
   const chart: Chart = {
     version: 1,
     id: spec.id,
     title: spec.title,
     key: spec.key,
-    timeSignature: { numerator: 4, denominator: 4 },
+    timeSignature: meter,
     defaultTempoBpm: spec.tempo,
     styleHint: spec.styleId,
     form: [...(spec.form ?? spec.sectionBars.map((s) => s.id))],
@@ -53,6 +57,7 @@ function chartFromSpec(spec: Spec): Chart {
         s.id,
         s.label,
         s.bars.map((row) => [...row]),
+        meter,
       ),
     ),
     notes: `Standards clearance: ${spec.clearance}`,
@@ -84,6 +89,7 @@ const SONG_META: Readonly<Record<string, Pick<TuneEntry, 'composer' | 'era'>>> =
   'std-tune-up': { composer: 'Miles Davis', era: '1950s' },
   'std-so-what': { composer: 'Miles Davis', era: '1950s' },
   'std-freddie-freeloader': { composer: 'Miles Davis', era: '1950s' },
+  'std-footprints': { composer: 'Wayne Shorter', era: '1960s' },
 }
 
 function entry(spec: Spec): TuneEntry {
@@ -1506,6 +1512,37 @@ const PACK_ENTRIES: readonly TuneEntry[] = [
           ['Eb7'],
           ['Bb7'],
           ['F7'],
+        ],
+      },
+    ],
+  }),
+  entry({
+    id: 'std-footprints',
+    title: 'Footprints',
+    blurb: 'Wayne Shorter minor blues in 6/4; harmony only',
+    tags: ['standard', 'jazz', 'blues', 'minor', 'waltz', 'short'],
+    key: C,
+    tempo: 144,
+    styleId: 'jazz-swing',
+    meter: { numerator: 6, denominator: 4 },
+    clearance: 'harmony-only standard',
+    sectionBars: [
+      {
+        id: 'A',
+        label: 'A',
+        bars: [
+          ['Cm7'],
+          ['Cm7'],
+          ['Cm7'],
+          ['Cm7'],
+          ['Fm7'],
+          ['Fm7'],
+          ['Cm7'],
+          ['Cm7'],
+          ['F#m7b5', 'B7'],
+          ['Emaj7'],
+          ['Dm7b5', 'G7'],
+          ['Cm7'],
         ],
       },
     ],

@@ -96,6 +96,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M79 | Standards +1 | done | Add So What (harmony only) |
 | M80 | Standards +1 | done | Add Freddie Freeloader (harmony only) |
 | M81 | Instrument + filters | done | Transposing instrument display; genre category + multi feel tags |
+| M82 | Standards +1 | done | Add Footprints (harmony only) |
 
 ## Library & generative depth (product intent)
 
@@ -691,6 +692,12 @@ Default first-run experience stays the **current compact Practice assortment** (
 - [x] Library Category (single genre) + Feel tags (multi-select AND); shelf markers hidden from UI/meta
 - [x] Unit tests for instrument offsets, prefs, and filter controls
 - [ ] Manual UI checks for transposed display/playback and combined filters verified (deferred)
+
+## M82 acceptance
+
+- [x] Standards pack gains Footprints (harmony-only standard; real title)
+- [x] Searchable on Songs shelf; composer/era meta present
+- [x] Unit tests for pack title search + changes
 
 ## Process notes
 
