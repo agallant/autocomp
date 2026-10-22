@@ -58,6 +58,12 @@ describe('standards pack', () => {
     })
     expect(bvi.map((t) => t.id)).toContain('std-minor-bvi')
 
+    const tritone = filterTunes(TUNE_LIBRARY, {
+      shelf: 'standards',
+      query: 'Tritone Sub',
+    })
+    expect(tritone.map((t) => t.id)).toContain('std-tritone-sub')
+
     const traditional = filterTunes(TUNE_LIBRARY, {
       shelf: 'standards',
       tags: ['traditional'],
