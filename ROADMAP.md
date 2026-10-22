@@ -71,6 +71,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M54 | Engine length | done | Bars control also sizes Generate-shelf harmonic engines |
 | M55 | Standards +1 | done | Add cleared traditional: Swing Low, Sweet Chariot |
 | M56 | Standards +1 | done | Add cleared traditional: Auld Lang Syne |
+| M57 | Standards +1 | done | Add cleared traditional: Oh! Susanna |
 
 ## Library & generative depth (product intent)
 
@@ -516,6 +517,12 @@ Default first-run experience stays the **current compact Practice assortment** (
 ## M56 acceptance
 
 - [x] Standards pack gains Auld Lang Syne (public-domain traditional; no melody/lyrics)
+- [x] Searchable on Standards shelf; clearance note present
+- [x] Unit tests for pack size + title search
+
+## M57 acceptance
+
+- [x] Standards pack gains Oh! Susanna (public-domain traditional; no melody/lyrics)
 - [x] Searchable on Standards shelf; clearance note present
 - [x] Unit tests for pack size + title search
 
