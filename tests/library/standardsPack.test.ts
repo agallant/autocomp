@@ -100,6 +100,12 @@ describe('standards pack', () => {
     })
     expect(autumn.map((t) => t.id)).toContain('std-autumn-leaves')
 
+    const allThings = filterTunes(TUNE_LIBRARY, {
+      shelf: 'standards',
+      query: 'All the Things',
+    })
+    expect(allThings.map((t) => t.id)).toContain('std-all-the-things')
+
     const traditional = filterTunes(TUNE_LIBRARY, {
       shelf: 'standards',
       tags: ['traditional'],
