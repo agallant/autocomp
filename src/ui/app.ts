@@ -186,6 +186,8 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
   let generateKey: Root = { letter: 'C', accidental: 0 }
   let generateBarCount: 8 | 12 | 16 = 12
   let generateChordDensity: 1 | 2 = 1
+  let generateMajorBias: 0.85 | 0.5 | 0.15 = 0.85
+  let generatePreferIiV = true
   let reharmMode: ReharmMode = 'ii-before-v'
   let followEnabled = false
   let followEngine: FollowEngine | null = null
@@ -606,6 +608,29 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
           <select id="generate-density" class="style-picker__select" aria-label="Random chart chord density">
             <option value="1"${generateChordDensity === 1 ? ' selected' : ''}>1 / bar</option>
             <option value="2"${generateChordDensity === 2 ? ' selected' : ''}>2 / bar</option>
+          </select>
+        </label>
+        <label
+          class="style-picker"
+          for="generate-mode"
+          title="Major/minor bias for Full random (ignored by other generators)"
+        >
+          <span class="style-picker__label">Mode</span>
+          <select id="generate-mode" class="style-picker__select" aria-label="Random chart major or minor bias">
+            <option value="0.85"${generateMajorBias === 0.85 ? ' selected' : ''}>Major</option>
+            <option value="0.5"${generateMajorBias === 0.5 ? ' selected' : ''}>Mix</option>
+            <option value="0.15"${generateMajorBias === 0.15 ? ' selected' : ''}>Minor</option>
+          </select>
+        </label>
+        <label
+          class="style-picker"
+          for="generate-iiv"
+          title="ii–V gravity for Full random (ignored by other generators)"
+        >
+          <span class="style-picker__label">ii–V</span>
+          <select id="generate-iiv" class="style-picker__select" aria-label="Random chart prefer ii V">
+            <option value="on"${generatePreferIiV ? ' selected' : ''}>On</option>
+            <option value="off"${!generatePreferIiV ? ' selected' : ''}>Off</option>
           </select>
         </label>
         <button type="button" class="btn" id="generate-run">New chart</button>
@@ -1488,6 +1513,13 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       const n = Number((event.target as HTMLSelectElement).value)
       if (n === 1 || n === 2) generateChordDensity = n
     })
+    root.querySelector<HTMLSelectElement>('#generate-mode')?.addEventListener('change', (event) => {
+      const n = Number((event.target as HTMLSelectElement).value)
+      if (n === 0.85 || n === 0.5 || n === 0.15) generateMajorBias = n
+    })
+    root.querySelector<HTMLSelectElement>('#generate-iiv')?.addEventListener('change', (event) => {
+      generatePreferIiV = (event.target as HTMLSelectElement).value !== 'off'
+    })
     root.querySelector('#generate-run')?.addEventListener('click', () => {
       try {
         const chart = generateProgression({
@@ -1496,6 +1528,8 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
           styleId,
           barCount: generateBarCount,
           chordDensity: generateChordDensity,
+          majorBias: generateMajorBias,
+          preferIiV: generatePreferIiV,
         })
         applyChart(chart, { styleId, activeTuneId: chart.id })
         setPersistStatus(`Generated “${chart.title}”.`)

@@ -66,4 +66,17 @@ describe('generateRandomChart', () => {
     expect(validateChart(chart)).toEqual([])
     expect(chart.sections[0]!.bars).toHaveLength(8)
   })
+
+  it('honors majorBias and preferIiV via generateProgression', () => {
+    const chart = generateProgression({
+      kind: 'random',
+      key: C,
+      styleId: 'jazz-swing',
+      barCount: 12,
+      majorBias: 0.15,
+      preferIiV: false,
+    })
+    expect(validateChart(chart)).toEqual([])
+    expect(chart.sections[0]!.bars).toHaveLength(12)
+  })
 })
