@@ -192,6 +192,8 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
   let generateMajorBias: 0.85 | 0.5 | 0.15 = 0.85
   let generatePreferIiV = true
   let reharmMode: ReharmMode = 'ii-before-v'
+  /** Progressive disclosure: keep Settings open across chart re-renders. */
+  let chartMoreOpen = true
   let followEnabled = false
   let followEngine: FollowEngine | null = null
   let followSnapshot: FollowSnapshot = {
@@ -286,8 +288,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
           <section class="panel" aria-labelledby="chart-heading">
             <h2 id="chart-heading" class="panel__title">Chart</h2>
             <p class="panel__copy">
-              Click a bar to select, Enter to edit the chord, arrows to move.
-              Choose a backing style, then press Play.
+              Chords first — press Play below. Settings sit under the chart when you need them.
             </p>
             <div class="chart-stage" role="group" aria-label="Editable chord chart" id="chart-stage">
               ${chartStageInner(editor)}
@@ -295,20 +296,24 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
           </section>
 
           <section class="panel" aria-labelledby="library-heading">
-            <h2 id="library-heading" class="panel__title">Library</h2>
-            <p class="panel__copy">
-              Practice drills by default — The Songs shelf is real repertoire; Generate has engines and Full Random.
-            </p>
-            <div id="library-controls-host">
-              ${libraryControlsHtml(library)}
-            </div>
-            <div id="library-results">
-              ${libraryListHtml(library, TUNE_LIBRARY)}
-            </div>
-            <h3 class="panel__subtitle">Saved on this device</h3>
-            <div id="saved-results">
-              ${savedListHtml(savedCharts)}
-            </div>
+            <details class="panel-fold" open>
+              <summary class="panel-fold__summary" data-preserve-edit>
+                <h2 id="library-heading" class="panel__title">Library</h2>
+              </summary>
+              <p class="panel__copy">
+                Pick a tune, then Play. Practice is the default shelf; Songs and Generate are one tap away.
+              </p>
+              <div id="library-controls-host">
+                ${libraryControlsHtml(library)}
+              </div>
+              <div id="library-results">
+                ${libraryListHtml(library, TUNE_LIBRARY)}
+              </div>
+              <h3 class="panel__subtitle">Saved on this device</h3>
+              <div id="saved-results">
+                ${savedListHtml(savedCharts)}
+              </div>
+            </details>
           </section>
 
           <section class="panel" aria-labelledby="status-heading">
@@ -361,7 +366,13 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       value="${escapeAttr(state.chart.title)}"
       spellcheck="false"
     />
-    <div class="chart-toolbar">
+    <div class="bars" id="bars">
+      ${renderEditableBars(state)}
+    </div>
+    <p class="chart-error" id="chart-error" role="status">${escapeHtml(state.error ?? persistStatus)}</p>
+    <details class="chart-more"${chartMoreOpen ? ' open' : ''}>
+      <summary class="chart-more__summary" data-preserve-edit>Settings</summary>
+      <div class="chart-toolbar">
       <button type="button" class="btn" id="edit-chord">Edit chord</button>
       <button type="button" class="btn" id="add-bar">Add bar</button>
       <button type="button" class="btn" id="remove-bar">Remove bar</button>
@@ -690,11 +701,8 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       </label>`
           : ''
       }
-    </div>
-    <p class="chart-error" id="chart-error" role="status">${escapeHtml(state.error ?? persistStatus)}</p>
-    <div class="bars" id="bars">
-      ${renderEditableBars(state)}
-    </div>
+      </div>
+    </details>
   `
 
   const setPersistStatus = (message: string): void => {
@@ -1201,6 +1209,10 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
           setEditor(beginEdit(selectBar(editor, index)))
         })
       }
+    })
+
+    root.querySelector('.chart-more')?.addEventListener('toggle', (event) => {
+      chartMoreOpen = (event.currentTarget as HTMLDetailsElement).open
     })
 
     root.querySelector('#edit-chord')?.addEventListener('click', () => {
@@ -1737,6 +1749,8 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       target instanceof HTMLTextAreaElement ||
       target instanceof HTMLSelectElement
     if (inFormField) return
+    // Let native <details>/<summary> toggle handle Space/Enter.
+    if (target instanceof HTMLElement && target.tagName === 'SUMMARY') return
     // Let Enter activate focused buttons (toolbar, transport, bar cells).
     if (event.key === 'Enter' && target instanceof HTMLButtonElement) {
       return
