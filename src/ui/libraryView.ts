@@ -32,7 +32,8 @@ export function createLibraryViewState(activeTuneId: string): LibraryViewState {
   }
 }
 
-function activeFilterTags(state: LibraryViewState): TuneTag[] {
+/** Genre + feel tags used by list filtering and Shuffle (keep in sync). */
+export function activeFilterTags(state: LibraryViewState): TuneTag[] {
   return [
     ...(state.genre ? [state.genre] : []),
     ...state.feelTags,

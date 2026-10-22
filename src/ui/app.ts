@@ -128,6 +128,7 @@ import {
   type PlayheadScrollMemory,
 } from './chartView'
 import {
+  activeFilterTags,
   createLibraryViewState,
   libraryControlsHtml,
   libraryListHtml,
@@ -847,10 +848,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     const result = shufflePractice(TUNE_LIBRARY, {
       filter: {
         query: library.query,
-        tags: [
-          ...(library.genre ? [library.genre] : []),
-          ...library.feelTags,
-        ],
+        tags: activeFilterTags(library),
       },
       entropy: Date.now(),
     })
@@ -1818,6 +1816,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       instrument = value
       persistPracticePrefs()
       refreshChart()
+      root.querySelector<HTMLSelectElement>('#instrument-select')?.focus()
       const label = INSTRUMENTS.find((item) => item.id === value)?.label ?? value
       setPersistStatus(
         value === 'concert'

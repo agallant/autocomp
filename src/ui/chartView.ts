@@ -2,7 +2,8 @@ import {
   chartLooksMinor,
   formatChord,
   formatRoot,
-  preferSharpsForKey,
+  preferSharpsForKeyPc,
+  rootToPc,
   transposeChord,
   writtenRoot,
   type Bar,
@@ -76,7 +77,8 @@ export function renderEditableBars(
   const displaySemitones = options.displaySemitones ?? 0
   const minor = chartLooksMinor(state.chart)
   const written = writtenRoot(state.chart.key, displaySemitones, minor)
-  const sharpPref = preferSharpsForKey(written)
+  const sharpPref = preferSharpsForKeyPc(rootToPc(written), minor)
+  const concertSharpPref = preferSharpsForKeyPc(rootToPc(state.chart.key), minor)
 
   return bars
     .map((bar, i) => {
@@ -89,7 +91,7 @@ export function renderEditableBars(
         : null
       // Edit input stays concert pitch; view mode shows written for horns.
       const label = editing
-        ? slotLabel(bar, 0, preferSharpsForKey(state.chart.key))
+        ? slotLabel(bar, 0, concertSharpPref)
         : slotLabel(bar, displaySemitones, sharpPref)
       const classes = [
         'bar',

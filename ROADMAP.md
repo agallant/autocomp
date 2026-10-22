@@ -690,6 +690,7 @@ Default first-run experience stays the **current compact Practice assortment** (
 - [x] Settings Instrument control: Concert / B♭ / E♭ / F (persisted); chords show written pitch; audio stays concert
 - [x] Library Category (single genre) + Feel tags (multi-select AND); shelf markers hidden from UI/meta
 - [x] Unit tests for instrument offsets, prefs, and filter controls
+- [ ] Manual UI checks for transposed display/playback and combined filters verified (deferred)
 
 ## Process notes
 
