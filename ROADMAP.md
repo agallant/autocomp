@@ -77,6 +77,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M60 | Standards +1 | done | Add hip stock: Minor Flat-Six Form (practice label) |
 | M61 | Standards +1 | done | Add hip stock: Tritone Sub Lab (practice label) |
 | M62 | Standards +1 | done | Add hip stock: Cycle Cadence AABA (practice label) |
+| M63 | Standards +1 | done | Add hip stock: Secondary Dominant Lab (practice label) |
 
 ## Library & generative depth (product intent)
 
@@ -559,6 +560,12 @@ Default first-run experience stays the **current compact Practice assortment** (
 ## M62 acceptance
 
 - [x] Standards pack gains Cycle Cadence AABA (stock educational; practice label; no melody/lyrics)
+- [x] Searchable on Standards shelf; clearance note present
+- [x] Unit tests for pack size + title search
+
+## M63 acceptance
+
+- [x] Standards pack gains Secondary Dominant Lab (stock educational; practice label; no melody/lyrics)
 - [x] Searchable on Standards shelf; clearance note present
 - [x] Unit tests for pack size + title search
 

@@ -70,6 +70,12 @@ describe('standards pack', () => {
     })
     expect(cycle.map((t) => t.id)).toContain('std-cycle-cadence')
 
+    const secondary = filterTunes(TUNE_LIBRARY, {
+      shelf: 'standards',
+      query: 'Secondary Dominant',
+    })
+    expect(secondary.map((t) => t.id)).toContain('std-secondary-dom')
+
     const traditional = filterTunes(TUNE_LIBRARY, {
       shelf: 'standards',
       tags: ['traditional'],
