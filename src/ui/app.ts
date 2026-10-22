@@ -194,6 +194,8 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
   let reharmMode: ReharmMode = 'ii-before-v'
   /** Progressive disclosure: keep Settings open across chart re-renders. */
   let chartMoreOpen = true
+  /** View mode by default (iReal-like); Edit unlocks chord/form mutation. */
+  let chartEditMode = false
   let followEnabled = false
   let followEngine: FollowEngine | null = null
   let followSnapshot: FollowSnapshot = {
@@ -288,9 +290,9 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
           <section class="panel" aria-labelledby="chart-heading">
             <h2 id="chart-heading" class="panel__title">Chart</h2>
             <p class="panel__copy">
-              Chords first — press Play below. Settings sit under the chart when you need them.
+              Chords first — press Play below. Turn on Edit when you want to change the chart.
             </p>
-            <div class="chart-stage" role="group" aria-label="Editable chord chart" id="chart-stage">
+            <div class="chart-stage" role="group" aria-label="Chord chart" id="chart-stage">
               ${chartStageInner(editor)}
             </div>
           </section>
@@ -358,14 +360,25 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
 
   const chartStageInner = (state: ChartEditorState): string => `
     <div class="chart-stage__label">${chartMetaLine(state.chart)}</div>
-    <label class="sr-only" for="title-input">Chart title</label>
-    <input
-      id="title-input"
-      class="chart-stage__title-input"
-      type="text"
-      value="${escapeAttr(state.chart.title)}"
-      spellcheck="false"
-    />
+    <div class="chart-mode">
+      <label class="sr-only" for="title-input">Chart title</label>
+      <input
+        id="title-input"
+        class="chart-stage__title-input"
+        type="text"
+        value="${escapeAttr(state.chart.title)}"
+        spellcheck="false"
+        ${chartEditMode ? '' : 'readonly'}
+      />
+      <button
+        type="button"
+        class="btn chart-mode__toggle"
+        id="chart-edit-toggle"
+        aria-pressed="${chartEditMode}"
+        aria-label="Edit mode"
+        title="${chartEditMode ? 'Turn off edit mode' : 'Turn on edit mode'}"
+      >Edit mode</button>
+    </div>
     <div class="bars" id="bars">
       ${renderEditableBars(state)}
     </div>
@@ -373,10 +386,16 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     <details class="chart-more"${chartMoreOpen ? ' open' : ''}>
       <summary class="chart-more__summary" data-preserve-edit>Settings</summary>
       <div class="chart-toolbar">
-      <button type="button" class="btn" id="edit-chord">Edit chord</button>
+      ${
+        chartEditMode
+          ? `<button type="button" class="btn" id="edit-chord">Edit chord</button>
       <button type="button" class="btn" id="add-bar">Add bar</button>
-      <button type="button" class="btn" id="remove-bar">Remove bar</button>
-      <label class="style-picker form-editor" for="form-input" title="Space-separated section ids (e.g. A A B A)">
+      <button type="button" class="btn" id="remove-bar">Remove bar</button>`
+          : ''
+      }
+      ${
+        chartEditMode
+          ? `      <label class="style-picker form-editor" for="form-input" title="Space-separated section ids (e.g. A A B A)">
         <span class="style-picker__label">Form</span>
         <input
           id="form-input"
@@ -428,15 +447,21 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
         id="remove-section"
         title="Delete the section that owns the selected bar"
         ${state.chart.sections.length <= 1 ? ' disabled' : ''}
-      >Delete section</button>
+      >Delete section</button>`
+          : ''
+      }
       <button type="button" class="btn" id="save-chart">Save</button>
       <button type="button" class="btn" id="export-chart">Export JSON</button>
       <button type="button" class="btn" id="export-midi">Export MIDI</button>
       <button type="button" class="btn" id="export-wav"${wavExporting ? ' disabled' : ''}>Export WAV</button>
-      <label class="btn chart-toolbar__file">
+      ${
+        chartEditMode
+          ? `<label class="btn chart-toolbar__file">
         Import
         <input id="import-chart" class="sr-only" type="file" accept="application/json,.json" />
-      </label>
+      </label>`
+          : ''
+      }
       <label class="style-picker" for="style-select">
         <span class="style-picker__label">Style</span>
         <select id="style-select" class="style-picker__select" aria-label="Backing style">
@@ -578,7 +603,9 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
           B=${practiceLoop.endBar}
         </button>
       </div>
-      <div class="generate-controls" role="group" aria-label="Generate progression">
+      ${
+        chartEditMode
+          ? `      <div class="generate-controls" role="group" aria-label="Generate progression">
         <label class="style-picker" for="generate-kind">
           <span class="style-picker__label">Generate</span>
           <select id="generate-kind" class="style-picker__select" aria-label="Progression kind">
@@ -684,7 +711,9 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
           title="Flip enharmonic spelling (F♯↔G♭) without changing pitch"
           aria-label="Respell chart enharmonically"
         >♯↔♭</button>
-      </div>
+      </div>`
+          : ''
+      }
       ${
         webMidiAvailable
           ? `<label class="style-picker" for="midi-out-select">
@@ -1199,13 +1228,17 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       const index = Number(el.dataset.index)
       if (el.tagName === 'BUTTON') {
         el.addEventListener('click', () => {
-          if (editor.selectedBarIndex === index && !editor.editing) {
+          if (chartEditMode && editor.selectedBarIndex === index && !editor.editing) {
             setEditor(beginEdit(editor))
           } else {
             setEditor(selectBar(editor, index))
           }
         })
         el.addEventListener('dblclick', () => {
+          if (!chartEditMode) {
+            setEditor(selectBar(editor, index))
+            return
+          }
           setEditor(beginEdit(selectBar(editor, index)))
         })
       }
@@ -1215,7 +1248,63 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       chartMoreOpen = (event.currentTarget as HTMLDetailsElement).open
     })
 
+    /**
+     * Commit title/form/section from live inputs before a stage rebuild.
+     * Returns a validation error to keep Edit mode open, or null on success.
+     */
+    const flushPendingChartFields = (): string | null => {
+      const titleInput = root.querySelector<HTMLInputElement>('#title-input')
+      if (titleInput) editor = setTitle(editor, titleInput.value)
+      const formInput = root.querySelector<HTMLInputElement>('#form-input')
+      if (formInput) {
+        const next = setFormOrder(editor, formInput.value)
+        if (next.error) return next.error
+        editor = next
+      }
+      const sectionLabelInput = root.querySelector<HTMLInputElement>('#section-label-input')
+      if (sectionLabelInput) {
+        const next = renameSelectedSection(editor, sectionLabelInput.value)
+        if (next.error) return next.error
+        editor = next
+      }
+      return null
+    }
+
+    const toggleChartEditMode = (): void => {
+      if (chartEditMode) {
+        // Leaving Edit: keep typed title/form/section; cancel an open chord draft.
+        const flushError = flushPendingChartFields()
+        if (flushError) {
+          setPersistStatus(flushError)
+          root.querySelector<HTMLButtonElement>('#chart-edit-toggle')?.focus()
+          return
+        }
+        chartEditMode = false
+        // setEditor refreshes UI and clamps the practice loop to the new form length.
+        setEditor(editor.editing ? cancelEdit(editor) : editor)
+        setPersistStatus('View mode — turn on Edit mode to change chords.')
+      } else {
+        chartEditMode = true
+        refreshChart()
+        setPersistStatus('Edit mode on.')
+      }
+      // Stage rebuild replaces the toggle; restore focus for keyboard users.
+      root.querySelector<HTMLButtonElement>('#chart-edit-toggle')?.focus()
+    }
+    const editToggle = root.querySelector('#chart-edit-toggle')
+    editToggle?.addEventListener('pointerdown', (event: Event) => {
+      const pointer = event as PointerEvent
+      if (pointer.button !== 0) return
+      pointer.preventDefault()
+      toggleChartEditMode()
+    })
+    editToggle?.addEventListener('click', (event: Event) => {
+      const mouse = event as MouseEvent
+      if (mouse.detail === 0) toggleChartEditMode()
+    })
+
     root.querySelector('#edit-chord')?.addEventListener('click', () => {
+      if (!chartEditMode) return
       setEditor(beginEdit(editor))
     })
     root.querySelector('#add-bar')?.addEventListener('click', () => {
@@ -1699,6 +1788,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
 
     const titleInput = root.querySelector<HTMLInputElement>('#title-input')
     titleInput?.addEventListener('change', () => {
+      if (!chartEditMode) return
       setEditor(setTitle(editor, titleInput.value))
     })
 
@@ -1796,9 +1886,11 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       event.preventDefault()
       setEditor(moveSelection(editor, -1))
     } else if (event.key === 'Enter') {
+      if (!chartEditMode) return
       event.preventDefault()
       setEditor(beginEdit(editor))
     } else if (event.key === 'Backspace' || event.key === 'Delete') {
+      if (!chartEditMode) return
       event.preventDefault()
       setEditor(removeSelectedBar(editor))
     }
