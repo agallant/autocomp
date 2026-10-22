@@ -9,7 +9,7 @@ import {
   createTurnaroundDrillChart,
 } from '../data/practiceCharts'
 import { PRACTICE_PACK_V2 } from '../data/practicePackV2'
-import { STANDARDS_PACK } from '../data/standardsPack'
+import { STANDARDS_PACK, STOCK_DRILL_PACK } from '../data/standardsPack'
 import { generateEngine, generateRandomChart } from '../generate'
 import type { LibraryShelfFilter, TuneEntry, TuneTag } from './types'
 
@@ -173,10 +173,11 @@ const GENERATE_PRESETS: readonly TuneEntry[] = [
   ),
 ]
 
-/** Built-in library (Practice + Standards + Generate). */
+/** Built-in library (Practice + Songs/Standards + Generate). */
 export const TUNE_LIBRARY: readonly TuneEntry[] = [
   ...PRACTICE_CORE,
   ...PRACTICE_PACK_V2,
+  ...STOCK_DRILL_PACK,
   ...STANDARDS_PACK,
   ...GENERATE_PRESETS,
 ]
@@ -185,17 +186,12 @@ export function getTuneById(id: string): TuneEntry | undefined {
   return TUNE_LIBRARY.find((tune) => tune.id === id)
 }
 
-/** Stable tag list for filter UI (catalog order of first appearance). */
+/** Alphabetical tag list for filter UI. */
 export function allLibraryTags(shelf?: LibraryShelfFilter): TuneTag[] {
   const seen = new Set<TuneTag>()
-  const tags: TuneTag[] = []
   for (const tune of TUNE_LIBRARY) {
     if (shelf && shelf !== 'all' && tune.shelf !== shelf) continue
-    for (const tag of tune.tags) {
-      if (seen.has(tag)) continue
-      seen.add(tag)
-      tags.push(tag)
-    }
+    for (const tag of tune.tags) seen.add(tag)
   }
-  return tags
+  return [...seen].sort((a, b) => a.localeCompare(b))
 }

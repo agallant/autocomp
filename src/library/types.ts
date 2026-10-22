@@ -33,11 +33,12 @@ export type LibraryShelfFilter = LibraryShelf | 'all'
 
 export const LIBRARY_SHELVES: ReadonlyArray<{ id: LibraryShelf; label: string }> = [
   { id: 'practice', label: 'Practice' },
-  { id: 'standards', label: 'Standards' },
+  /** Real repertoire (jazz/pop/etc.); id stays `standards` for compatibility. */
+  { id: 'standards', label: 'Songs' },
   { id: 'generate', label: 'Generate' },
 ]
 
-/** Shelf switcher order: Practice first (default), then Standards / Generate / All. */
+/** Shelf switcher order: Practice first (default), then Songs / Generate / All. */
 export const LIBRARY_SHELF_FILTERS: ReadonlyArray<{
   id: LibraryShelfFilter
   label: string

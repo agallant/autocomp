@@ -297,7 +297,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
           <section class="panel" aria-labelledby="library-heading">
             <h2 id="library-heading" class="panel__title">Library</h2>
             <p class="panel__copy">
-              Practice drills by default — Standards holds cleared progressions; Generate has engines and Full Random.
+              Practice drills by default — The Songs shelf is real repertoire; Generate has engines and Full Random.
             </p>
             <div id="library-controls-host">
               ${libraryControlsHtml(library)}
