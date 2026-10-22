@@ -1441,7 +1441,7 @@ const PACK_ENTRIES: readonly TuneEntry[] = [
   entry({
     id: 'std-so-what',
     title: 'So What',
-    blurb: 'Miles D-dorian modal classic; harmony only',
+    blurb: 'Miles Davis’s D Dorian modal classic; harmony only',
     tags: ['standard', 'jazz', 'minor', 'modal', 'aaba', 'long'],
     key: D,
     tempo: 140,
