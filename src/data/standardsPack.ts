@@ -78,6 +78,7 @@ const SONG_META: Readonly<Record<string, Pick<TuneEntry, 'composer' | 'era'>>> =
   'std-autumn-leaves': { composer: 'Joseph Kosma', era: '1940s' },
   'std-all-the-things': { composer: 'Jerome Kern', era: '1930s' },
   'std-blue-bossa': { composer: 'Kenny Dorham', era: '1960s' },
+  'std-satin-doll': { composer: 'Duke Ellington', era: '1950s' },
 }
 
 function entry(spec: Spec): TuneEntry {
@@ -1227,6 +1228,47 @@ const PACK_ENTRIES: readonly TuneEntry[] = [
           ['G7'],
           ['Cm7'],
           ['Dm7b5', 'G7'],
+        ],
+      },
+    ],
+  }),
+  entry({
+    id: 'std-satin-doll',
+    title: 'Satin Doll',
+    blurb: 'Ellington AABA swinger; harmony only',
+    tags: ['standard', 'jazz', 'major', 'aaba', 'ii-v-i'],
+    key: C,
+    tempo: 120,
+    styleId: 'jazz-swing',
+    clearance: 'harmony-only standard',
+    form: ['A', 'A', 'B', 'A'],
+    sectionBars: [
+      {
+        id: 'A',
+        label: 'A',
+        bars: [
+          ['Dm7', 'G7'],
+          ['Dm7', 'G7'],
+          ['Em7', 'A7'],
+          ['Em7', 'A7'],
+          ['Am7', 'D7'],
+          ['Abm7', 'Db7'],
+          ['Cmaj7'],
+          ['A7'],
+        ],
+      },
+      {
+        id: 'B',
+        label: 'B',
+        bars: [
+          ['Gm7'],
+          ['C7'],
+          ['Fmaj7'],
+          ['Fmaj7'],
+          ['Am7'],
+          ['D7'],
+          ['Dm7'],
+          ['G7'],
         ],
       },
     ],

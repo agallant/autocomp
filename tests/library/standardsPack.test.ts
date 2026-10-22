@@ -5,7 +5,7 @@ import { validateChart } from '../../src/music'
 
 describe('standards pack', () => {
   it('ships only Songs-shelf repertoire with clearance notes', () => {
-    expect(STANDARDS_PACK.length).toBeGreaterThanOrEqual(14)
+    expect(STANDARDS_PACK.length).toBeGreaterThanOrEqual(15)
     expect(STANDARDS_PACK.every((t) => t.shelf === 'standards')).toBe(true)
     expect(STANDARDS_PACK.every((t) => t.tags.includes('standard'))).toBe(true)
     for (const tune of STANDARDS_PACK) {
@@ -38,6 +38,13 @@ describe('standards pack', () => {
       query: 'Autumn Leaves',
     })
     expect(autumn.map((t) => t.id)).toEqual(['std-autumn-leaves'])
+
+    const satin = filterTunes(TUNE_LIBRARY, {
+      shelf: 'standards',
+      query: 'Satin Doll',
+    })
+    expect(satin.map((t) => t.id)).toEqual(['std-satin-doll'])
+    expect(satin[0]).toMatchObject({ composer: 'Duke Ellington', era: '1950s' })
 
     const all = filterTunes(TUNE_LIBRARY, { shelf: 'standards' })
     const titles = all.map((t) => t.title)
