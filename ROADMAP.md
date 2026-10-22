@@ -68,6 +68,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M51 | All-shelves search | done | Library All filter searches Practice + Standards + Generate |
 | M52 | Random knobs | done | Full random bar count + chord density controls |
 | M53 | Random mode knobs | done | Full random major/minor bias + ii–V gravity toggles |
+| M54 | Engine length | in progress | Bars control also sizes Generate-shelf harmonic engines |
 
 ## Library & generative depth (product intent)
 
@@ -496,6 +497,12 @@ Default first-run experience stays the **current compact Practice assortment** (
 - [x] Generate toolbar Mode (Major / Mix / Minor) and ii–V (On / Off) knobs for Full random
 - [x] Options flow through `generateProgression` → `generateRandomChart`
 - [x] Unit tests for knobs via generateProgression
+
+## M54 acceptance
+
+- [ ] Bars (8/12/16) sets preferred length for Generate-shelf engines
+- [ ] Library engine presets omit fixed length and use the preference
+- [ ] Unit tests for preferred length + library createChart
 
 ## Process notes
 

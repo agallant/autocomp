@@ -5,6 +5,7 @@ import {
   REHARM_CATALOG,
   generateProgression,
   reharmBar,
+  setPreferredEngineLength,
   styleGenerateHints,
   type ProgressionKind,
   type ReharmMode,
@@ -587,10 +588,10 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
         <label
           class="style-picker"
           for="generate-bars"
-          title="Bar count for Full random (ignored by other generators)"
+          title="Bar count for Full random and Generate-shelf engines"
         >
           <span class="style-picker__label">Bars</span>
-          <select id="generate-bars" class="style-picker__select" aria-label="Random chart bar count">
+          <select id="generate-bars" class="style-picker__select" aria-label="Generate bar count">
             ${([8, 12, 16] as const)
               .map(
                 (n) =>
@@ -1507,7 +1508,10 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
     })
     root.querySelector<HTMLSelectElement>('#generate-bars')?.addEventListener('change', (event) => {
       const n = Number((event.target as HTMLSelectElement).value)
-      if (n === 8 || n === 12 || n === 16) generateBarCount = n
+      if (n === 8 || n === 12 || n === 16) {
+        generateBarCount = n
+        setPreferredEngineLength(n)
+      }
     })
     root.querySelector<HTMLSelectElement>('#generate-density')?.addEventListener('change', (event) => {
       const n = Number((event.target as HTMLSelectElement).value)

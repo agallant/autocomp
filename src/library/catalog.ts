@@ -98,7 +98,6 @@ function engineEntry(
   blurb: string,
   kind: 'ii-v-chain' | 'ii-v-chain-minor' | 'rhythm-a' | 'coltrane',
   key: { letter: 'C' | 'B'; accidental: 0 | -1 },
-  length: number,
   tags: TuneEntry['tags'],
 ): TuneEntry {
   return {
@@ -109,11 +108,11 @@ function engineEntry(
     shelf: 'generate',
     styleId: 'jazz-swing',
     createChart: () => {
+      // Length comes from setPreferredEngineLength (Bars control in the UI).
       const chart = generateEngine({
         kind,
         key,
         styleId: 'jazz-swing',
-        length,
       })
       return { ...chart, id, title }
     },
@@ -146,7 +145,6 @@ const GENERATE_PRESETS: readonly TuneEntry[] = [
     'Extended cadences around the circle',
     'ii-v-chain',
     C,
-    12,
     ['jazz', 'ii-v-i', 'cycle', 'intermediate'],
   ),
   engineEntry(
@@ -155,7 +153,6 @@ const GENERATE_PRESETS: readonly TuneEntry[] = [
     'Minor cadences around the circle',
     'ii-v-chain-minor',
     C,
-    12,
     ['jazz', 'ii-v-i', 'minor', 'cycle', 'intermediate'],
   ),
   engineEntry(
@@ -164,7 +161,6 @@ const GENERATE_PRESETS: readonly TuneEntry[] = [
     'Rhythm-changes A-section lab',
     'rhythm-a',
     BB,
-    8,
     ['jazz', 'rhythm', 'turnaround', 'intermediate'],
   ),
   engineEntry(
@@ -173,7 +169,6 @@ const GENERATE_PRESETS: readonly TuneEntry[] = [
     'Major-thirds tonic cycle (Giant Steps lab)',
     'coltrane',
     C,
-    8,
     ['jazz', 'cycle', 'major', 'intermediate'],
   ),
 ]

@@ -20,8 +20,10 @@ export {
   ENGINE_CATALOG,
   coltraneBars,
   generateEngine,
+  getPreferredEngineLength,
   iiVChainBars,
   rhythmABars,
+  setPreferredEngineLength,
   type EngineKind,
   type EngineOptions,
 } from './engines'

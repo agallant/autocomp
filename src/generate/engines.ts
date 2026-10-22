@@ -21,6 +21,17 @@ export type EngineOptions = {
   preferSharps?: boolean
 }
 
+/** Shared UI preference for Generate-shelf engines (8 / 12 / 16). */
+let preferredEngineLength: 8 | 12 | 16 = 12
+
+export function setPreferredEngineLength(n: 8 | 12 | 16): void {
+  preferredEngineLength = n
+}
+
+export function getPreferredEngineLength(): 8 | 12 | 16 {
+  return preferredEngineLength
+}
+
 export const ENGINE_CATALOG: ReadonlyArray<{
   id: EngineKind
   label: string
@@ -153,7 +164,7 @@ export function coltraneBars(key: Root, length: number, preferSharps: boolean): 
 export function generateEngine(options: EngineOptions): Chart {
   const hints = styleGenerateHints(options.styleId)
   const preferSharps = options.preferSharps ?? hints.preferSharps
-  const length = clampLength(options.kind, options.length)
+  const length = clampLength(options.kind, options.length ?? preferredEngineLength)
   const label = ENGINE_CATALOG.find((e) => e.id === options.kind)?.label ?? options.kind
   let bars: string[][]
   switch (options.kind) {
