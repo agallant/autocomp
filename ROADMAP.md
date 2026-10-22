@@ -91,6 +91,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M74 | View / Edit mode | done | Default view mode; Edit unlocks chord and form changes |
 | M75 | Standards +1 | done | Add Satin Doll (harmony only) |
 | M76 | Standards +1 | done | Add Take the A Train (harmony only) |
+| M77 | Standards +1 | done | Add Solar (harmony only) |
 
 ## Library & generative depth (product intent)
 
@@ -653,6 +654,12 @@ Default first-run experience stays the **current compact Practice assortment** (
 ## M76 acceptance
 
 - [x] Standards pack gains Take the A Train (harmony-only standard; real title)
+- [x] Searchable on Songs shelf; composer/era meta present
+- [x] Unit tests for pack size + title search
+
+## M77 acceptance
+
+- [x] Standards pack gains Solar (harmony-only standard; real title)
 - [x] Searchable on Songs shelf; composer/era meta present
 - [x] Unit tests for pack size + title search
 

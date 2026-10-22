@@ -80,6 +80,7 @@ const SONG_META: Readonly<Record<string, Pick<TuneEntry, 'composer' | 'era'>>> =
   'std-blue-bossa': { composer: 'Kenny Dorham', era: '1960s' },
   'std-satin-doll': { composer: 'Duke Ellington', era: '1950s' },
   'std-a-train': { composer: 'Billy Strayhorn', era: '1940s' },
+  'std-solar': { composer: 'Miles Davis', era: '1960s' },
 }
 
 function entry(spec: Spec): TuneEntry {
@@ -1367,6 +1368,36 @@ const PACK_ENTRIES: readonly TuneEntry[] = [
           ['G7'],
           ['G7'],
           ['Cmaj7'],
+        ],
+      },
+    ],
+  }),
+  entry({
+    id: 'std-solar',
+    title: 'Solar',
+    blurb: 'Miles minor cycle classic; harmony only',
+    tags: ['standard', 'jazz', 'minor', 'short', 'ii-v-i'],
+    key: C,
+    tempo: 160,
+    styleId: 'jazz-swing',
+    clearance: 'harmony-only standard',
+    sectionBars: [
+      {
+        id: 'A',
+        label: 'A',
+        bars: [
+          ['CmMaj7'],
+          ['CmMaj7'],
+          ['GmMaj7'],
+          ['GmMaj7'],
+          ['A7'],
+          ['A7'],
+          ['Dmaj7'],
+          ['Dmaj7'],
+          ['G7'],
+          ['G7'],
+          ['CmMaj7'],
+          ['CmMaj7'],
         ],
       },
     ],
