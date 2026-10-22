@@ -75,6 +75,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M58 | Standards +1 | done | Add hip stock: Modal Pedal Form (practice label) |
 | M59 | Standards +1 | done | Add hip stock: Bebop Blues Stock (practice label) |
 | M60 | Standards +1 | done | Add hip stock: Minor Flat-Six Form (practice label) |
+| M61 | Standards +1 | done | Add hip stock: Tritone Sub Lab (practice label) |
 
 ## Library & generative depth (product intent)
 
@@ -545,6 +546,12 @@ Default first-run experience stays the **current compact Practice assortment** (
 ## M60 acceptance
 
 - [x] Standards pack gains Minor Flat-Six Form (stock educational; practice label; no melody/lyrics)
+- [x] Searchable on Standards shelf; clearance note present
+- [x] Unit tests for pack size + title search
+
+## M61 acceptance
+
+- [x] Standards pack gains Tritone Sub Lab (stock educational; practice label; no melody/lyrics)
 - [x] Searchable on Standards shelf; clearance note present
 - [x] Unit tests for pack size + title search
 
