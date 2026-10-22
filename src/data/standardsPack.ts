@@ -703,7 +703,7 @@ export const STANDARDS_PACK: readonly TuneEntry[] = [
     id: 'std-modal-pedal',
     title: 'Modal Pedal Form',
     blurb: 'Dorian pedal AABA workshop skeleton (practice label)',
-    tags: ['standard', 'jazz', 'modal', 'aaba', 'intermediate'],
+    tags: ['standard', 'jazz', 'modal', 'minor', 'aaba', 'intermediate'],
     key: D,
     tempo: 132,
     styleId: 'jazz-swing',
