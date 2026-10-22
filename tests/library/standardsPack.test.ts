@@ -5,7 +5,7 @@ import { validateChart } from '../../src/music'
 
 describe('standards pack', () => {
   it('ships only Songs-shelf repertoire with clearance notes', () => {
-    expect(STANDARDS_PACK.length).toBeGreaterThanOrEqual(17)
+    expect(STANDARDS_PACK.length).toBeGreaterThanOrEqual(18)
     expect(STANDARDS_PACK.every((t) => t.shelf === 'standards')).toBe(true)
     expect(STANDARDS_PACK.every((t) => t.tags.includes('standard'))).toBe(true)
     for (const tune of STANDARDS_PACK) {
@@ -87,6 +87,31 @@ describe('standards pack', () => {
       'Dbmaj7',
       'Dm7b5',
       'G7',
+    ])
+
+    const tuneUp = filterTunes(TUNE_LIBRARY, {
+      shelf: 'standards',
+      query: 'Tune Up',
+    })
+    expect(tuneUp.map((t) => t.id)).toEqual(['std-tune-up'])
+    expect(tuneUp[0]).toMatchObject({ composer: 'Miles Davis', era: '1950s' })
+    expect(tuneUp[0]!.createChart().sections[0]!.bars.map((b) => b.slots[0]?.chord?.symbol)).toEqual([
+      'Em7',
+      'A7',
+      'Dmaj7',
+      'Dmaj7',
+      'Dm7',
+      'G7',
+      'Cmaj7',
+      'Cmaj7',
+      'Cm7',
+      'F7',
+      'Bbmaj7',
+      'Bbmaj7',
+      'Em7',
+      'A7',
+      'Dmaj7',
+      'Dmaj7',
     ])
 
     const all = filterTunes(TUNE_LIBRARY, { shelf: 'standards' })
