@@ -93,6 +93,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M76 | Standards +1 | done | Add Take the A Train (harmony only) |
 | M77 | Standards +1 | done | Add Solar (harmony only) |
 | M78 | Standards +1 | done | Add Tune Up (harmony only) |
+| M79 | Standards +1 | done | Add So What (harmony only) |
 
 ## Library & generative depth (product intent)
 
@@ -667,6 +668,12 @@ Default first-run experience stays the **current compact Practice assortment** (
 ## M78 acceptance
 
 - [x] Standards pack gains Tune Up (harmony-only standard; real title)
+- [x] Searchable on Songs shelf; composer/era meta present
+- [x] Unit tests for pack size + title search
+
+## M79 acceptance
+
+- [x] Standards pack gains So What (harmony-only standard; real title)
 - [x] Searchable on Songs shelf; composer/era meta present
 - [x] Unit tests for pack size + title search
 

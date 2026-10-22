@@ -82,6 +82,7 @@ const SONG_META: Readonly<Record<string, Pick<TuneEntry, 'composer' | 'era'>>> =
   'std-a-train': { composer: 'Billy Strayhorn', era: '1940s' },
   'std-solar': { composer: 'Miles Davis', era: '1960s' },
   'std-tune-up': { composer: 'Miles Davis', era: '1950s' },
+  'std-so-what': { composer: 'Miles Davis', era: '1950s' },
 }
 
 function entry(spec: Spec): TuneEntry {
@@ -1433,6 +1434,47 @@ const PACK_ENTRIES: readonly TuneEntry[] = [
           ['A7'],
           ['Dmaj7'],
           ['Dmaj7'],
+        ],
+      },
+    ],
+  }),
+  entry({
+    id: 'std-so-what',
+    title: 'So What',
+    blurb: 'Miles Davis’s D Dorian modal classic; harmony only',
+    tags: ['standard', 'jazz', 'minor', 'modal', 'aaba', 'long'],
+    key: D,
+    tempo: 140,
+    styleId: 'jazz-swing',
+    clearance: 'harmony-only standard',
+    form: ['A', 'A', 'B', 'A'],
+    sectionBars: [
+      {
+        id: 'A',
+        label: 'A',
+        bars: [
+          ['Dm7'],
+          ['Dm7'],
+          ['Dm7'],
+          ['Dm7'],
+          ['Dm7'],
+          ['Dm7'],
+          ['Dm7'],
+          ['Dm7'],
+        ],
+      },
+      {
+        id: 'B',
+        label: 'B',
+        bars: [
+          ['Ebm7'],
+          ['Ebm7'],
+          ['Ebm7'],
+          ['Ebm7'],
+          ['Ebm7'],
+          ['Ebm7'],
+          ['Ebm7'],
+          ['Ebm7'],
         ],
       },
     ],

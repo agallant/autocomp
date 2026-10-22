@@ -5,7 +5,7 @@ import { validateChart } from '../../src/music'
 
 describe('standards pack', () => {
   it('ships only Songs-shelf repertoire with clearance notes', () => {
-    expect(STANDARDS_PACK.length).toBeGreaterThanOrEqual(18)
+    expect(STANDARDS_PACK.length).toBeGreaterThanOrEqual(19)
     expect(STANDARDS_PACK.every((t) => t.shelf === 'standards')).toBe(true)
     expect(STANDARDS_PACK.every((t) => t.tags.includes('standard'))).toBe(true)
     for (const tune of STANDARDS_PACK) {
@@ -113,6 +113,21 @@ describe('standards pack', () => {
       'Dmaj7',
       'Dmaj7',
     ])
+
+    const soWhat = filterTunes(TUNE_LIBRARY, {
+      shelf: 'standards',
+      query: 'So What',
+    })
+    expect(soWhat.map((t) => t.id)).toEqual(['std-so-what'])
+    expect(soWhat[0]).toMatchObject({ composer: 'Miles Davis', era: '1950s' })
+    const soWhatChart = soWhat[0]!.createChart()
+    expect(soWhatChart.form).toEqual(['A', 'A', 'B', 'A'])
+    expect(soWhatChart.sections.find((s) => s.id === 'A')!.bars.every((b) => b.slots[0]?.chord?.symbol === 'Dm7')).toBe(
+      true,
+    )
+    expect(soWhatChart.sections.find((s) => s.id === 'B')!.bars.every((b) => b.slots[0]?.chord?.symbol === 'Ebm7')).toBe(
+      true,
+    )
 
     const all = filterTunes(TUNE_LIBRARY, { shelf: 'standards' })
     const titles = all.map((t) => t.title)
