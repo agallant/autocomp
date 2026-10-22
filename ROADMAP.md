@@ -68,7 +68,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M51 | All-shelves search | done | Library All filter searches Practice + Standards + Generate |
 | M52 | Random knobs | done | Full random bar count + chord density controls |
 | M53 | Random mode knobs | done | Full random major/minor bias + ii–V gravity toggles |
-| M54 | Engine length | in progress | Bars control also sizes Generate-shelf harmonic engines |
+| M54 | Engine length | done | Bars control also sizes Generate-shelf harmonic engines |
 
 ## Library & generative depth (product intent)
 
@@ -500,9 +500,10 @@ Default first-run experience stays the **current compact Practice assortment** (
 
 ## M54 acceptance
 
-- [ ] Bars (8/12/16) sets preferred length for Generate-shelf engines
-- [ ] Library engine presets omit fixed length and use the preference
-- [ ] Unit tests for preferred length + library createChart
+- [x] Bars (8/12/16) sets preferred length for Generate-shelf engines
+- [x] Library engine presets omit fixed length and use the preference
+- [x] Unit tests for preferred length + library createChart
+- [x] Rhythm A / Coltrane keep 8 bars at default Bars=12; Bars=16 selects the long form
 
 ## Process notes
 
