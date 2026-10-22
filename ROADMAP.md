@@ -73,6 +73,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M56 | Standards +1 | done | Add cleared traditional: Auld Lang Syne |
 | M57 | Standards +1 | done | Add cleared traditional: Oh! Susanna |
 | M58 | Standards +1 | done | Add hip stock: Modal Pedal Form (practice label) |
+| M59 | Standards +1 | done | Add hip stock: Bebop Blues Stock (practice label) |
 
 ## Library & generative depth (product intent)
 
@@ -532,6 +533,12 @@ Default first-run experience stays the **current compact Practice assortment** (
 - [x] Standards pack gains Modal Pedal Form (stock educational; practice label; no melody/lyrics)
 - [x] Searchable on Standards shelf; clearance note present
 - [x] Clearance docs prefer hip stock skeletons over copyrighted Real Book titles
+- [x] Unit tests for pack size + title search
+
+## M59 acceptance
+
+- [x] Standards pack gains Bebop Blues Stock (stock educational; practice label; no melody/lyrics)
+- [x] Searchable on Standards shelf; clearance note present
 - [x] Unit tests for pack size + title search
 
 ## Process notes
