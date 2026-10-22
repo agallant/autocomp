@@ -1271,8 +1271,8 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
         // Leaving Edit: keep typed title/form/section; cancel an open chord draft.
         flushPendingChartFields()
         chartEditMode = false
-        if (editor.editing) setEditor(cancelEdit(editor))
-        else refreshChart()
+        // setEditor refreshes UI and clamps the practice loop to the new form length.
+        setEditor(editor.editing ? cancelEdit(editor) : editor)
         setPersistStatus('View mode — turn on Edit mode to change chords.')
         return
       }
