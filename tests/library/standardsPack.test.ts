@@ -34,6 +34,12 @@ describe('standards pack', () => {
     })
     expect(auld.map((t) => t.id)).toContain('std-auld-lang-syne')
 
+    const susanna = filterTunes(TUNE_LIBRARY, {
+      shelf: 'standards',
+      query: 'Susanna',
+    })
+    expect(susanna.map((t) => t.id)).toContain('std-oh-susanna')
+
     const traditional = filterTunes(TUNE_LIBRARY, {
       shelf: 'standards',
       tags: ['traditional'],
