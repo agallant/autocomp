@@ -156,7 +156,9 @@ describe('standards pack', () => {
     })
     expect(footprints.map((t) => t.id)).toEqual(['std-footprints'])
     expect(footprints[0]).toMatchObject({ composer: 'Wayne Shorter', era: '1960s' })
-    expect(footprints[0]!.createChart().sections[0]!.bars.map((b) =>
+    const footprintsChart = footprints[0]!.createChart()
+    expect(footprintsChart.timeSignature).toEqual({ numerator: 6, denominator: 4 })
+    expect(footprintsChart.sections[0]!.bars.map((b) =>
       b.slots.map((s) => s.chord?.symbol ?? '').filter(Boolean).join(' '),
     )).toEqual([
       'Cm7',
