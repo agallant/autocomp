@@ -46,6 +46,12 @@ describe('standards pack', () => {
     })
     expect(modal.map((t) => t.id)).toContain('std-modal-pedal')
 
+    const bebop = filterTunes(TUNE_LIBRARY, {
+      shelf: 'standards',
+      query: 'Bebop Blues',
+    })
+    expect(bebop.map((t) => t.id)).toContain('std-bebop-blues')
+
     const traditional = filterTunes(TUNE_LIBRARY, {
       shelf: 'standards',
       tags: ['traditional'],
