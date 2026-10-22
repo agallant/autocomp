@@ -5,7 +5,8 @@ Autocomp’s **Standards** shelf is a practice catalogue of **real song titles w
 ## Legal framing (product policy)
 
 - **Chord progressions are not copyrightable** under US law. That is the basis for this shelf.
-- **Non-PD standards are in scope.** If a tune is still under copyright, we **still add the real title and the chords**. That is required for the product to work as a standards practice tool.
+- **Non-PD standards are in scope.** If a tune is still under copyright, we **still add the real title and the chords**. That is required for the product to work as a standards practice tool. Do **not** treat PD status as a gate for harmony charts.
+- Charts use **conventional common-practice session changes** (the shared vocabulary players call at sessions), not a copy of a particular publisher’s engraved arrangement or proprietary lead-sheet layout.
 - What we **omit by default** is the copyrightable **head** (melody) and lyrics—not the harmony, and not the title.
 - **Public-domain works** may *additionally* get optional **notation / melody** later. PD status unlocks heads; it is **not** a gate for adding chords.
 

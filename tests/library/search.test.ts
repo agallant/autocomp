@@ -58,7 +58,7 @@ describe('tune library', () => {
     )
     expect(
       filterTunes(TUNE_LIBRARY, { shelf: 'standards', query: 'Autumn' }).map((t) => t.id),
-    ).toContain('std-autumn-leaves')
+    ).toEqual(['std-autumn-leaves'])
     expect(
       filterTunes(TUNE_LIBRARY, { shelf: 'standards', query: 'Greensleeves' }).map((t) => t.id),
     ).toContain('std-greensleeves')
