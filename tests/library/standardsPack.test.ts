@@ -64,6 +64,12 @@ describe('standards pack', () => {
     })
     expect(tritone.map((t) => t.id)).toContain('std-tritone-sub')
 
+    const cycle = filterTunes(TUNE_LIBRARY, {
+      shelf: 'standards',
+      query: 'Cycle Cadence',
+    })
+    expect(cycle.map((t) => t.id)).toContain('std-cycle-cadence')
+
     const traditional = filterTunes(TUNE_LIBRARY, {
       shelf: 'standards',
       tags: ['traditional'],
