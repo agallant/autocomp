@@ -1248,28 +1248,37 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       chartMoreOpen = (event.currentTarget as HTMLDetailsElement).open
     })
 
-    /** Commit title/form/section from live inputs before a stage rebuild. */
-    const flushPendingChartFields = (): void => {
+    /**
+     * Commit title/form/section from live inputs before a stage rebuild.
+     * Returns a validation error to keep Edit mode open, or null on success.
+     */
+    const flushPendingChartFields = (): string | null => {
       const titleInput = root.querySelector<HTMLInputElement>('#title-input')
       if (titleInput) editor = setTitle(editor, titleInput.value)
       const formInput = root.querySelector<HTMLInputElement>('#form-input')
       if (formInput) {
         const next = setFormOrder(editor, formInput.value)
-        if (!next.error) editor = next
-        else setPersistStatus(next.error)
+        if (next.error) return next.error
+        editor = next
       }
       const sectionLabelInput = root.querySelector<HTMLInputElement>('#section-label-input')
       if (sectionLabelInput) {
         const next = renameSelectedSection(editor, sectionLabelInput.value)
-        if (!next.error) editor = next
-        else setPersistStatus(next.error)
+        if (next.error) return next.error
+        editor = next
       }
+      return null
     }
 
     const toggleChartEditMode = (): void => {
       if (chartEditMode) {
         // Leaving Edit: keep typed title/form/section; cancel an open chord draft.
-        flushPendingChartFields()
+        const flushError = flushPendingChartFields()
+        if (flushError) {
+          setPersistStatus(flushError)
+          root.querySelector<HTMLButtonElement>('#chart-edit-toggle')?.focus()
+          return
+        }
         chartEditMode = false
         // setEditor refreshes UI and clamps the practice loop to the new form length.
         setEditor(editor.editing ? cancelEdit(editor) : editor)
