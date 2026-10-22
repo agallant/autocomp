@@ -67,7 +67,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M50 | Style swing defaults | done | Per-style default swing feel on style picker change |
 | M51 | All-shelves search | done | Library All filter searches Practice + Standards + Generate |
 | M52 | Random knobs | done | Full random bar count + chord density controls |
-| M53 | Random mode knobs | in progress | Full random major/minor bias + ii–V gravity toggles |
+| M53 | Random mode knobs | done | Full random major/minor bias + ii–V gravity toggles |
 
 ## Library & generative depth (product intent)
 
@@ -493,9 +493,9 @@ Default first-run experience stays the **current compact Practice assortment** (
 
 ## M53 acceptance
 
-- [ ] Generate toolbar Mode (Major / Mix / Minor) and ii–V (On / Off) knobs for Full random
-- [ ] Options flow through `generateProgression` → `generateRandomChart`
-- [ ] Unit tests for knobs via generateProgression
+- [x] Generate toolbar Mode (Major / Mix / Minor) and ii–V (On / Off) knobs for Full random
+- [x] Options flow through `generateProgression` → `generateRandomChart`
+- [x] Unit tests for knobs via generateProgression
 
 ## Process notes
 
