@@ -5,7 +5,7 @@ import { validateChart } from '../../src/music'
 
 describe('standards pack', () => {
   it('ships only Standards-shelf entries with clearance notes', () => {
-    expect(STANDARDS_PACK.length).toBeGreaterThanOrEqual(15)
+    expect(STANDARDS_PACK.length).toBeGreaterThanOrEqual(16)
     expect(STANDARDS_PACK.every((t) => t.shelf === 'standards')).toBe(true)
     for (const tune of STANDARDS_PACK) {
       const chart = tune.createChart()
@@ -27,6 +27,12 @@ describe('standards pack', () => {
       query: 'Swing Low',
     })
     expect(swingLow.map((t) => t.id)).toContain('std-swing-low')
+
+    const auld = filterTunes(TUNE_LIBRARY, {
+      shelf: 'standards',
+      query: 'Auld Lang',
+    })
+    expect(auld.map((t) => t.id)).toContain('std-auld-lang-syne')
 
     const traditional = filterTunes(TUNE_LIBRARY, {
       shelf: 'standards',
