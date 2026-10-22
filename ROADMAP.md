@@ -69,7 +69,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M52 | Random knobs | done | Full random bar count + chord density controls |
 | M53 | Random mode knobs | done | Full random major/minor bias + ii–V gravity toggles |
 | M54 | Engine length | done | Bars control also sizes Generate-shelf harmonic engines |
-| M55 | Standards +1 | in progress | Add cleared traditional: Swing Low, Sweet Chariot |
+| M55 | Standards +1 | done | Add cleared traditional: Swing Low, Sweet Chariot |
 
 ## Library & generative depth (product intent)
 
@@ -508,9 +508,9 @@ Default first-run experience stays the **current compact Practice assortment** (
 
 ## M55 acceptance
 
-- [ ] Standards pack gains Swing Low, Sweet Chariot (public-domain traditional; no melody/lyrics)
-- [ ] Searchable on Standards shelf; clearance note present
-- [ ] Unit tests for pack size + title search
+- [x] Standards pack gains Swing Low, Sweet Chariot (public-domain traditional; no melody/lyrics)
+- [x] Searchable on Standards shelf; clearance note present
+- [x] Unit tests for pack size + title search
 
 ## Process notes
 
