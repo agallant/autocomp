@@ -186,6 +186,8 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
   let generateKind: ProgressionKind = styleGenerateHints(styleId).defaultKind
   let generateKey: Root = { letter: 'C', accidental: 0 }
   let generateBarCount: 8 | 12 | 16 = 12
+  // Keep module preference in sync with this mount (avoids leak across remounts).
+  setPreferredEngineLength(generateBarCount)
   let generateChordDensity: 1 | 2 = 1
   let generateMajorBias: 0.85 | 0.5 | 0.15 = 0.85
   let generatePreferIiV = true

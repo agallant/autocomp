@@ -44,9 +44,10 @@ export const ENGINE_CATALOG: ReadonlyArray<{
 ]
 
 function clampLength(kind: EngineKind, n: number | undefined): number {
-  const raw = n ?? (kind === 'rhythm-a' ? 8 : 12)
-  if (kind === 'rhythm-a') return raw <= 8 ? 8 : 16
-  if (kind === 'coltrane') return raw <= 8 ? 8 : 16
+  const raw = n ?? (kind === 'rhythm-a' || kind === 'coltrane' ? 8 : 12)
+  // Rhythm A / Coltrane are 8- or 16-bar forms; Bars=12 maps to the short form
+  // so default UI Bars=12 keeps the historical 8-bar presets.
+  if (kind === 'rhythm-a' || kind === 'coltrane') return raw >= 16 ? 16 : 8
   // ii–V chains: even bar counts 8–16
   if (raw <= 8) return 8
   if (raw <= 12) return 12

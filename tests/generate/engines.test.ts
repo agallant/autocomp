@@ -84,23 +84,35 @@ describe('harmonic engines', () => {
   })
 
   it('honors preferred engine length for Generate-shelf presets', () => {
+    setPreferredEngineLength(12)
+    expect(getPreferredEngineLength()).toBe(12)
+    // Default Bars=12 → ii–V stays 12; rhythm/coltrane stay short (8).
+    expect(
+      getTuneById('engine-ii-v-chain')!.createChart().sections[0]!.bars,
+    ).toHaveLength(12)
+    expect(
+      getTuneById('engine-rhythm-a')!.createChart().sections[0]!.bars,
+    ).toHaveLength(8)
+    expect(
+      getTuneById('engine-coltrane')!.createChart().sections[0]!.bars,
+    ).toHaveLength(8)
+
     setPreferredEngineLength(16)
-    expect(getPreferredEngineLength()).toBe(16)
-    const chart = generateEngine({
-      kind: 'ii-v-chain',
+    expect(
+      getTuneById('engine-ii-v-chain')!.createChart().sections[0]!.bars,
+    ).toHaveLength(16)
+    expect(
+      getTuneById('engine-rhythm-a')!.createChart().sections[0]!.bars,
+    ).toHaveLength(16)
+    expect(
+      getTuneById('engine-coltrane')!.createChart().sections[0]!.bars,
+    ).toHaveLength(16)
+    const direct = generateEngine({
+      kind: 'coltrane',
       key: C,
       styleId: 'jazz-swing',
     })
-    expect(chart.sections[0]!.bars).toHaveLength(16)
-    const fromLibrary = getTuneById('engine-ii-v-chain')!.createChart()
-    expect(fromLibrary.sections[0]!.bars).toHaveLength(16)
-    // rhythm-a / coltrane clamp 16 → 16
-    const rhythm = generateEngine({
-      kind: 'rhythm-a',
-      key: BB,
-      styleId: 'jazz-swing',
-    })
-    expect(rhythm.sections[0]!.bars).toHaveLength(16)
+    expect(direct.sections[0]!.bars).toHaveLength(16)
     setPreferredEngineLength(12)
   })
 })
