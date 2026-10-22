@@ -86,6 +86,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M69 | Songs shelf cleanup | done | Stock drills → Practice; Songs = repertoire; alpha sort |
 | M70 | Song metadata filters | planned | Composer/era/genre tags + clearer filter UI; scale toward hundreds |
 | M71 | PD notation mode | planned | Optional melody/notation for public-domain jazz standards |
+| M72 | Playback focus | done | Chords-first chart; settings after bars; collapsible library |
 
 ## Library & generative depth (product intent)
 
@@ -614,6 +615,12 @@ Default first-run experience stays the **current compact Practice assortment** (
 - [x] Songs shelf lists only real-title repertoire; UI label “Songs”
 - [x] Library results default to alphabetical by title
 - [x] Unit tests for shelf split + alpha sort
+
+## M72 acceptance
+
+- [x] Chord bars render above chart settings (progressive disclosure)
+- [x] Settings wrapped in a collapsible details block (open by default; state survives re-renders)
+- [x] Library panel collapsible so the song list can be tucked away
 
 ## Process notes
 
