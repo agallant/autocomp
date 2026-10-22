@@ -211,7 +211,7 @@ export function syncBarPlayhead(
 export function chartMetaLine(chart: Chart): string {
   const style = chart.styleHint ? ` · ${capitalize(chart.styleHint)}` : ''
   const form = chart.form.length ? ` · Form ${escapeHtml(chart.form.join(''))}` : ''
-  return `Edit · ${formatRoot(chart.key)} · ${chart.timeSignature.numerator}/${chart.timeSignature.denominator}${style}${form}`
+  return `${formatRoot(chart.key)} · ${chart.timeSignature.numerator}/${chart.timeSignature.denominator}${style}${form}`
 }
 
 function capitalize(value: string): string {
