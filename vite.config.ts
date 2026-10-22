@@ -1,3 +1,5 @@
+import { execSync } from 'node:child_process'
+import { readFileSync } from 'node:fs'
 import { loadEnv } from 'vite'
 import { defineConfig } from 'vitest/config'
 import { VitePWA } from 'vite-plugin-pwa'
@@ -8,8 +10,27 @@ function resolveBase(mode: string): string {
   return env.VITE_BASE || '/autocomp/'
 }
 
+function gitShortSha(): string {
+  try {
+    return execSync('git rev-parse --short HEAD', { encoding: 'utf8' }).trim()
+  } catch {
+    return 'unknown'
+  }
+}
+
+const pkgVersion = (
+  JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8')) as {
+    version: string
+  }
+).version
+
 export default defineConfig(({ mode }) => ({
   base: resolveBase(mode),
+  define: {
+    __APP_PKG_VERSION__: JSON.stringify(pkgVersion),
+    __APP_GIT_SHA__: JSON.stringify(gitShortSha()),
+    __APP_BUILD_TIME__: JSON.stringify(new Date().toISOString()),
+  },
   plugins: [
     VitePWA({
       registerType: 'autoUpdate',
