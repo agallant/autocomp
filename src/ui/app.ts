@@ -375,8 +375,9 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
         class="btn chart-mode__toggle"
         id="chart-edit-toggle"
         aria-pressed="${chartEditMode}"
-        title="${chartEditMode ? 'Finish editing' : 'Edit chords and form'}"
-      >${chartEditMode ? 'Done' : 'Edit'}</button>
+        aria-label="Edit mode"
+        title="${chartEditMode ? 'Turn off edit mode' : 'Turn on edit mode'}"
+      >Edit mode</button>
     </div>
     <div class="bars" id="bars">
       ${renderEditableBars(state)}
@@ -453,10 +454,14 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       <button type="button" class="btn" id="export-chart">Export JSON</button>
       <button type="button" class="btn" id="export-midi">Export MIDI</button>
       <button type="button" class="btn" id="export-wav"${wavExporting ? ' disabled' : ''}>Export WAV</button>
-      <label class="btn chart-toolbar__file">
+      ${
+        chartEditMode
+          ? `<label class="btn chart-toolbar__file">
         Import
         <input id="import-chart" class="sr-only" type="file" accept="application/json,.json" />
-      </label>
+      </label>`
+          : ''
+      }
       <label class="style-picker" for="style-select">
         <span class="style-picker__label">Style</span>
         <select id="style-select" class="style-picker__select" aria-label="Backing style">
@@ -598,7 +603,9 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
           B=${practiceLoop.endBar}
         </button>
       </div>
-      <div class="generate-controls" role="group" aria-label="Generate progression">
+      ${
+        chartEditMode
+          ? `      <div class="generate-controls" role="group" aria-label="Generate progression">
         <label class="style-picker" for="generate-kind">
           <span class="style-picker__label">Generate</span>
           <select id="generate-kind" class="style-picker__select" aria-label="Progression kind">
@@ -704,7 +711,9 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
           title="Flip enharmonic spelling (F♯↔G♭) without changing pitch"
           aria-label="Respell chart enharmonically"
         >♯↔♭</button>
-      </div>
+      </div>`
+          : ''
+      }
       ${
         webMidiAvailable
           ? `<label class="style-picker" for="midi-out-select">
@@ -1239,11 +1248,23 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       chartMoreOpen = (event.currentTarget as HTMLDetailsElement).open
     })
 
-    root.querySelector('#chart-edit-toggle')?.addEventListener('click', () => {
-      chartEditMode = !chartEditMode
-      if (!chartEditMode && editor.editing) setEditor(cancelEdit(editor))
+    const toggleChartEditMode = (): void => {
+      const next = !chartEditMode
+      chartEditMode = next
+      if (!next && editor.editing) setEditor(cancelEdit(editor))
       else refreshChart()
-      setPersistStatus(chartEditMode ? 'Edit mode on.' : 'View mode — tap Edit to change chords.')
+      setPersistStatus(next ? 'Edit mode on.' : 'View mode — turn on Edit mode to change chords.')
+    }
+    const editToggle = root.querySelector('#chart-edit-toggle')
+    editToggle?.addEventListener('pointerdown', (event: Event) => {
+      const pointer = event as PointerEvent
+      if (pointer.button !== 0) return
+      pointer.preventDefault()
+      toggleChartEditMode()
+    })
+    editToggle?.addEventListener('click', (event: Event) => {
+      const mouse = event as MouseEvent
+      if (mouse.detail === 0) toggleChartEditMode()
     })
 
     root.querySelector('#edit-chord')?.addEventListener('click', () => {
