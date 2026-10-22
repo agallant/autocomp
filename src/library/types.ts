@@ -38,7 +38,7 @@ export const LIBRARY_SHELVES: ReadonlyArray<{ id: LibraryShelf; label: string }>
   { id: 'generate', label: 'Generate' },
 ]
 
-/** Shelf switcher order: Practice first (default), then Standards / Generate / All. */
+/** Shelf switcher order: Practice first (default), then Songs / Generate / All. */
 export const LIBRARY_SHELF_FILTERS: ReadonlyArray<{
   id: LibraryShelfFilter
   label: string

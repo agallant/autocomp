@@ -95,7 +95,7 @@ Default first-run experience stays the **current compact Practice assortment** (
 2. **Variation / randomization** — shuffle and seedable variants of existing drills (M43).
 3. **Full random + generative** — fully randomized, constraint-bounded charts (M44) plus harmony-rule engines (M45: ii–V–I chains, blues, rhythm changes, Coltrane/Giant Steps matrices, etc.). Build on M11’s factories.
 4. **Songs library** — **real song titles with chord charts** (M46+), jazz through pop/rock/R&B/funk, **whether or not PD**. Stock drills stay on Practice. Progressions are practice material; omit copyrighted melodies/lyrics by default. PD unlocks optional heads/notation (M71). Scale toward hundreds of gig-ready tunes with rich filters (M70).
-5. **Discoverability** — shelves, categories, tags, and filters (M41) so the default list stays simple while Standards / Generate are one shelf away and searchable.
+5. **Discoverability** — shelves, categories, tags, and filters (M41) so the default list stays simple while Songs / Generate are one shelf away and searchable.
 
 ## M0 acceptance
 

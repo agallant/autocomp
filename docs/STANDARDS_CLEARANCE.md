@@ -1,6 +1,6 @@
-# Standards pack clearance
+# Songs pack clearance
 
-Autocomp’s **Standards** shelf is a practice catalogue of **real song titles with chord progressions**, in the same spirit as iReal and other legal chord-chart resources.
+Autocomp’s **Songs** shelf (library id `standards`) is a practice catalogue of **real song titles with chord progressions**, in the same spirit as iReal and other legal chord-chart resources.
 
 ## Legal framing (product policy)
 

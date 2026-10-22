@@ -107,7 +107,7 @@ export function libraryControlsHtml(state: LibraryViewState): string {
           class="library-search"
           type="search"
           value="${escapeAttr(state.query)}"
-          placeholder="Title, tag, style…"
+          placeholder="Title, tag, or feel"
           autocomplete="off"
           spellcheck="false"
         />

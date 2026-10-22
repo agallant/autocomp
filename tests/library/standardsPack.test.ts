@@ -42,5 +42,13 @@ describe('standards pack', () => {
     const all = filterTunes(TUNE_LIBRARY, { shelf: 'standards' })
     const titles = all.map((t) => t.title)
     expect(titles).toEqual([...titles].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })))
+
+    const traditional = filterTunes(TUNE_LIBRARY, { shelf: 'standards', tags: ['traditional'] })
+    expect(traditional.length).toBeGreaterThan(0)
+    expect(traditional.map((t) => t.title)).toEqual(
+      [...traditional.map((t) => t.title)].sort((a, b) =>
+        a.localeCompare(b, undefined, { sensitivity: 'base' }),
+      ),
+    )
   })
 })
