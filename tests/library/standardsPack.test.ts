@@ -106,6 +106,12 @@ describe('standards pack', () => {
     })
     expect(allThings.map((t) => t.id)).toContain('std-all-the-things')
 
+    const blueBossa = filterTunes(TUNE_LIBRARY, {
+      shelf: 'standards',
+      query: 'Blue Bossa',
+    })
+    expect(blueBossa.map((t) => t.id)).toContain('std-blue-bossa')
+
     const traditional = filterTunes(TUNE_LIBRARY, {
       shelf: 'standards',
       tags: ['traditional'],
