@@ -57,12 +57,30 @@ export function isLibraryShelfFilter(value: unknown): value is LibraryShelfFilte
   return value === 'all' || isLibraryShelf(value)
 }
 
+/** Style/genre tags surfaced as a Genre group in the library filter. */
+export const GENRE_TAGS: readonly TuneTag[] = [
+  'jazz',
+  'blues',
+  'bossa',
+  'latin',
+  'ballad',
+  'traditional',
+]
+
+export function isGenreTag(tag: TuneTag): boolean {
+  return (GENRE_TAGS as readonly string[]).includes(tag)
+}
+
 export type TuneEntry = {
   id: string
   title: string
   /** Short blurb shown in the library list. */
   blurb: string
   tags: readonly TuneTag[]
+  /** Composer or “Traditional”; used in Songs search/meta. */
+  composer?: string
+  /** Rough era label (e.g. 1930s, folk); used in Songs search/meta. */
+  era?: string
   /** Which library shelf lists this tune. */
   shelf: LibraryShelf
   /** Preferred backing style when loading the tune. */

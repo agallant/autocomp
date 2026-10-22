@@ -84,7 +84,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M67 | Standards +1 | done | Add All the Things You Are (harmony only) |
 | M68 | Standards +1 | done | Add Blue Bossa (harmony only) |
 | M69 | Songs shelf cleanup | done | Stock drills → Practice; Songs = repertoire; alpha sort |
-| M70 | Song metadata filters | planned | Composer/era/genre tags + clearer filter UI; scale toward hundreds |
+| M70 | Song metadata filters | done | Composer/era on Songs; genre-grouped tag filter; search hits meta |
 | M71 | PD notation mode | planned | Optional melody/notation for public-domain jazz standards |
 | M72 | Playback focus | done | Chords-first chart; settings after bars; collapsible library |
 | M73 | Build stamp | done | Semver bump + git SHA + build time in the shell header |
@@ -635,6 +635,12 @@ Default first-run experience stays the **current compact Practice assortment** (
 - [x] Chart defaults to view mode (bar click selects / play-from only)
 - [x] Edit / Done toggle unlocks chord editing, form controls, and destructive bar keys
 - [x] Leaving Edit cancels an in-progress chord draft
+
+## M70 acceptance
+
+- [x] Songs entries carry optional composer + era; search matches them
+- [x] Library tag control groups Genre vs Feel / form
+- [x] List meta shows composer/era when present; unit coverage for meta search
 
 ## Process notes
 
