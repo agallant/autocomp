@@ -83,6 +83,7 @@ const SONG_META: Readonly<Record<string, Pick<TuneEntry, 'composer' | 'era'>>> =
   'std-solar': { composer: 'Miles Davis', era: '1960s' },
   'std-tune-up': { composer: 'Miles Davis', era: '1950s' },
   'std-so-what': { composer: 'Miles Davis', era: '1950s' },
+  'std-freddie-freeloader': { composer: 'Miles Davis', era: '1950s' },
 }
 
 function entry(spec: Spec): TuneEntry {
@@ -1475,6 +1476,36 @@ const PACK_ENTRIES: readonly TuneEntry[] = [
           ['Ebm7'],
           ['Ebm7'],
           ['Ebm7'],
+        ],
+      },
+    ],
+  }),
+  entry({
+    id: 'std-freddie-freeloader',
+    title: 'Freddie Freeloader',
+    blurb: 'Miles Bb blues from Kind of Blue; harmony only',
+    tags: ['standard', 'jazz', 'blues', 'short'],
+    key: BB,
+    tempo: 120,
+    styleId: 'jazz-swing',
+    clearance: 'harmony-only standard',
+    sectionBars: [
+      {
+        id: 'A',
+        label: 'A',
+        bars: [
+          ['Bb7'],
+          ['Bb7'],
+          ['Bb7'],
+          ['Bb7'],
+          ['Eb7'],
+          ['Eb7'],
+          ['Bb7'],
+          ['Bb7'],
+          ['F7'],
+          ['Eb7'],
+          ['Bb7'],
+          ['F7'],
         ],
       },
     ],

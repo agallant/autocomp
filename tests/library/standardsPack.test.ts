@@ -5,7 +5,7 @@ import { validateChart } from '../../src/music'
 
 describe('standards pack', () => {
   it('ships only Songs-shelf repertoire with clearance notes', () => {
-    expect(STANDARDS_PACK.length).toBeGreaterThanOrEqual(19)
+    expect(STANDARDS_PACK.length).toBeGreaterThanOrEqual(20)
     expect(STANDARDS_PACK.every((t) => t.shelf === 'standards')).toBe(true)
     expect(STANDARDS_PACK.every((t) => t.tags.includes('standard'))).toBe(true)
     for (const tune of STANDARDS_PACK) {
@@ -128,6 +128,27 @@ describe('standards pack', () => {
     expect(soWhatChart.sections.find((s) => s.id === 'B')!.bars.every((b) => b.slots[0]?.chord?.symbol === 'Ebm7')).toBe(
       true,
     )
+
+    const freddie = filterTunes(TUNE_LIBRARY, {
+      shelf: 'standards',
+      query: 'Freddie Freeloader',
+    })
+    expect(freddie.map((t) => t.id)).toEqual(['std-freddie-freeloader'])
+    expect(freddie[0]).toMatchObject({ composer: 'Miles Davis', era: '1950s' })
+    expect(freddie[0]!.createChart().sections[0]!.bars.map((b) => b.slots[0]?.chord?.symbol)).toEqual([
+      'Bb7',
+      'Bb7',
+      'Bb7',
+      'Bb7',
+      'Eb7',
+      'Eb7',
+      'Bb7',
+      'Bb7',
+      'F7',
+      'Eb7',
+      'Bb7',
+      'F7',
+    ])
 
     const all = filterTunes(TUNE_LIBRARY, { shelf: 'standards' })
     const titles = all.map((t) => t.title)
