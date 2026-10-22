@@ -72,7 +72,22 @@ describe('standards pack', () => {
     })
     expect(solar.map((t) => t.id)).toEqual(['std-solar'])
     expect(solar[0]).toMatchObject({ composer: 'Miles Davis', era: '1960s' })
-    expect(solar[0]!.createChart().sections[0]!.bars).toHaveLength(12)
+    const solarBars = solar[0]!.createChart().sections[0]!.bars
+    expect(solarBars).toHaveLength(12)
+    expect(solarBars.map((b) => b.slots[0]?.chord?.symbol)).toEqual([
+      'CmMaj7',
+      'Gm7',
+      'C7',
+      'Fmaj7',
+      'Fm7',
+      'Bb7',
+      'Ebmaj7',
+      'Ebm7',
+      'Ab7',
+      'Dbmaj7',
+      'Dm7b5',
+      'G7',
+    ])
 
     const all = filterTunes(TUNE_LIBRARY, { shelf: 'standards' })
     const titles = all.map((t) => t.title)
