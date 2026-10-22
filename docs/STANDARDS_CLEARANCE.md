@@ -1,18 +1,31 @@
 # Standards pack clearance
 
-Autocomp’s **Standards** shelf lists educational chord charts only: harmony skeletons for practice accompaniment. Charts intentionally omit melodies, lyrics, and lead sheets.
+Autocomp’s **Standards** shelf is a practice catalogue of **real song titles with chord progressions**, in the same spirit as iReal and other legal chord-chart resources.
 
-## What we include
+## Legal framing (product policy)
 
-1. **Stock harmonic skeletons (preferred)** — workshop / session-vocabulary progressions (modal pedals, rhythm-changes A, jazz blues, cadence forms, cycle bridges) with **practice titles** that are not commercial song titles.
-2. **Public-domain / traditional material** — progressions associated with traditional songs believed to be in the public domain in the US. Titles are practice labels for those traditional forms.
+- **Chord progressions are not copyrightable** under US law. That is the basis for this shelf.
+- **Non-PD standards are in scope.** If a tune is still under copyright, we **still add the real title and the chords**. That is required for the product to work as a standards practice tool. Do **not** treat PD status as a gate for harmony charts.
+- Charts use **conventional common-practice session changes** (the shared vocabulary players call at sessions), not a copy of a particular publisher’s engraved arrangement or proprietary lead-sheet layout.
+- What we **omit by default** is the copyrightable **head** (melody) and lyrics—not the harmony, and not the title.
+- **Public-domain works** may *additionally* get optional **notation / melody** later. PD status unlocks heads; it is **not** a gate for adding chords.
 
-## What we do not assume
+## What we include (priority order)
 
-- Omitting melody/lyrics does **not** automatically clear a modern copyrighted harmony (including Real Book / New Real Book repertoire).
-- Chart titles on this shelf are **practice labels**, not claims of ownership or official lead-sheet editions.
-- When in doubt, prefer a descriptive practice title over a protected commercial title.
+1. **Real jazz standards (PD or not)** — session repertoire under **real titles**, with **harmony charts**. This is the main job of the shelf. Prefer jazz over folk fillers.
+2. **Public-domain jazz heads (later)** — for PD works only, optional melody/notation (M67+).
+3. **Stock workshop skeletons** — still useful extras under practice titles.
+4. **Traditional / folk** — fine as extras; do not crowd out jazz priorities.
+
+## Chart notes field
+
+| Value | Use |
+| --- | --- |
+| `harmony-only standard` | **Default for non-PD (and any) real song:** real title + chords, no head |
+| `public-domain jazz` | Jazz work in the US public domain (chords now; melody eligible later) |
+| `public-domain traditional` | Folk / traditional PD material |
+| `stock educational progression` | Workshop skeleton with a practice title |
 
 ## Maintenance
 
-When adding Standards entries, document the clearance basis in the chart `notes` field (`public-domain traditional` or `stock educational progression`) and keep tags accurate for search (`traditional`, `standard`, form/feel tags).
+Keep tags accurate for search. When growing the catalogue, add **real jazz titles with chords** first—whether or not the song is public domain.

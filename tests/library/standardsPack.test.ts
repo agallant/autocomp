@@ -88,6 +88,18 @@ describe('standards pack', () => {
     })
     expect(turnaround.map((t) => t.id)).toContain('std-turnaround-lab')
 
+    const body = filterTunes(TUNE_LIBRARY, {
+      shelf: 'standards',
+      query: 'Body and Soul',
+    })
+    expect(body.map((t) => t.id)).toContain('std-body-and-soul')
+
+    const autumn = filterTunes(TUNE_LIBRARY, {
+      shelf: 'standards',
+      query: 'Autumn Leaves',
+    })
+    expect(autumn.map((t) => t.id)).toContain('std-autumn-leaves')
+
     const traditional = filterTunes(TUNE_LIBRARY, {
       shelf: 'standards',
       tags: ['traditional'],

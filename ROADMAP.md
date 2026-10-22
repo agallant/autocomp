@@ -80,6 +80,8 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M63 | Standards +1 | done | Add hip stock: Secondary Dominant Lab (practice label) |
 | M64 | Standards +1 | done | Add hip stock: Bossa Cadence AABA (practice label) |
 | M65 | Standards +1 | done | Add hip stock: Turnaround Lab (practice label) |
+| M66 | Real jazz standards | done | Real titles + chords (PD or not); Body and Soul + Autumn Leaves |
+| M67 | PD notation mode | planned | Optional melody/notation for public-domain jazz standards |
 
 ## Library & generative depth (product intent)
 
@@ -88,7 +90,7 @@ Default first-run experience stays the **current compact Practice assortment** (
 1. **More practice material** — expand the educational pack (M42) while Practice remains the default shelf.
 2. **Variation / randomization** — shuffle and seedable variants of existing drills (M43).
 3. **Full random + generative** — fully randomized, constraint-bounded charts (M44) plus harmony-rule engines (M45: ii–V–I chains, blues, rhythm changes, Coltrane/Giant Steps matrices, etc.). Build on M11’s factories.
-4. **Standards library** — curated practice charts (M46+). Prefer **hip stock educational skeletons** (modal pedals, jazz blues, rhythm A, cadence/cycle forms) with practice titles over folk traditionals. Do **not** copy copyrighted Real Book / New Real Book titles or protected harmony; charts omit melodies, lyrics, and lead sheets.
+4. **Standards library** — **real song titles with chord charts** (M46+), **whether or not the song is public domain**. Progressions are practice material; omit copyrighted melodies/lyrics by default. PD status only unlocks optional heads/notation (M67)—it is not a gate for adding chords. Prefer true jazz over folk fillers.
 5. **Discoverability** — shelves, categories, tags, and filters (M41) so the default list stays simple while Standards / Generate are one shelf away and searchable.
 
 ## M0 acceptance
@@ -462,9 +464,9 @@ Default first-run experience stays the **current compact Practice assortment** (
 
 ## M46 acceptance
 
-- [x] Curated standards pack: educational chord charts from public-domain or otherwise cleared sources (no melodies/lyrics/lead sheets)
+- [x] Curated standards pack: real-title harmony charts plus stock educational extras (omit copyrighted melodies/lyrics by default)
 - [x] Searchable via Standards shelf + tags (form, key feel, era/style labels)
-- [x] In-repo legal note: clearance criteria; practice titles as labels only
+- [x] In-repo legal note: clearance criteria (real titles + harmony-only; see docs/STANDARDS_CLEARANCE.md)
 - [x] Unit tests for chart validity; library search finds standards by tag/title
 
 ## M47 acceptance
@@ -538,7 +540,6 @@ Default first-run experience stays the **current compact Practice assortment** (
 
 - [x] Standards pack gains Modal Pedal Form (stock educational; practice label; no melody/lyrics)
 - [x] Searchable on Standards shelf; clearance note present
-- [x] Clearance docs prefer hip stock skeletons over copyrighted Real Book titles
 - [x] Unit tests for pack size + title search
 
 ## M59 acceptance
@@ -582,6 +583,14 @@ Default first-run experience stays the **current compact Practice assortment** (
 - [x] Standards pack gains Turnaround Lab (stock educational; practice label; no melody/lyrics)
 - [x] Searchable on Standards shelf; clearance note present
 - [x] Unit tests for pack size + title search
+
+## M66 acceptance
+
+- [x] Clearance docs: non-PD standards still get real titles + chords; PD only unlocks optional notation later
+- [x] Standards pack gains Body and Soul (PD jazz) and Autumn Leaves (non-PD harmony-only)
+- [x] Searchable on Standards shelf; clearance note present
+- [x] Unit tests for pack size + title search
+- [x] ROADMAP notes M67 PD notation mode as planned
 
 ## Process notes
 

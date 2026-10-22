@@ -12,6 +12,7 @@ const F: Root = { letter: 'F', accidental: 0 }
 const G: Root = { letter: 'G', accidental: 0 }
 const BB: Root = { letter: 'B', accidental: -1 }
 const D: Root = { letter: 'D', accidental: 0 }
+const DB: Root = { letter: 'D', accidental: -1 }
 const A: Root = { letter: 'A', accidental: 0 }
 const E: Root = { letter: 'E', accidental: 0 }
 
@@ -24,7 +25,11 @@ type Spec = {
   tempo: number
   styleId: StyleId
   form?: readonly string[]
-  clearance: 'public-domain traditional' | 'stock educational progression'
+  clearance:
+    | 'harmony-only standard'
+    | 'public-domain jazz'
+    | 'public-domain traditional'
+    | 'stock educational progression'
   sectionBars: readonly {
     id: string
     label: string
@@ -994,6 +999,102 @@ export const STANDARDS_PACK: readonly TuneEntry[] = [
           ['A7'],
           ['Dm7'],
           ['G7'],
+        ],
+      },
+    ],
+  }),
+  entry({
+    id: 'std-body-and-soul',
+    title: 'Body and Soul',
+    blurb: '1930 ballad standard (US PD); harmony only',
+    tags: ['standard', 'jazz', 'ballad', 'major', 'aaba', 'ii-v-i'],
+    key: DB,
+    tempo: 72,
+    styleId: 'ballad',
+    clearance: 'public-domain jazz',
+    form: ['A', 'A', 'B', 'A'],
+    sectionBars: [
+      {
+        id: 'A',
+        label: 'A',
+        bars: [
+          ['Ebm7'],
+          ['Bb7'],
+          ['Ebm7'],
+          ['Ab7'],
+          ['Dbmaj7'],
+          ['Gb7'],
+          ['Cm7b5'],
+          ['F7'],
+        ],
+      },
+      {
+        id: 'B',
+        label: 'B',
+        bars: [
+          ['Ebm7'],
+          ['A7'],
+          ['Dbmaj7'],
+          ['Bb7'],
+          ['Ebmaj7'],
+          ['C7'],
+          ['Fm7'],
+          ['Bb7'],
+        ],
+      },
+    ],
+  }),
+  entry({
+    id: 'std-autumn-leaves',
+    title: 'Autumn Leaves',
+    blurb: 'Classic minor-key standard; harmony only',
+    tags: ['standard', 'jazz', 'minor', 'ii-v-i', 'ballad'],
+    key: E,
+    tempo: 120,
+    styleId: 'jazz-swing',
+    clearance: 'harmony-only standard',
+    form: ['A', 'A', 'B', 'C'],
+    sectionBars: [
+      {
+        id: 'A',
+        label: 'A',
+        bars: [
+          ['Am7'],
+          ['D7'],
+          ['Gmaj7'],
+          ['Cmaj7'],
+          ['F#m7b5'],
+          ['B7'],
+          ['Em7'],
+          ['Em7'],
+        ],
+      },
+      {
+        id: 'B',
+        label: 'B',
+        bars: [
+          ['F#m7b5'],
+          ['B7'],
+          ['Em7'],
+          ['Em7'],
+          ['Am7'],
+          ['D7'],
+          ['Gmaj7'],
+          ['Gmaj7'],
+        ],
+      },
+      {
+        id: 'C',
+        label: 'C',
+        bars: [
+          ['F#m7b5'],
+          ['B7'],
+          ['Em7'],
+          ['A7'],
+          ['Dm7'],
+          ['G7'],
+          ['Cmaj7'],
+          ['B7'],
         ],
       },
     ],
