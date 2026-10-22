@@ -24,6 +24,7 @@ describe('practicePrefs', () => {
     prefs.endings = true
     prefs.centerPlayhead = true
     prefs.clickSubdivision = 'eighth'
+    prefs.instrument = 'bb'
     savePracticePrefs(prefs, storage)
     expect(storage.getItem(PRACTICE_PREFS_KEY)).toContain('"density":"sparse"')
     const loaded = loadPracticePrefs(storage)
@@ -39,6 +40,7 @@ describe('practicePrefs', () => {
     expect(loaded.endings).toBe(true)
     expect(loaded.centerPlayhead).toBe(true)
     expect(loaded.clickSubdivision).toBe('eighth')
+    expect(loaded.instrument).toBe('bb')
   })
 
   it('returns defaults for missing or invalid storage', () => {
@@ -72,6 +74,12 @@ describe('practicePrefs', () => {
     expect(normalizePracticePrefs({ swingFeel: null }).swingFeel).toBe(defaults.swingFeel)
     expect(normalizePracticePrefs({ swingFeel: false }).swingFeel).toBe(defaults.swingFeel)
     expect(normalizePracticePrefs({ swingFeel: '80' }).swingFeel).toBe(defaults.swingFeel)
+  })
+
+  it('defaults instrument to concert and rejects unknown ids', () => {
+    expect(defaultPracticePrefs().instrument).toBe('concert')
+    expect(normalizePracticePrefs({ instrument: 'bb' }).instrument).toBe('bb')
+    expect(normalizePracticePrefs({ instrument: 'piccolo' }).instrument).toBe('concert')
   })
 
   it('defaults centerPlayhead to false and rejects non-booleans', () => {

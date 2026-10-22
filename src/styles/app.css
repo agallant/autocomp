@@ -104,7 +104,7 @@
 
 .library-controls {
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.9fr) minmax(0, 1fr) auto;
   gap: var(--space-3);
   margin: var(--space-3) 0 var(--space-3);
   align-items: end;
@@ -144,7 +144,8 @@
 }
 
 .library-search,
-.library-tag {
+.library-tag,
+.library-feel {
   min-height: 2.5rem;
   width: 100%;
   padding: 0 var(--space-3);
@@ -156,8 +157,14 @@
   font-size: 0.95rem;
 }
 
+.library-feel {
+  min-height: 5.5rem;
+  padding: var(--space-2) var(--space-3);
+}
+
 .library-search:focus,
-.library-tag:focus {
+.library-tag:focus,
+.library-feel:focus {
   outline: 2px solid var(--teal);
   outline-offset: 2px;
 }

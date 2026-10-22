@@ -7,7 +7,7 @@ import {
   getTuneById,
   type TuneEntry,
 } from '../../src/library'
-import { createLibraryViewState } from '../../src/ui/libraryView'
+import { createLibraryViewState, libraryControlsHtml } from '../../src/ui/libraryView'
 
 function stubTune(partial: Partial<TuneEntry> & Pick<TuneEntry, 'id' | 'shelf' | 'tags'>): TuneEntry {
   return {
@@ -47,6 +47,19 @@ describe('tune library', () => {
   it('defaults the library view to the Practice shelf', () => {
     expect(DEFAULT_LIBRARY_SHELF).toBe('practice')
     expect(createLibraryViewState('autumn-practice').shelf).toBe('practice')
+    expect(createLibraryViewState('autumn-practice')).toMatchObject({
+      genre: '',
+      feelTags: [],
+    })
+  })
+
+  it('renders category and multi-select feel controls', () => {
+    const html = libraryControlsHtml(createLibraryViewState('autumn-practice'))
+    expect(html).toContain('id="library-genre"')
+    expect(html).toContain('All genres')
+    expect(html).toContain('id="library-feel"')
+    expect(html).toContain('multiple')
+    expect(html).not.toContain('id="library-tag"')
   })
 
   it('filters by shelf before query and tags', () => {

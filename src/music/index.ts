@@ -44,6 +44,14 @@ export {
 } from './transpose'
 
 export {
+  INSTRUMENTS,
+  instrumentSemitones,
+  isInstrumentId,
+  writtenRoot,
+  type InstrumentId,
+} from './instrument'
+
+export {
   assertValidChart,
   barFromSymbols,
   beatsPerBar,
