@@ -40,6 +40,12 @@ describe('standards pack', () => {
     })
     expect(susanna.map((t) => t.id)).toContain('std-oh-susanna')
 
+    const modal = filterTunes(TUNE_LIBRARY, {
+      shelf: 'standards',
+      query: 'Modal Pedal',
+    })
+    expect(modal.map((t) => t.id)).toContain('std-modal-pedal')
+
     const traditional = filterTunes(TUNE_LIBRARY, {
       shelf: 'standards',
       tags: ['traditional'],

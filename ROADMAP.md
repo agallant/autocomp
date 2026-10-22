@@ -72,6 +72,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M55 | Standards +1 | done | Add cleared traditional: Swing Low, Sweet Chariot |
 | M56 | Standards +1 | done | Add cleared traditional: Auld Lang Syne |
 | M57 | Standards +1 | done | Add cleared traditional: Oh! Susanna |
+| M58 | Standards +1 | done | Add hip stock: Modal Pedal Form (practice label) |
 
 ## Library & generative depth (product intent)
 
@@ -80,7 +81,7 @@ Default first-run experience stays the **current compact Practice assortment** (
 1. **More practice material** — expand the educational pack (M42) while Practice remains the default shelf.
 2. **Variation / randomization** — shuffle and seedable variants of existing drills (M43).
 3. **Full random + generative** — fully randomized, constraint-bounded charts (M44) plus harmony-rule engines (M45: ii–V–I chains, blues, rhythm changes, Coltrane/Giant Steps matrices, etc.). Build on M11’s factories.
-4. **Standards library** — curated real-tune chord progressions (M46). Use only public-domain or otherwise cleared material; charts omit melodies, lyrics, and lead sheets. Titles are practice labels only. (Common stock progressions may be fine; original protected harmony is not assumed free just because melody/lyrics are omitted.)
+4. **Standards library** — curated practice charts (M46+). Prefer **hip stock educational skeletons** (modal pedals, jazz blues, rhythm A, cadence/cycle forms) with practice titles over folk traditionals. Do **not** copy copyrighted Real Book / New Real Book titles or protected harmony; charts omit melodies, lyrics, and lead sheets.
 5. **Discoverability** — shelves, categories, tags, and filters (M41) so the default list stays simple while Standards / Generate are one shelf away and searchable.
 
 ## M0 acceptance
@@ -524,6 +525,13 @@ Default first-run experience stays the **current compact Practice assortment** (
 
 - [x] Standards pack gains Oh! Susanna (public-domain traditional; no melody/lyrics)
 - [x] Searchable on Standards shelf; clearance note present
+- [x] Unit tests for pack size + title search
+
+## M58 acceptance
+
+- [x] Standards pack gains Modal Pedal Form (stock educational; practice label; no melody/lyrics)
+- [x] Searchable on Standards shelf; clearance note present
+- [x] Clearance docs prefer hip stock skeletons over copyrighted Real Book titles
 - [x] Unit tests for pack size + title search
 
 ## Process notes
