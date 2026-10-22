@@ -13,6 +13,7 @@ const G: Root = { letter: 'G', accidental: 0 }
 const BB: Root = { letter: 'B', accidental: -1 }
 const D: Root = { letter: 'D', accidental: 0 }
 const DB: Root = { letter: 'D', accidental: -1 }
+const AB: Root = { letter: 'A', accidental: -1 }
 const A: Root = { letter: 'A', accidental: 0 }
 const E: Root = { letter: 'E', accidental: 0 }
 
@@ -1095,6 +1096,79 @@ export const STANDARDS_PACK: readonly TuneEntry[] = [
           ['G7'],
           ['Cmaj7'],
           ['B7'],
+        ],
+      },
+    ],
+  }),
+  entry({
+    id: 'std-all-the-things',
+    title: 'All the Things You Are',
+    blurb: 'Classic cycle-of-fifths standard; harmony only',
+    tags: ['standard', 'jazz', 'major', 'ii-v-i', 'cycle', 'aaba'],
+    key: AB,
+    tempo: 140,
+    styleId: 'jazz-swing',
+    clearance: 'harmony-only standard',
+    form: ['A', 'A2', 'B', 'A3'],
+    sectionBars: [
+      {
+        id: 'A',
+        label: 'A',
+        bars: [
+          ['Fm7'],
+          ['Bbm7'],
+          ['Eb7'],
+          ['Abmaj7'],
+          ['Dbmaj7'],
+          ['Dm7b5', 'G7'],
+          ['Cmaj7'],
+          ['Cmaj7'],
+        ],
+      },
+      {
+        id: 'A2',
+        label: 'A2',
+        bars: [
+          ['Cm7'],
+          ['Fm7'],
+          ['Bb7'],
+          ['Ebmaj7'],
+          ['Abmaj7'],
+          ['Am7b5', 'D7'],
+          ['Gmaj7'],
+          ['Gmaj7'],
+        ],
+      },
+      {
+        id: 'B',
+        label: 'B',
+        bars: [
+          ['Am7'],
+          ['D7'],
+          ['Gmaj7'],
+          ['Gmaj7'],
+          ['F#m7'],
+          ['B7'],
+          ['Emaj7'],
+          ['C7'],
+        ],
+      },
+      {
+        id: 'A3',
+        label: 'A3',
+        bars: [
+          ['Fm7'],
+          ['Bbm7'],
+          ['Eb7'],
+          ['Abmaj7'],
+          ['Dbmaj7'],
+          ['Dbm7', 'Gb7'],
+          ['Cm7', 'F7'],
+          ['Bbm7', 'Eb7'],
+          ['Abmaj7'],
+          ['Abmaj7'],
+          ['Cm7', 'F7'],
+          ['Bbm7', 'Eb7'],
         ],
       },
     ],
