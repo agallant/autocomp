@@ -430,6 +430,33 @@ describe('standards pack', () => {
       'Bb7',
     ])
 
+    const nows = filterTunes(TUNE_LIBRARY, {
+      shelf: 'standards',
+      query: "Now's the Time",
+    })
+    expect(nows.map((t) => t.id)).toEqual(['std-nows-the-time'])
+    expect(nows[0]).toMatchObject({
+      composer: 'Charlie Parker',
+      era: '1940s',
+      styleId: 'jazz-swing',
+    })
+    expect(nows[0]!.createChart().sections[0]!.bars.map((b) =>
+      b.slots.map((s) => s.chord?.symbol ?? '').filter(Boolean).join(' '),
+    )).toEqual([
+      'F7',
+      'F7',
+      'F7',
+      'F7',
+      'Bb7',
+      'Bb7',
+      'F7',
+      'F7',
+      'C7',
+      'Bb7',
+      'F7',
+      'C7',
+    ])
+
     const all = filterTunes(TUNE_LIBRARY, { shelf: 'standards' })
     const titles = all.map((t) => t.title)
     expect(titles).toEqual([...titles].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })))
