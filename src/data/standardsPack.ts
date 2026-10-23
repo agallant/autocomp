@@ -101,6 +101,7 @@ const SONG_META: Readonly<Record<string, Pick<TuneEntry, 'composer' | 'era'>>> =
   'std-equinox': { composer: 'John Coltrane', era: '1960s' },
   'std-mr-pc': { composer: 'John Coltrane', era: '1960s' },
   'std-four': { composer: 'Miles Davis', era: '1950s' },
+  'std-nows-the-time': { composer: 'Charlie Parker', era: '1940s' },
 }
 
 function entry(spec: Spec): TuneEntry {
@@ -1858,6 +1859,36 @@ const PACK_ENTRIES: readonly TuneEntry[] = [
           ['C7'],
           ['Fm7'],
           ['Bb7'],
+        ],
+      },
+    ],
+  }),
+  entry({
+    id: 'std-nows-the-time',
+    title: "Now's the Time",
+    blurb: 'Parker F bebop blues; harmony only',
+    tags: ['standard', 'jazz', 'blues', 'short'],
+    key: F,
+    tempo: 160,
+    styleId: 'jazz-swing',
+    clearance: 'harmony-only standard',
+    sectionBars: [
+      {
+        id: 'A',
+        label: 'A',
+        bars: [
+          ['F7'],
+          ['F7'],
+          ['F7'],
+          ['F7'],
+          ['Bb7'],
+          ['Bb7'],
+          ['F7'],
+          ['F7'],
+          ['C7'],
+          ['Bb7'],
+          ['F7'],
+          ['C7'],
         ],
       },
     ],
