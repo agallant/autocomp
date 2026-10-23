@@ -760,7 +760,7 @@ Default first-run experience stays the **current compact Practice assortment** (
 
 - [x] Standards pack gains Four (harmony-only standard; real title)
 - [x] Searchable on Songs shelf; composer/era meta present
-- [x] Unit tests for pack title search + Eb cycle changes
+- [x] Unit tests for pack title search + conventional Eb changes
 
 ## Process notes
 

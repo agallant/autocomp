@@ -402,32 +402,30 @@ describe('standards pack', () => {
     const four = filterTunes(TUNE_LIBRARY, {
       shelf: 'standards',
       query: 'Four',
-    }).filter((t) => t.id === 'std-four')
+    })
     expect(four.map((t) => t.id)).toEqual(['std-four'])
     expect(four[0]).toMatchObject({
       composer: 'Miles Davis',
       era: '1950s',
       styleId: 'jazz-swing',
     })
-    expect(four[0]!.createChart().sections[0]!.bars.map((b) =>
-      b.slots.map((s) => s.chord?.symbol ?? '').filter(Boolean).join(' '),
-    )).toEqual([
+    expect(four[0]!.createChart().sections[0]!.bars.map((b) => b.slots[0]?.chord?.symbol)).toEqual([
       'Ebmaj7',
       'Ebmaj7',
       'Ebm7',
       'Ab7',
-      'Dbmaj7',
-      'Dbmaj7',
-      'Dm7',
-      'G7',
-      'Cm7',
-      'F7',
-      'Bbmaj7',
-      'Bbmaj7',
-      'Ebm7',
-      'Ab7',
-      'Dbmaj7',
-      'Dm7 G7',
+      'Fm7',
+      'Fm7',
+      'Abm7',
+      'Db7',
+      'Ebmaj7',
+      'Ebmaj7',
+      'Am7b5',
+      'D7',
+      'Gm7',
+      'C7',
+      'Fm7',
+      'Bb7',
     ])
 
     const all = filterTunes(TUNE_LIBRARY, { shelf: 'standards' })
