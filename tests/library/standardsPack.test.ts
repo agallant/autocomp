@@ -374,6 +374,31 @@ describe('standards pack', () => {
       'C#m7',
     ])
 
+    const mrPc = filterTunes(TUNE_LIBRARY, {
+      shelf: 'standards',
+      query: 'Mr. P.C.',
+    })
+    expect(mrPc.map((t) => t.id)).toEqual(['std-mr-pc'])
+    expect(mrPc[0]).toMatchObject({
+      composer: 'John Coltrane',
+      era: '1960s',
+      styleId: 'jazz-swing',
+    })
+    expect(mrPc[0]!.createChart().sections[0]!.bars.map((b) => b.slots[0]?.chord?.symbol)).toEqual([
+      'Cm7',
+      'Cm7',
+      'Cm7',
+      'Cm7',
+      'Fm7',
+      'Fm7',
+      'Cm7',
+      'Cm7',
+      'Ab7',
+      'G7',
+      'Cm7',
+      'Cm7',
+    ])
+
     const all = filterTunes(TUNE_LIBRARY, { shelf: 'standards' })
     const titles = all.map((t) => t.title)
     expect(titles).toEqual([...titles].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })))

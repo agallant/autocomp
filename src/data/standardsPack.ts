@@ -98,6 +98,7 @@ const SONG_META: Readonly<Record<string, Pick<TuneEntry, 'composer' | 'era'>>> =
   'std-recorda-me': { composer: 'Joe Henderson', era: '1960s' },
   'std-straight-no-chaser': { composer: 'Thelonious Monk', era: '1950s' },
   'std-equinox': { composer: 'John Coltrane', era: '1960s' },
+  'std-mr-pc': { composer: 'John Coltrane', era: '1960s' },
 }
 
 function entry(spec: Spec): TuneEntry {
@@ -1791,6 +1792,36 @@ const PACK_ENTRIES: readonly TuneEntry[] = [
           ['G#7'],
           ['C#m7'],
           ['C#m7'],
+        ],
+      },
+    ],
+  }),
+  entry({
+    id: 'std-mr-pc',
+    title: 'Mr. P.C.',
+    blurb: 'Coltrane C minor blues; harmony only',
+    tags: ['standard', 'jazz', 'blues', 'minor', 'short'],
+    key: C,
+    tempo: 200,
+    styleId: 'jazz-swing',
+    clearance: 'harmony-only standard',
+    sectionBars: [
+      {
+        id: 'A',
+        label: 'A',
+        bars: [
+          ['Cm7'],
+          ['Cm7'],
+          ['Cm7'],
+          ['Cm7'],
+          ['Fm7'],
+          ['Fm7'],
+          ['Cm7'],
+          ['Cm7'],
+          ['Ab7'],
+          ['G7'],
+          ['Cm7'],
+          ['Cm7'],
         ],
       },
     ],
