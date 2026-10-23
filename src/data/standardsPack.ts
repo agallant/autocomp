@@ -91,6 +91,7 @@ const SONG_META: Readonly<Record<string, Pick<TuneEntry, 'composer' | 'era'>>> =
   'std-freddie-freeloader': { composer: 'Miles Davis', era: '1950s' },
   'std-footprints': { composer: 'Wayne Shorter', era: '1960s' },
   'std-cantaloupe': { composer: 'Herbie Hancock', era: '1960s' },
+  'std-maiden-voyage': { composer: 'Herbie Hancock', era: '1960s' },
 }
 
 function entry(spec: Spec): TuneEntry {
@@ -1578,6 +1579,47 @@ const PACK_ENTRIES: readonly TuneEntry[] = [
           ['Fm7'],
           ['Fm7'],
           ['Fm7'],
+        ],
+      },
+    ],
+  }),
+  entry({
+    id: 'std-maiden-voyage',
+    title: 'Maiden Voyage',
+    blurb: 'Herbie Hancock modal sus vamps; harmony only',
+    tags: ['standard', 'jazz', 'modal', 'latin', 'aaba'],
+    key: D,
+    tempo: 112,
+    styleId: 'latin',
+    clearance: 'harmony-only standard',
+    form: ['A', 'A', 'B', 'A'],
+    sectionBars: [
+      {
+        id: 'A',
+        label: 'A',
+        bars: [
+          ['D7sus4'],
+          ['D7sus4'],
+          ['F7sus4'],
+          ['F7sus4'],
+          ['Eb7sus4'],
+          ['Eb7sus4'],
+          ['D7sus4'],
+          ['D7sus4'],
+        ],
+      },
+      {
+        id: 'B',
+        label: 'B',
+        bars: [
+          ['A7sus4'],
+          ['A7sus4'],
+          ['C7sus4'],
+          ['C7sus4'],
+          ['Bb7sus4'],
+          ['Bb7sus4'],
+          ['A7sus4'],
+          ['A7sus4'],
         ],
       },
     ],

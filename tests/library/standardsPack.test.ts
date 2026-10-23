@@ -204,6 +204,39 @@ describe('standards pack', () => {
       'Fm7',
     ])
 
+    const maiden = filterTunes(TUNE_LIBRARY, {
+      shelf: 'standards',
+      query: 'Maiden Voyage',
+    })
+    expect(maiden.map((t) => t.id)).toEqual(['std-maiden-voyage'])
+    expect(maiden[0]).toMatchObject({
+      composer: 'Herbie Hancock',
+      era: '1960s',
+      styleId: 'latin',
+    })
+    const maidenChart = maiden[0]!.createChart()
+    expect(maidenChart.form).toEqual(['A', 'A', 'B', 'A'])
+    expect(maidenChart.sections.find((s) => s.id === 'A')!.bars.map((b) => b.slots[0]?.chord?.symbol)).toEqual([
+      'D7sus4',
+      'D7sus4',
+      'F7sus4',
+      'F7sus4',
+      'Eb7sus4',
+      'Eb7sus4',
+      'D7sus4',
+      'D7sus4',
+    ])
+    expect(maidenChart.sections.find((s) => s.id === 'B')!.bars.map((b) => b.slots[0]?.chord?.symbol)).toEqual([
+      'A7sus4',
+      'A7sus4',
+      'C7sus4',
+      'C7sus4',
+      'Bb7sus4',
+      'Bb7sus4',
+      'A7sus4',
+      'A7sus4',
+    ])
+
     const all = filterTunes(TUNE_LIBRARY, { shelf: 'standards' })
     const titles = all.map((t) => t.title)
     expect(titles).toEqual([...titles].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })))
