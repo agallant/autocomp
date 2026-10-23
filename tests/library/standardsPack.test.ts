@@ -175,6 +175,31 @@ describe('standards pack', () => {
       'Cm7',
     ])
 
+    const cantaloupe = filterTunes(TUNE_LIBRARY, {
+      shelf: 'standards',
+      query: 'Cantaloupe',
+    })
+    expect(cantaloupe.map((t) => t.id)).toEqual(['std-cantaloupe'])
+    expect(cantaloupe[0]).toMatchObject({ composer: 'Herbie Hancock', era: '1960s' })
+    expect(cantaloupe[0]!.createChart().sections[0]!.bars.map((b) => b.slots[0]?.chord?.symbol)).toEqual([
+      'Fm7',
+      'Fm7',
+      'Fm7',
+      'Fm7',
+      'Db7',
+      'Db7',
+      'Fm7',
+      'Fm7',
+      'Dm7',
+      'Db7',
+      'Fm7',
+      'Fm7',
+      'Fm7',
+      'Fm7',
+      'Fm7',
+      'Fm7',
+    ])
+
     const all = filterTunes(TUNE_LIBRARY, { shelf: 'standards' })
     const titles = all.map((t) => t.title)
     expect(titles).toEqual([...titles].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })))
