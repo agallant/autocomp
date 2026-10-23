@@ -324,6 +324,31 @@ describe('standards pack', () => {
       'E7#9',
     ])
 
+    const snc = filterTunes(TUNE_LIBRARY, {
+      shelf: 'standards',
+      query: 'Straight, No Chaser',
+    })
+    expect(snc.map((t) => t.id)).toEqual(['std-straight-no-chaser'])
+    expect(snc[0]).toMatchObject({
+      composer: 'Thelonious Monk',
+      era: '1950s',
+      styleId: 'jazz-swing',
+    })
+    expect(snc[0]!.createChart().sections[0]!.bars.map((b) => b.slots[0]?.chord?.symbol)).toEqual([
+      'Bb7',
+      'Bb7',
+      'Bb7',
+      'Bb7',
+      'Eb7',
+      'Eb7',
+      'Bb7',
+      'Bb7',
+      'F7',
+      'Eb7',
+      'Bb7',
+      'F7',
+    ])
+
     const all = filterTunes(TUNE_LIBRARY, { shelf: 'standards' })
     const titles = all.map((t) => t.title)
     expect(titles).toEqual([...titles].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })))
