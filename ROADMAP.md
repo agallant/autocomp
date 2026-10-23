@@ -103,6 +103,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M86 | Standards +1 | done | Add Impressions (harmony only) |
 | M87 | Standards +1 | done | Add Recorda Me (harmony only) |
 | M88 | Standards +1 | done | Add Straight, No Chaser (harmony only) |
+| M89 | Standards +1 | done | Add Equinox (harmony only) |
 
 ## Library & generative depth (product intent)
 
@@ -740,6 +741,12 @@ Default first-run experience stays the **current compact Practice assortment** (
 - [x] Standards pack gains Straight, No Chaser (harmony-only standard; real title)
 - [x] Searchable on Songs shelf; composer/era meta present
 - [x] Unit tests for pack title search + Bb blues changes
+
+## M89 acceptance
+
+- [x] Standards pack gains Equinox (harmony-only standard; real title)
+- [x] Searchable on Songs shelf; composer/era meta present
+- [x] Unit tests for pack title search + C♯ minor blues changes
 
 ## Process notes
 

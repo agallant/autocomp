@@ -9,6 +9,7 @@ import type { StyleId } from '../style'
 import type { TuneEntry, TuneTag } from '../library/types'
 
 const C: Root = { letter: 'C', accidental: 0 }
+const CS: Root = { letter: 'C', accidental: 1 }
 const F: Root = { letter: 'F', accidental: 0 }
 const G: Root = { letter: 'G', accidental: 0 }
 const BB: Root = { letter: 'B', accidental: -1 }
@@ -96,6 +97,7 @@ const SONG_META: Readonly<Record<string, Pick<TuneEntry, 'composer' | 'era'>>> =
   'std-impressions': { composer: 'John Coltrane', era: '1960s' },
   'std-recorda-me': { composer: 'Joe Henderson', era: '1960s' },
   'std-straight-no-chaser': { composer: 'Thelonious Monk', era: '1950s' },
+  'std-equinox': { composer: 'John Coltrane', era: '1960s' },
 }
 
 function entry(spec: Spec): TuneEntry {
@@ -1759,6 +1761,36 @@ const PACK_ENTRIES: readonly TuneEntry[] = [
           ['Eb7'],
           ['Bb7'],
           ['F7'],
+        ],
+      },
+    ],
+  }),
+  entry({
+    id: 'std-equinox',
+    title: 'Equinox',
+    blurb: 'Coltrane C♯ minor blues; harmony only',
+    tags: ['standard', 'jazz', 'blues', 'minor', 'short'],
+    key: CS,
+    tempo: 112,
+    styleId: 'jazz-swing',
+    clearance: 'harmony-only standard',
+    sectionBars: [
+      {
+        id: 'A',
+        label: 'A',
+        bars: [
+          ['C#m7'],
+          ['C#m7'],
+          ['C#m7'],
+          ['C#m7'],
+          ['F#m7'],
+          ['F#m7'],
+          ['C#m7'],
+          ['C#m7'],
+          ['Amaj7'],
+          ['G#7'],
+          ['C#m7'],
+          ['C#m7'],
         ],
       },
     ],
