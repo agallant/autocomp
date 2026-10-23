@@ -274,12 +274,26 @@ describe('standards pack', () => {
     })
     const impressionsChart = impressions[0]!.createChart()
     expect(impressionsChart.form).toEqual(['A', 'A', 'B', 'A'])
-    expect(
-      impressionsChart.sections.find((s) => s.id === 'A')!.bars.every((b) => b.slots[0]?.chord?.symbol === 'Dm7'),
-    ).toBe(true)
-    expect(
-      impressionsChart.sections.find((s) => s.id === 'B')!.bars.every((b) => b.slots[0]?.chord?.symbol === 'Ebm7'),
-    ).toBe(true)
+    expect(impressionsChart.sections.find((s) => s.id === 'A')!.bars.map((b) => b.slots[0]?.chord?.symbol)).toEqual([
+      'Dm7',
+      'Dm7',
+      'Dm7',
+      'Dm7',
+      'Dm7',
+      'Dm7',
+      'Dm7',
+      'Dm7',
+    ])
+    expect(impressionsChart.sections.find((s) => s.id === 'B')!.bars.map((b) => b.slots[0]?.chord?.symbol)).toEqual([
+      'Ebm7',
+      'Ebm7',
+      'Ebm7',
+      'Ebm7',
+      'Ebm7',
+      'Ebm7',
+      'Ebm7',
+      'Ebm7',
+    ])
 
     const all = filterTunes(TUNE_LIBRARY, { shelf: 'standards' })
     const titles = all.map((t) => t.title)
