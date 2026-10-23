@@ -237,6 +237,31 @@ describe('standards pack', () => {
       'A7sus4',
     ])
 
+    const watermelon = filterTunes(TUNE_LIBRARY, {
+      shelf: 'standards',
+      query: 'Watermelon',
+    })
+    expect(watermelon.map((t) => t.id)).toEqual(['std-watermelon'])
+    expect(watermelon[0]).toMatchObject({
+      composer: 'Herbie Hancock',
+      era: '1960s',
+      styleId: 'latin',
+    })
+    expect(watermelon[0]!.createChart().sections[0]!.bars.map((b) => b.slots[0]?.chord?.symbol)).toEqual([
+      'F7',
+      'F7',
+      'F7',
+      'F7',
+      'Bb7',
+      'Bb7',
+      'F7',
+      'F7',
+      'C7',
+      'Bb7',
+      'F7',
+      'F7',
+    ])
+
     const all = filterTunes(TUNE_LIBRARY, { shelf: 'standards' })
     const titles = all.map((t) => t.title)
     expect(titles).toEqual([...titles].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })))
