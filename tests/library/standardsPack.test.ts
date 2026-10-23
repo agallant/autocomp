@@ -409,7 +409,9 @@ describe('standards pack', () => {
       era: '1950s',
       styleId: 'jazz-swing',
     })
-    expect(four[0]!.createChart().sections[0]!.bars.map((b) => b.slots[0]?.chord?.symbol)).toEqual([
+    expect(four[0]!.createChart().sections[0]!.bars.map((b) =>
+      b.slots.map((s) => s.chord?.symbol ?? '').filter(Boolean).join(' '),
+    )).toEqual([
       'Ebmaj7',
       'Ebmaj7',
       'Ebm7',
