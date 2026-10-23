@@ -95,6 +95,7 @@ const SONG_META: Readonly<Record<string, Pick<TuneEntry, 'composer' | 'era'>>> =
   'std-watermelon': { composer: 'Herbie Hancock', era: '1960s' },
   'std-impressions': { composer: 'John Coltrane', era: '1960s' },
   'std-recorda-me': { composer: 'Joe Henderson', era: '1960s' },
+  'std-straight-no-chaser': { composer: 'Thelonious Monk', era: '1950s' },
 }
 
 function entry(spec: Spec): TuneEntry {
@@ -1728,6 +1729,36 @@ const PACK_ENTRIES: readonly TuneEntry[] = [
           ['Gbmaj7'],
           ['Fmaj7'],
           ['E7#9'],
+        ],
+      },
+    ],
+  }),
+  entry({
+    id: 'std-straight-no-chaser',
+    title: 'Straight, No Chaser',
+    blurb: 'Monk Bb bebop blues; harmony only',
+    tags: ['standard', 'jazz', 'blues', 'short'],
+    key: BB,
+    tempo: 160,
+    styleId: 'jazz-swing',
+    clearance: 'harmony-only standard',
+    sectionBars: [
+      {
+        id: 'A',
+        label: 'A',
+        bars: [
+          ['Bb7'],
+          ['Bb7'],
+          ['Bb7'],
+          ['Bb7'],
+          ['Eb7'],
+          ['Eb7'],
+          ['Bb7'],
+          ['Bb7'],
+          ['F7'],
+          ['Eb7'],
+          ['Bb7'],
+          ['F7'],
         ],
       },
     ],
