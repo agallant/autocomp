@@ -262,6 +262,25 @@ describe('standards pack', () => {
       'F7',
     ])
 
+    const impressions = filterTunes(TUNE_LIBRARY, {
+      shelf: 'standards',
+      query: 'Impressions',
+    })
+    expect(impressions.map((t) => t.id)).toEqual(['std-impressions'])
+    expect(impressions[0]).toMatchObject({
+      composer: 'John Coltrane',
+      era: '1960s',
+      styleId: 'jazz-swing',
+    })
+    const impressionsChart = impressions[0]!.createChart()
+    expect(impressionsChart.form).toEqual(['A', 'A', 'B', 'A'])
+    expect(
+      impressionsChart.sections.find((s) => s.id === 'A')!.bars.every((b) => b.slots[0]?.chord?.symbol === 'Dm7'),
+    ).toBe(true)
+    expect(
+      impressionsChart.sections.find((s) => s.id === 'B')!.bars.every((b) => b.slots[0]?.chord?.symbol === 'Ebm7'),
+    ).toBe(true)
+
     const all = filterTunes(TUNE_LIBRARY, { shelf: 'standards' })
     const titles = all.map((t) => t.title)
     expect(titles).toEqual([...titles].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })))

@@ -93,6 +93,7 @@ const SONG_META: Readonly<Record<string, Pick<TuneEntry, 'composer' | 'era'>>> =
   'std-cantaloupe': { composer: 'Herbie Hancock', era: '1960s' },
   'std-maiden-voyage': { composer: 'Herbie Hancock', era: '1960s' },
   'std-watermelon': { composer: 'Herbie Hancock', era: '1960s' },
+  'std-impressions': { composer: 'John Coltrane', era: '1960s' },
 }
 
 function entry(spec: Spec): TuneEntry {
@@ -1651,6 +1652,47 @@ const PACK_ENTRIES: readonly TuneEntry[] = [
           ['Bb7'],
           ['F7'],
           ['F7'],
+        ],
+      },
+    ],
+  }),
+  entry({
+    id: 'std-impressions',
+    title: 'Impressions',
+    blurb: 'Coltrane D Dorian modal AABA; harmony only',
+    tags: ['standard', 'jazz', 'minor', 'modal', 'aaba', 'long'],
+    key: D,
+    tempo: 200,
+    styleId: 'jazz-swing',
+    clearance: 'harmony-only standard',
+    form: ['A', 'A', 'B', 'A'],
+    sectionBars: [
+      {
+        id: 'A',
+        label: 'A',
+        bars: [
+          ['Dm7'],
+          ['Dm7'],
+          ['Dm7'],
+          ['Dm7'],
+          ['Dm7'],
+          ['Dm7'],
+          ['Dm7'],
+          ['Dm7'],
+        ],
+      },
+      {
+        id: 'B',
+        label: 'B',
+        bars: [
+          ['Ebm7'],
+          ['Ebm7'],
+          ['Ebm7'],
+          ['Ebm7'],
+          ['Ebm7'],
+          ['Ebm7'],
+          ['Ebm7'],
+          ['Ebm7'],
         ],
       },
     ],
