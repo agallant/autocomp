@@ -107,6 +107,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M90 | Standards +1 | done | Add Mr. P.C. (harmony only) |
 | M91 | Standards +1 | done | Add Four (harmony only) |
 | M92 | Standards +1 | done | Add Now's the Time (harmony only) |
+| M93 | Edit toggle contrast | done | Chart Edit button readable on parchment in dark shell |
 
 ## Library & generative depth (product intent)
 
@@ -768,6 +769,11 @@ Default first-run experience stays the **current compact Practice assortment** (
 - [x] Standards pack gains Now's the Time (harmony-only standard; real title)
 - [x] Searchable on Songs shelf; composer/era meta present
 - [x] Unit tests for pack title search + F blues changes
+
+## M93 acceptance
+
+- [x] Edit mode toggle keeps dark ink on light parchment (overrides shell `.btn` dark fill)
+- [x] Pressed / hover states stay teal-accented without light-on-dark text
 
 ## Process notes
 

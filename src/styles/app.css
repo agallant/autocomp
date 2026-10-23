@@ -317,21 +317,31 @@
   min-width: 0;
 }
 
-.chart-mode__toggle {
+/* Beat later `.btn` rules so parchment-stage contrast sticks (dark UI + light chart). */
+.chart-stage .chart-mode__toggle {
   flex: 0 0 auto;
   min-width: 4.5rem;
   min-height: 2.25rem;
   padding: 0 var(--space-3);
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.88);
   color: var(--text-chart);
-  border: 1px solid rgba(26, 36, 40, 0.35);
+  border: 1px solid rgba(26, 36, 40, 0.45);
   border-radius: var(--radius-sm);
   font-weight: 600;
+  box-shadow: 0 1px 0 rgba(26, 36, 40, 0.08);
 }
 
-.chart-mode__toggle[aria-pressed='true'] {
+.chart-stage .chart-mode__toggle:hover {
   border-color: var(--teal);
-  background: rgba(47, 143, 138, 0.18);
+  background: #fff;
+  box-shadow: 0 0 0 2px rgba(47, 143, 138, 0.35);
+}
+
+.chart-stage .chart-mode__toggle[aria-pressed='true'] {
+  border-color: var(--teal);
+  background: rgba(47, 143, 138, 0.28);
+  color: var(--text-chart);
+  box-shadow: inset 0 0 0 1px var(--teal);
 }
 
 .chart-stage__title-input[readonly] {
