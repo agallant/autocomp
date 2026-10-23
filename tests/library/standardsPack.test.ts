@@ -349,6 +349,31 @@ describe('standards pack', () => {
       'F7',
     ])
 
+    const equinox = filterTunes(TUNE_LIBRARY, {
+      shelf: 'standards',
+      query: 'Equinox',
+    })
+    expect(equinox.map((t) => t.id)).toEqual(['std-equinox'])
+    expect(equinox[0]).toMatchObject({
+      composer: 'John Coltrane',
+      era: '1960s',
+      styleId: 'jazz-swing',
+    })
+    expect(equinox[0]!.createChart().sections[0]!.bars.map((b) => b.slots[0]?.chord?.symbol)).toEqual([
+      'C#m7',
+      'C#m7',
+      'C#m7',
+      'C#m7',
+      'F#m7',
+      'F#m7',
+      'C#m7',
+      'C#m7',
+      'Amaj7',
+      'G#7',
+      'C#m7',
+      'C#m7',
+    ])
+
     const all = filterTunes(TUNE_LIBRARY, { shelf: 'standards' })
     const titles = all.map((t) => t.title)
     expect(titles).toEqual([...titles].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })))
