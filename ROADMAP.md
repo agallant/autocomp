@@ -101,6 +101,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M84 | Standards +1 | done | Add Maiden Voyage (harmony only) |
 | M85 | Standards +1 | done | Add Watermelon Man (harmony only) |
 | M86 | Standards +1 | done | Add Impressions (harmony only) |
+| M87 | Standards +1 | done | Add Recorda Me (harmony only) |
 
 ## Library & generative depth (product intent)
 
@@ -726,6 +727,12 @@ Default first-run experience stays the **current compact Practice assortment** (
 - [x] Standards pack gains Impressions (harmony-only standard; real title)
 - [x] Searchable on Songs shelf; composer/era meta present
 - [x] Unit tests for pack title search + AABA modal form
+
+## M87 acceptance
+
+- [x] Standards pack gains Recorda Me (harmony-only standard; real title)
+- [x] Searchable on Songs shelf; composer/era meta present
+- [x] Unit tests for pack title search + latin minor changes
 
 ## Process notes
 
