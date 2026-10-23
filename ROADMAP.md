@@ -98,6 +98,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M81 | Instrument + filters | done | Transposing instrument display; genre category + multi feel tags |
 | M82 | Standards +1 | done | Add Footprints (harmony only) |
 | M83 | Standards +1 | done | Add Cantaloupe Island (harmony only) |
+| M84 | Standards +1 | done | Add Maiden Voyage (harmony only) |
 
 ## Library & generative depth (product intent)
 
@@ -705,6 +706,12 @@ Default first-run experience stays the **current compact Practice assortment** (
 - [x] Standards pack gains Cantaloupe Island (harmony-only standard; real title)
 - [x] Searchable on Songs shelf; composer/era meta present
 - [x] Unit tests for pack title search + changes
+
+## M84 acceptance
+
+- [x] Standards pack gains Maiden Voyage (harmony-only standard; real title)
+- [x] Searchable on Songs shelf; composer/era meta present
+- [x] Unit tests for pack title search + AABA sus changes
 
 ## Process notes
 
