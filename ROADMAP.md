@@ -746,7 +746,7 @@ Default first-run experience stays the **current compact Practice assortment** (
 
 - [x] Standards pack gains Equinox (harmony-only standard; real title)
 - [x] Searchable on Songs shelf; composer/era meta present
-- [x] Unit tests for pack title search + C♯ minor blues changes
+- [x] Unit tests for pack title search + C# minor blues changes
 
 ## Process notes
 

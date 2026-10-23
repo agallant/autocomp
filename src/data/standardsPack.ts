@@ -1768,7 +1768,7 @@ const PACK_ENTRIES: readonly TuneEntry[] = [
   entry({
     id: 'std-equinox',
     title: 'Equinox',
-    blurb: 'Coltrane C♯ minor blues; harmony only',
+    blurb: 'Coltrane C# minor blues; harmony only',
     tags: ['standard', 'jazz', 'blues', 'minor', 'short'],
     key: CS,
     tempo: 112,
