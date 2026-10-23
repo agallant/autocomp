@@ -90,6 +90,7 @@ const SONG_META: Readonly<Record<string, Pick<TuneEntry, 'composer' | 'era'>>> =
   'std-so-what': { composer: 'Miles Davis', era: '1950s' },
   'std-freddie-freeloader': { composer: 'Miles Davis', era: '1950s' },
   'std-footprints': { composer: 'Wayne Shorter', era: '1960s' },
+  'std-cantaloupe': { composer: 'Herbie Hancock', era: '1960s' },
 }
 
 function entry(spec: Spec): TuneEntry {
@@ -1543,6 +1544,40 @@ const PACK_ENTRIES: readonly TuneEntry[] = [
           ['Emaj7'],
           ['Dm7b5', 'G7'],
           ['Cm7'],
+        ],
+      },
+    ],
+  }),
+  entry({
+    id: 'std-cantaloupe',
+    title: 'Cantaloupe Island',
+    blurb: 'Herbie Hancock F-minor modal vamp; harmony only',
+    tags: ['standard', 'jazz', 'latin', 'minor', 'modal', 'short'],
+    key: F,
+    tempo: 116,
+    styleId: 'latin',
+    clearance: 'harmony-only standard',
+    sectionBars: [
+      {
+        id: 'A',
+        label: 'A',
+        bars: [
+          ['Fm7'],
+          ['Fm7'],
+          ['Fm7'],
+          ['Fm7'],
+          ['Db7'],
+          ['Db7'],
+          ['Db7'],
+          ['Db7'],
+          ['Dm7'],
+          ['Dm7'],
+          ['Dm7'],
+          ['Dm7'],
+          ['Fm7'],
+          ['Fm7'],
+          ['Fm7'],
+          ['Fm7'],
         ],
       },
     ],
