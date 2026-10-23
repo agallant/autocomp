@@ -399,6 +399,37 @@ describe('standards pack', () => {
       'Cm7',
     ])
 
+    const four = filterTunes(TUNE_LIBRARY, {
+      shelf: 'standards',
+      query: 'Four',
+    })
+    expect(four.map((t) => t.id)).toEqual(['std-four'])
+    expect(four[0]).toMatchObject({
+      composer: 'Miles Davis',
+      era: '1950s',
+      styleId: 'jazz-swing',
+    })
+    expect(four[0]!.createChart().sections[0]!.bars.map((b) =>
+      b.slots.map((s) => s.chord?.symbol ?? '').filter(Boolean).join(' '),
+    )).toEqual([
+      'Ebmaj7',
+      'Ebmaj7',
+      'Ebm7',
+      'Ab7',
+      'Fm7',
+      'Fm7',
+      'Abm7',
+      'Db7',
+      'Ebmaj7',
+      'Ebmaj7',
+      'Am7b5',
+      'D7',
+      'Gm7',
+      'C7',
+      'Fm7',
+      'Bb7',
+    ])
+
     const all = filterTunes(TUNE_LIBRARY, { shelf: 'standards' })
     const titles = all.map((t) => t.title)
     expect(titles).toEqual([...titles].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })))
