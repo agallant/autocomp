@@ -94,6 +94,7 @@ const SONG_META: Readonly<Record<string, Pick<TuneEntry, 'composer' | 'era'>>> =
   'std-maiden-voyage': { composer: 'Herbie Hancock', era: '1960s' },
   'std-watermelon': { composer: 'Herbie Hancock', era: '1960s' },
   'std-impressions': { composer: 'John Coltrane', era: '1960s' },
+  'std-recorda-me': { composer: 'Joe Henderson', era: '1960s' },
 }
 
 function entry(spec: Spec): TuneEntry {
@@ -1693,6 +1694,40 @@ const PACK_ENTRIES: readonly TuneEntry[] = [
           ['Ebm7'],
           ['Ebm7'],
           ['Ebm7'],
+        ],
+      },
+    ],
+  }),
+  entry({
+    id: 'std-recorda-me',
+    title: 'Recorda Me',
+    blurb: 'Joe Henderson A-minor latin form; harmony only',
+    tags: ['standard', 'jazz', 'latin', 'minor', 'bossa', 'short'],
+    key: A,
+    tempo: 140,
+    styleId: 'bossa',
+    clearance: 'harmony-only standard',
+    sectionBars: [
+      {
+        id: 'A',
+        label: 'A',
+        bars: [
+          ['Am7'],
+          ['Am7'],
+          ['Am7'],
+          ['Am7'],
+          ['Cm7'],
+          ['Cm7'],
+          ['Cm7'],
+          ['Cm7'],
+          ['Bm7b5'],
+          ['E7'],
+          ['Am7'],
+          ['Am7'],
+          ['Bm7b5'],
+          ['E7'],
+          ['Am7'],
+          ['Am7'],
         ],
       },
     ],

@@ -295,6 +295,35 @@ describe('standards pack', () => {
       'Ebm7',
     ])
 
+    const recorda = filterTunes(TUNE_LIBRARY, {
+      shelf: 'standards',
+      query: 'Recorda',
+    })
+    expect(recorda.map((t) => t.id)).toEqual(['std-recorda-me'])
+    expect(recorda[0]).toMatchObject({
+      composer: 'Joe Henderson',
+      era: '1960s',
+      styleId: 'bossa',
+    })
+    expect(recorda[0]!.createChart().sections[0]!.bars.map((b) => b.slots[0]?.chord?.symbol)).toEqual([
+      'Am7',
+      'Am7',
+      'Am7',
+      'Am7',
+      'Cm7',
+      'Cm7',
+      'Cm7',
+      'Cm7',
+      'Bm7b5',
+      'E7',
+      'Am7',
+      'Am7',
+      'Bm7b5',
+      'E7',
+      'Am7',
+      'Am7',
+    ])
+
     const all = filterTunes(TUNE_LIBRARY, { shelf: 'standards' })
     const titles = all.map((t) => t.title)
     expect(titles).toEqual([...titles].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })))
