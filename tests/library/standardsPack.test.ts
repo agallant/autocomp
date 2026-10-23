@@ -180,7 +180,11 @@ describe('standards pack', () => {
       query: 'Cantaloupe',
     })
     expect(cantaloupe.map((t) => t.id)).toEqual(['std-cantaloupe'])
-    expect(cantaloupe[0]).toMatchObject({ composer: 'Herbie Hancock', era: '1960s' })
+    expect(cantaloupe[0]).toMatchObject({
+      composer: 'Herbie Hancock',
+      era: '1960s',
+      styleId: 'latin',
+    })
     expect(cantaloupe[0]!.createChart().sections[0]!.bars.map((b) => b.slots[0]?.chord?.symbol)).toEqual([
       'Fm7',
       'Fm7',
@@ -188,12 +192,12 @@ describe('standards pack', () => {
       'Fm7',
       'Db7',
       'Db7',
-      'Fm7',
-      'Fm7',
-      'Dm7',
       'Db7',
-      'Fm7',
-      'Fm7',
+      'Db7',
+      'Dm7',
+      'Dm7',
+      'Dm7',
+      'Dm7',
       'Fm7',
       'Fm7',
       'Fm7',
