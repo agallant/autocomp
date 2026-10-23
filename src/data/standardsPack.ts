@@ -92,6 +92,7 @@ const SONG_META: Readonly<Record<string, Pick<TuneEntry, 'composer' | 'era'>>> =
   'std-footprints': { composer: 'Wayne Shorter', era: '1960s' },
   'std-cantaloupe': { composer: 'Herbie Hancock', era: '1960s' },
   'std-maiden-voyage': { composer: 'Herbie Hancock', era: '1960s' },
+  'std-watermelon': { composer: 'Herbie Hancock', era: '1960s' },
 }
 
 function entry(spec: Spec): TuneEntry {
@@ -1620,6 +1621,36 @@ const PACK_ENTRIES: readonly TuneEntry[] = [
           ['Bb7sus4'],
           ['A7sus4'],
           ['A7sus4'],
+        ],
+      },
+    ],
+  }),
+  entry({
+    id: 'std-watermelon',
+    title: 'Watermelon Man',
+    blurb: 'Herbie Hancock F blues vamp; harmony only',
+    tags: ['standard', 'jazz', 'blues', 'latin', 'short'],
+    key: F,
+    tempo: 120,
+    styleId: 'latin',
+    clearance: 'harmony-only standard',
+    sectionBars: [
+      {
+        id: 'A',
+        label: 'A',
+        bars: [
+          ['F7'],
+          ['F7'],
+          ['F7'],
+          ['F7'],
+          ['Bb7'],
+          ['Bb7'],
+          ['F7'],
+          ['F7'],
+          ['C7'],
+          ['Bb7'],
+          ['F7'],
+          ['F7'],
         ],
       },
     ],
