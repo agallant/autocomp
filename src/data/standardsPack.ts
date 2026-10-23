@@ -18,6 +18,7 @@ const DB: Root = { letter: 'D', accidental: -1 }
 const AB: Root = { letter: 'A', accidental: -1 }
 const A: Root = { letter: 'A', accidental: 0 }
 const E: Root = { letter: 'E', accidental: 0 }
+const EB: Root = { letter: 'E', accidental: -1 }
 
 type Spec = {
   id: string
@@ -99,6 +100,7 @@ const SONG_META: Readonly<Record<string, Pick<TuneEntry, 'composer' | 'era'>>> =
   'std-straight-no-chaser': { composer: 'Thelonious Monk', era: '1950s' },
   'std-equinox': { composer: 'John Coltrane', era: '1960s' },
   'std-mr-pc': { composer: 'John Coltrane', era: '1960s' },
+  'std-four': { composer: 'Miles Davis', era: '1950s' },
 }
 
 function entry(spec: Spec): TuneEntry {
@@ -1822,6 +1824,40 @@ const PACK_ENTRIES: readonly TuneEntry[] = [
           ['G7'],
           ['Cm7'],
           ['Cm7'],
+        ],
+      },
+    ],
+  }),
+  entry({
+    id: 'std-four',
+    title: 'Four',
+    blurb: 'Miles Davis Eb cycle form; harmony only',
+    tags: ['standard', 'jazz', 'ii-v-i', 'cycle', 'short'],
+    key: EB,
+    tempo: 180,
+    styleId: 'jazz-swing',
+    clearance: 'harmony-only standard',
+    sectionBars: [
+      {
+        id: 'A',
+        label: 'A',
+        bars: [
+          ['Ebmaj7'],
+          ['Ebmaj7'],
+          ['Ebm7'],
+          ['Ab7'],
+          ['Dbmaj7'],
+          ['Dbmaj7'],
+          ['Dm7'],
+          ['G7'],
+          ['Cm7'],
+          ['F7'],
+          ['Bbmaj7'],
+          ['Bbmaj7'],
+          ['Ebm7'],
+          ['Ab7'],
+          ['Dbmaj7'],
+          ['Dm7', 'G7'],
         ],
       },
     ],
