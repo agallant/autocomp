@@ -63,7 +63,7 @@ CI runs `package.json` scripts by name with the package manager implied by the l
 | Script | Required | Notes |
 | --- | --- | --- |
 | `build` | yes | Writes the static site to `dist/` (or the folder in the `BUILD_DIR` repo variable) |
-| `typecheck` | if no `tsconfig.json` | Without it, CI runs `tsc --noEmit` against `tsconfig.json` |
+| `typecheck` | if no `tsconfig.json` | When the script is missing, CI runs `tsc --noEmit` against `tsconfig.json`; with neither, CI fails |
 | `lint` | no | Run when present |
 | `test` | no | Run when present; tests must not need a display or network |
 
