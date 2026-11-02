@@ -11,7 +11,7 @@ import {
   type ReharmMode,
 } from '../generate'
 import { FollowEngine, MicCapture, type FollowSnapshot } from '../listen'
-import { APP_BUILD_TIME, APP_VERSION } from '../lib/version'
+import { APP_BUILD_LABEL, APP_BUILD_TIME, APP_VERSION } from '../lib/version'
 import {
   CLICK_SUBDIVISION_OPTIONS,
   DEFAULT_CLICK_LEVEL,
@@ -290,7 +290,9 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
             <h1 class="brand__name">Autocomp</h1>
             <span class="brand__tag">automatic accompaniment</span>
           </div>
-          <div class="header__meta" title="Built ${APP_BUILD_TIME}">v${APP_VERSION}</div>
+          <div class="header__meta" title="Built ${APP_BUILD_TIME}">
+            v${APP_VERSION} · ${APP_BUILD_LABEL}
+          </div>
         </header>
 
         <main class="main">
