@@ -1,8 +1,0 @@
-{
-  "mcpServers": {
-    "cubic": {
-      "type": "http",
-      "url": "https://www.cubic.dev/api/mcp"
-    }
-  }
-}

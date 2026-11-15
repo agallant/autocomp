@@ -24,17 +24,21 @@ Useful scripts:
 | Script | Purpose |
 | --- | --- |
 | `npm run dev` | Local Vite dev server |
-| `npm run build` | Typecheck + production build (`base` `/autocomp/`) |
+| `npm run build` | Typecheck + production build (`base` from `BASE_PATH`, default `/`) |
 | `npm run preview` | Preview the production build |
 | `npm run test` | Vitest |
 | `npm run lint` | ESLint |
 | `npm run ci` | Lint + typecheck + test + build |
 
-For a root-path local preview of the built app:
+For a local preview of the built app (served at `/`):
 
 ```bash
-VITE_BASE=/ npm run build && npx vite preview --base /
+npm run build && npm run preview
 ```
+
+CI builds with `BASE_PATH` set to the path the site is served from (`/autocomp/` on `main`,
+`/autocomp/pr-preview/pr-<N>/` for PR previews), plus `BUILD_SHA` and `BUILD_LABEL`, which the
+header shows next to the version.
 
 ## Architecture (target)
 
@@ -45,12 +49,11 @@ VITE_BASE=/ npm run build && npx vite preview --base /
 
 Everything runs on-device; GitHub Pages only hosts static assets.
 
-## Deploy
+## Deploy and review
 
-Successful **CI on `main`** triggers [`.github/workflows/deploy.yml`](./.github/workflows/deploy.yml), which publishes `dist/` to the `gh-pages` branch (Pages source).
-
-### Important: auto-merge token
-
-GitHub does **not** start new workflows from events authored by `GITHUB_TOKEN`. The automerge Action therefore should use a PAT stored as repo secret `AUTO_MERGE_TOKEN` (fine-grained: Contents + Pull requests write on this repo). Without it, merges still work, but CI/deploy on `main` will not run automatically.
-
-**Recovery without the secret:** in the Actions tab, manually **Run workflow** for **CI** on `main`, then (after it succeeds) **Run workflow** for **Deploy GitHub Pages** on `main`. Re-running a pull-request CI job is not enough — deploy only accepts successful `push` CI runs or a main `workflow_dispatch`.
+Every change lands as a pull request into `main`, reviewed by [CodeRabbit](https://coderabbit.ai)
+and gated on CI, CodeQL, zizmor, Dependency review and a Lighthouse mobile audit of the PR
+preview. Each PR gets a live preview at `https://agallant.github.io/autocomp/pr-preview/pr-<N>/`.
+Merging to `main` runs [`.github/workflows/deploy.yaml`](./.github/workflows/deploy.yaml), which
+publishes `dist/` to the `gh-pages` branch (the Pages source). See [CLAUDE.md](./CLAUDE.md) for
+the full workflow.

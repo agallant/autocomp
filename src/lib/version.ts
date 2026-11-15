@@ -1,8 +1,11 @@
 /** Package semver (from package.json via Vite `define`). */
 export const APP_PKG_VERSION = __APP_PKG_VERSION__
 
-/** Short git SHA at build time. */
+/** Short commit SHA of the build (CI's BUILD_SHA, else local git). */
 export const APP_GIT_SHA = __APP_GIT_SHA__
+
+/** Which build this is: CI's BUILD_LABEL (`main`, `PR #<N>`, `ci`), else `dev`. */
+export const APP_BUILD_LABEL = __APP_BUILD_LABEL__
 
 /** ISO-8601 build timestamp (UTC). */
 export const APP_BUILD_TIME = __APP_BUILD_TIME__
