@@ -535,7 +535,7 @@
 
 .settings-groups {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(15rem, 100%), 1fr));
   gap: var(--space-4);
   margin-top: var(--space-3);
 }
