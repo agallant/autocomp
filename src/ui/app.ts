@@ -199,7 +199,7 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
   let generatePreferIiV = true
   let reharmMode: ReharmMode = 'ii-before-v'
   /** Progressive disclosure: keep Settings open across chart re-renders. */
-  let chartMoreOpen = true
+  let chartMoreOpen = false
   /** View mode by default (iReal-like); Edit unlocks chord/form mutation. */
   let chartEditMode = false
   let followEnabled = false
@@ -392,9 +392,37 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       ${renderEditableBars(state, { displaySemitones: instrumentSemitones(instrument) })}
     </div>
     <p class="chart-error" id="chart-error" role="status">${escapeHtml(state.error ?? persistStatus)}</p>
-    <details class="chart-more"${chartMoreOpen ? ' open' : ''}>
-      <summary class="chart-more__summary" data-preserve-edit>Settings</summary>
-      <div class="chart-toolbar">
+    <div class="chart-quick" role="group" aria-label="Quick settings">
+      <label class="style-picker" for="style-select">
+        <span class="style-picker__label">Style</span>
+        <select id="style-select" class="style-picker__select" aria-label="Backing style">
+          ${STYLE_PACK.map(
+            (style) =>
+              `<option value="${style.id}"${style.id === styleId ? ' selected' : ''}>${escapeHtml(style.label)}</option>`,
+          ).join('')}
+        </select>
+      </label>
+      <div class="variation-toggles chart-quick__toggles">
+        <label class="style-picker" for="var-count-in" title="Metronome bars before the form">
+          <span class="style-picker__label">Count-in</span>
+          <select id="var-count-in" class="style-picker__select" aria-label="Count-in length">
+            ${COUNT_IN_BAR_OPTIONS.map((bars) => {
+              const label = bars === 0 ? 'Off' : bars === 1 ? '1 bar' : `${bars} bars`
+              return `<option value="${bars}"${bars === variationCountInBars ? ' selected' : ''}>${label}</option>`
+            }).join('')}
+          </select>
+        </label>
+        <label class="variation-toggle" title="Audible click on every beat (count-in always clicks). Shortcut: M">
+          <input type="checkbox" id="var-metronome"${metronomeEnabled ? ' checked' : ''} />
+          <span>Click</span>
+        </label>
+        <label class="variation-toggle" title="Loop form bars A through B while playing">
+          <input type="checkbox" id="loop-enable"${practiceLoop.enabled ? ' checked' : ''} />
+          <span>Loop</span>
+        </label>
+      </div>
+    </div>
+    <div class="chart-toolbar chart-toolbar--edit">
       ${
         chartEditMode
           ? `<button type="button" class="btn" id="edit-chord">Edit chord</button>
@@ -459,172 +487,6 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       >Delete section</button>`
           : ''
       }
-      <button type="button" class="btn" id="save-chart">Save</button>
-      <button type="button" class="btn" id="export-chart">Export JSON</button>
-      <button type="button" class="btn" id="export-midi">Export MIDI</button>
-      <button type="button" class="btn" id="export-wav"${wavExporting ? ' disabled' : ''}>Export WAV</button>
-      ${
-        chartEditMode
-          ? `<label class="btn chart-toolbar__file">
-        Import
-        <input id="import-chart" class="sr-only" type="file" accept="application/json,.json" />
-      </label>`
-          : ''
-      }
-      <label class="style-picker" for="style-select">
-        <span class="style-picker__label">Style</span>
-        <select id="style-select" class="style-picker__select" aria-label="Backing style">
-          ${STYLE_PACK.map(
-            (style) =>
-              `<option value="${style.id}"${style.id === styleId ? ' selected' : ''}>${escapeHtml(style.label)}</option>`,
-          ).join('')}
-        </select>
-      </label>
-      <label
-        class="style-picker"
-        for="instrument-select"
-        title="Written-pitch display for horns (accompaniment stays concert)"
-      >
-        <span class="style-picker__label">Instrument</span>
-        <select id="instrument-select" class="style-picker__select" aria-label="Transposing instrument">
-          ${INSTRUMENTS.map(
-            (item) =>
-              `<option value="${item.id}"${item.id === instrument ? ' selected' : ''}>${escapeHtml(item.label)}</option>`,
-          ).join('')}
-        </select>
-      </label>
-      <div class="variation-toggles" role="group" aria-label="Variation">
-        <label class="variation-toggle">
-          <input type="checkbox" id="var-fills"${variationFills ? ' checked' : ''} />
-          <span>Fills</span>
-        </label>
-        <label class="style-picker" for="var-count-in" title="Metronome bars before the form">
-          <span class="style-picker__label">Count-in</span>
-          <select id="var-count-in" class="style-picker__select" aria-label="Count-in length">
-            ${COUNT_IN_BAR_OPTIONS.map((bars) => {
-              const label = bars === 0 ? 'Off' : bars === 1 ? '1 bar' : `${bars} bars`
-              return `<option value="${bars}"${bars === variationCountInBars ? ' selected' : ''}>${label}</option>`
-            }).join('')}
-          </select>
-        </label>
-        <label class="variation-toggle" title="Audible click on every beat (count-in always clicks). Shortcut: M">
-          <input type="checkbox" id="var-metronome"${metronomeEnabled ? ' checked' : ''} />
-          <span>Click</span>
-        </label>
-        <label class="style-picker" for="var-click-sub" title="Metronome subdivision (Beat or 8th)">
-          <span class="style-picker__label">Subdiv</span>
-          <select id="var-click-sub" class="style-picker__select" aria-label="Click subdivision">
-            ${CLICK_SUBDIVISION_OPTIONS.map(
-              (opt) =>
-                `<option value="${opt.id}"${opt.id === clickSubdivision ? ' selected' : ''}>${escapeHtml(opt.label)}</option>`,
-            ).join('')}
-          </select>
-        </label>
-        <label
-          class="style-picker style-picker--swing"
-          for="var-click-level"
-          title="Click / count-in volume"
-        >
-          <span class="style-picker__label">Click lvl</span>
-          <input
-            type="range"
-            id="var-click-level"
-            class="style-picker__range"
-            min="0"
-            max="100"
-            step="1"
-            value="${Math.round(clickLevel * 100)}"
-            aria-label="Click volume"
-          />
-          <span class="style-picker__value" id="var-click-level-readout" aria-live="polite">${Math.round(clickLevel * 100)}</span>
-        </label>
-        <label class="variation-toggle">
-          <input type="checkbox" id="var-humanize"${variationHumanize ? ' checked' : ''} />
-          <span>Humanize</span>
-        </label>
-        <label class="variation-toggle" title="Penultimate fill and held last bar at form end">
-          <input type="checkbox" id="var-endings"${variationEndings ? ' checked' : ''} />
-          <span>Ending</span>
-        </label>
-        <label class="variation-toggle" title="Keep the sounding bar centered while playing">
-          <input type="checkbox" id="var-center-playhead"${centerPlayhead ? ' checked' : ''} />
-          <span>Center</span>
-        </label>
-        <label class="variation-toggle" title="${
-          followSupported
-            ? 'Listen on the mic and seek accompaniment to matching chart chords'
-            : 'Microphone not available in this browser'
-        }">
-          <input type="checkbox" id="var-follow"${followEnabled ? ' checked' : ''}${
-            followSupported ? '' : ' disabled'
-          } />
-          <span>Follow</span>
-        </label>
-        <label class="style-picker" for="var-density" title="Comp density (D to cycle)">
-          <span class="style-picker__label">Density</span>
-          <select id="var-density" class="style-picker__select" aria-label="Comp density (D to cycle)">
-            ${COMP_DENSITY_OPTIONS.map(
-              (opt) =>
-                `<option value="${opt.id}"${opt.id === variationDensity ? ' selected' : ''}>${escapeHtml(opt.label)}</option>`,
-            ).join('')}
-          </select>
-        </label>
-        <label
-          class="style-picker style-picker--swing"
-          for="var-swing"
-          title="Straight (0) → triplet (~67) → hard shuffle (100)"
-        >
-          <span class="style-picker__label">Swing</span>
-          <input
-            type="range"
-            id="var-swing"
-            class="style-picker__range"
-            min="0"
-            max="100"
-            step="1"
-            value="${variationSwingFeel}"
-            aria-label="Swing feel"
-          />
-          <span class="style-picker__value" id="var-swing-readout" aria-live="polite">${variationSwingFeel}</span>
-        </label>
-      </div>
-      <div class="variation-toggles voice-mix" role="group" aria-label="Voices">
-        ${STYLE_VOICES.map((voice) => {
-          const pct = Math.round(voiceLevels[voice] * 100)
-          return `
-        <div class="voice-mix__row">
-          <label class="variation-toggle" title="Uncheck to mute ${voiceToggleLabel(voice).toLowerCase()}">
-            <input type="checkbox" id="voice-${voice}"${voiceEnabled[voice] ? ' checked' : ''} />
-            <span>${voiceToggleLabel(voice)}</span>
-          </label>
-          <label class="voice-mix__level" for="voice-level-${voice}" title="${voiceToggleLabel(voice)} volume">
-            <input
-              type="range"
-              id="voice-level-${voice}"
-              class="style-picker__range voice-mix__range"
-              min="0"
-              max="100"
-              step="1"
-              value="${pct}"
-              aria-label="${voiceToggleLabel(voice)} volume"
-            />
-            <span class="style-picker__value" id="voice-level-${voice}-readout" aria-live="polite">${pct}</span>
-          </label>
-        </div>`
-        }).join('')}
-      </div>
-      <div class="generate-controls" role="group" aria-label="Practice loop">
-        <label class="variation-toggle" title="Loop form bars A through B while playing">
-          <input type="checkbox" id="loop-enable"${practiceLoop.enabled ? ' checked' : ''} />
-          <span>Loop</span>
-        </label>
-        <button type="button" class="btn" id="loop-set-a" title="Set loop start to the selected bar">
-          A=${practiceLoop.startBar}
-        </button>
-        <button type="button" class="btn" id="loop-set-b" title="Set loop end to the selected bar">
-          B=${practiceLoop.endBar}
-        </button>
-      </div>
       ${
         chartEditMode
           ? `      <div class="generate-controls" role="group" aria-label="Generate progression">
@@ -736,6 +598,164 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       </div>`
           : ''
       }
+    </div>
+    <details class="chart-more"${chartMoreOpen ? ' open' : ''}>
+      <summary class="chart-more__summary" data-preserve-edit>More settings</summary>
+      <div class="settings-groups">
+        <fieldset class="settings-group">
+          <legend class="settings-group__title">Feel</legend>
+          <div class="variation-toggles">
+        <label class="variation-toggle">
+          <input type="checkbox" id="var-fills"${variationFills ? ' checked' : ''} />
+          <span>Fills</span>
+        </label>
+        <label class="variation-toggle">
+          <input type="checkbox" id="var-humanize"${variationHumanize ? ' checked' : ''} />
+          <span>Humanize</span>
+        </label>
+        <label class="variation-toggle" title="Penultimate fill and held last bar at form end">
+          <input type="checkbox" id="var-endings"${variationEndings ? ' checked' : ''} />
+          <span>Ending</span>
+        </label>
+        <label class="style-picker" for="var-density" title="Comp density (D to cycle)">
+          <span class="style-picker__label">Density</span>
+          <select id="var-density" class="style-picker__select" aria-label="Comp density (D to cycle)">
+            ${COMP_DENSITY_OPTIONS.map(
+              (opt) =>
+                `<option value="${opt.id}"${opt.id === variationDensity ? ' selected' : ''}>${escapeHtml(opt.label)}</option>`,
+            ).join('')}
+          </select>
+        </label>
+        <label
+          class="style-picker style-picker--swing"
+          for="var-swing"
+          title="Straight (0) → triplet (~67) → hard shuffle (100)"
+        >
+          <span class="style-picker__label">Swing</span>
+          <input
+            type="range"
+            id="var-swing"
+            class="style-picker__range"
+            min="0"
+            max="100"
+            step="1"
+            value="${variationSwingFeel}"
+            aria-label="Swing feel"
+          />
+          <span class="style-picker__value" id="var-swing-readout" aria-live="polite">${variationSwingFeel}</span>
+        </label>
+          </div>
+        </fieldset>
+        <fieldset class="settings-group">
+          <legend class="settings-group__title">Mix</legend>
+      <div class="variation-toggles voice-mix" role="group" aria-label="Voices">
+        ${STYLE_VOICES.map((voice) => {
+          const pct = Math.round(voiceLevels[voice] * 100)
+          return `
+        <div class="voice-mix__row">
+          <label class="variation-toggle" title="Uncheck to mute ${voiceToggleLabel(voice).toLowerCase()}">
+            <input type="checkbox" id="voice-${voice}"${voiceEnabled[voice] ? ' checked' : ''} />
+            <span>${voiceToggleLabel(voice)}</span>
+          </label>
+          <label class="voice-mix__level" for="voice-level-${voice}" title="${voiceToggleLabel(voice)} volume">
+            <input
+              type="range"
+              id="voice-level-${voice}"
+              class="style-picker__range voice-mix__range"
+              min="0"
+              max="100"
+              step="1"
+              value="${pct}"
+              aria-label="${voiceToggleLabel(voice)} volume"
+            />
+            <span class="style-picker__value" id="voice-level-${voice}-readout" aria-live="polite">${pct}</span>
+          </label>
+        </div>`
+        }).join('')}
+      </div>
+        </fieldset>
+        <fieldset class="settings-group">
+          <legend class="settings-group__title">Practice</legend>
+          <div class="variation-toggles">
+        <label class="style-picker" for="var-click-sub" title="Metronome subdivision (Beat or 8th)">
+          <span class="style-picker__label">Subdiv</span>
+          <select id="var-click-sub" class="style-picker__select" aria-label="Click subdivision">
+            ${CLICK_SUBDIVISION_OPTIONS.map(
+              (opt) =>
+                `<option value="${opt.id}"${opt.id === clickSubdivision ? ' selected' : ''}>${escapeHtml(opt.label)}</option>`,
+            ).join('')}
+          </select>
+        </label>
+        <label
+          class="style-picker style-picker--swing"
+          for="var-click-level"
+          title="Click / count-in volume"
+        >
+          <span class="style-picker__label">Click lvl</span>
+          <input
+            type="range"
+            id="var-click-level"
+            class="style-picker__range"
+            min="0"
+            max="100"
+            step="1"
+            value="${Math.round(clickLevel * 100)}"
+            aria-label="Click volume"
+          />
+          <span class="style-picker__value" id="var-click-level-readout" aria-live="polite">${Math.round(clickLevel * 100)}</span>
+        </label>
+        <label class="variation-toggle" title="Keep the sounding bar centered while playing">
+          <input type="checkbox" id="var-center-playhead"${centerPlayhead ? ' checked' : ''} />
+          <span>Center</span>
+        </label>
+        <label class="variation-toggle" title="${
+          followSupported
+            ? 'Listen on the mic and seek accompaniment to matching chart chords'
+            : 'Microphone not available in this browser'
+        }">
+          <input type="checkbox" id="var-follow"${followEnabled ? ' checked' : ''}${
+            followSupported ? '' : ' disabled'
+          } />
+          <span>Follow</span>
+        </label>
+          </div>
+          <div class="generate-controls" role="group" aria-label="Loop range">
+        <button type="button" class="btn" id="loop-set-a" title="Set loop start to the selected bar">
+          A=${practiceLoop.startBar}
+        </button>
+        <button type="button" class="btn" id="loop-set-b" title="Set loop end to the selected bar">
+          B=${practiceLoop.endBar}
+        </button>
+          </div>
+        </fieldset>
+        <fieldset class="settings-group">
+          <legend class="settings-group__title">Sound &amp; file</legend>
+          <div class="chart-toolbar">
+      <label
+        class="style-picker"
+        for="instrument-select"
+        title="Written-pitch display for horns (accompaniment stays concert)"
+      >
+        <span class="style-picker__label">Instrument</span>
+        <select id="instrument-select" class="style-picker__select" aria-label="Transposing instrument">
+          ${INSTRUMENTS.map(
+            (item) =>
+              `<option value="${item.id}"${item.id === instrument ? ' selected' : ''}>${escapeHtml(item.label)}</option>`,
+          ).join('')}
+        </select>
+      </label>
+      <button type="button" class="btn" id="save-chart">Save</button>
+      <button type="button" class="btn" id="export-chart">Export JSON</button>
+      <button type="button" class="btn" id="export-midi">Export MIDI</button>
+      <button type="button" class="btn" id="export-wav"${wavExporting ? ' disabled' : ''}>Export WAV</button>
+      ${
+        chartEditMode
+          ? `<label class="btn chart-toolbar__file">
+        Import
+        <input id="import-chart" class="sr-only" type="file" accept="application/json,.json" />
+      </label>`
+          : ''
+      }
       ${
         webMidiAvailable
           ? `<label class="style-picker" for="midi-out-select">
@@ -752,6 +772,8 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
       </label>`
           : ''
       }
+          </div>
+        </fieldset>
       </div>
     </details>
   `

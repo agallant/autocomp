@@ -389,6 +389,7 @@
 .chart-mode {
   position: relative;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--space-3);
   margin: 0 0 var(--space-3);
@@ -396,7 +397,7 @@
 
 .chart-mode .chart-stage__title-input {
   margin: 0;
-  flex: 1 1 auto;
+  flex: 1 1 10rem;
   min-width: 0;
 }
 
@@ -511,7 +512,64 @@
   margin-bottom: 0;
 }
 
+.chart-quick {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-5);
+  margin-top: var(--space-4);
+}
+
+.chart-quick .style-picker {
+  margin-left: 0;
+}
+
+.chart-quick__toggles {
+  gap: var(--space-4);
+}
+
+.chart-toolbar--edit:not(:has(*)) {
+  display: none;
+}
+
+.settings-groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: var(--space-4);
+  margin-top: var(--space-3);
+}
+
+.settings-group {
+  margin: 0;
+  padding: var(--space-3);
+  min-width: 0;
+  border: 1px solid rgba(26, 36, 40, 0.16);
+  border-radius: var(--radius-sm);
+  display: grid;
+  gap: var(--space-3);
+  align-content: start;
+}
+
+.settings-group__title {
+  padding: 0 var(--space-2);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-chart-muted, var(--text-muted));
+}
+
+.settings-group .style-picker {
+  margin-left: 0;
+}
+
+.settings-group .chart-toolbar {
+  margin-top: 0;
+}
+
 .chart-toolbar .btn,
+.settings-group .btn,
 .chart-toolbar__file {
   min-height: 2.25rem;
   padding: 0 var(--space-3);
@@ -525,6 +583,7 @@
 }
 
 .chart-toolbar .btn:hover,
+.settings-group .btn:hover,
 .chart-toolbar__file:hover {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-glow);
