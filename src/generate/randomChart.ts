@@ -165,7 +165,7 @@ export function generateRandomChart(options: RandomChartOptions = {}): Chart {
   let wildStreak = 0
   while (cells.length < barCount) {
     const remaining = barCount - cells.length
-    let next: Cell[] = []
+    let next: Cell[]
     if (preferIiV && remaining >= 3 && rng() < 0.45) {
       next = cadenceCell(key, mode, preferSharps, effectiveDensity).slice(
         0,
