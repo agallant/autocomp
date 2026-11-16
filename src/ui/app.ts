@@ -306,18 +306,26 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
             </div>
           </section>
 
-          <section class="panel" aria-labelledby="library-heading">
+          <section class="panel" aria-labelledby="status-heading">
+            <h2 id="status-heading" class="panel__title">Session</h2>
+            <p class="panel__copy" id="session-status">
+              <span class="status-dot" id="status-dot" aria-hidden="true"></span>
+              Ready — press Play for accompaniment.
+            </p>
+          </section>
+
+          <section class="panel panel--library" aria-labelledby="library-heading">
             <details class="panel-fold" open>
               <summary class="panel-fold__summary" data-preserve-edit>
                 <h2 id="library-heading" class="panel__title">Library</h2>
               </summary>
               <p class="panel__copy">
-                Pick a tune, then Play. Practice is the default shelf; Songs and Generate are one tap away.
+                Pick a tune, then Play. Songs is real repertoire; Practice has drills and Generate makes new charts.
               </p>
               <div id="library-controls-host">
                 ${libraryControlsHtml(library)}
               </div>
-              <div id="library-results">
+              <div id="library-results" class="library-results">
                 ${libraryListHtml(library, TUNE_LIBRARY)}
               </div>
               <h3 class="panel__subtitle">Saved on this device</h3>
@@ -325,14 +333,6 @@ export function mountApp(root: HTMLElement, options: MountAppOptions = {}): () =
                 ${savedListHtml(savedCharts)}
               </div>
             </details>
-          </section>
-
-          <section class="panel" aria-labelledby="status-heading">
-            <h2 id="status-heading" class="panel__title">Session</h2>
-            <p class="panel__copy" id="session-status">
-              <span class="status-dot" id="status-dot" aria-hidden="true"></span>
-              Ready — press Play for accompaniment.
-            </p>
           </section>
         </main>
 

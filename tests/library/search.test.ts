@@ -44,9 +44,9 @@ describe('tune library', () => {
     }
   })
 
-  it('defaults the library view to the Practice shelf', () => {
-    expect(DEFAULT_LIBRARY_SHELF).toBe('practice')
-    expect(createLibraryViewState('autumn-practice').shelf).toBe('practice')
+  it('defaults the library view to the Songs shelf', () => {
+    expect(DEFAULT_LIBRARY_SHELF).toBe('standards')
+    expect(createLibraryViewState('autumn-practice').shelf).toBe('standards')
     expect(createLibraryViewState('autumn-practice')).toMatchObject({
       genre: '',
       feelTags: [],
