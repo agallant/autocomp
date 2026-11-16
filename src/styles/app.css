@@ -1,8 +1,9 @@
 .app {
   display: grid;
-  grid-template-rows: var(--header-h) 1fr var(--transport-h);
-  min-height: 100dvh;
-  max-width: 1100px;
+  grid-template-rows: var(--header-h) minmax(0, 1fr) var(--transport-h);
+  /* Fixed viewport shell: only <main> scrolls, so the transport stays visible. */
+  height: 100dvh;
+  max-width: 1320px;
   margin: 0 auto;
 }
 
@@ -51,6 +52,31 @@
   gap: var(--space-5);
   padding: var(--space-5);
   align-content: start;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* Wide screens: chart + session on the left, library always beside them. */
+@media (min-width: 980px) {
+  .main {
+    grid-template-columns: minmax(0, 1.5fr) minmax(20rem, 1fr);
+    grid-auto-flow: dense;
+  }
+
+  .main > .panel--library {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    position: sticky;
+    top: 0;
+    align-self: start;
+    max-height: calc(100dvh - var(--header-h) - var(--transport-h) - 2 * var(--space-5));
+    overflow-y: auto;
+  }
+
+  .library-results {
+    max-height: 50dvh;
+  }
 }
 
 .panel {
@@ -104,10 +130,67 @@
 
 .library-controls {
   display: grid;
-  grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.9fr) minmax(0, 1fr) auto;
   gap: var(--space-3);
   margin: var(--space-3) 0 var(--space-3);
+}
+
+.library-filters {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+}
+
+.library-filters__summary {
+  cursor: pointer;
+  list-style: none;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  user-select: none;
+}
+
+.library-filters__summary::-webkit-details-marker {
+  display: none;
+}
+
+.library-filters__summary::before {
+  content: '▸ ';
+}
+
+.library-filters[open] > .library-filters__summary::before {
+  content: '▾ ';
+}
+
+.library-filters__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) auto;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
   align-items: end;
+}
+
+.library-shelf__count {
+  margin-left: 0.4rem;
+  opacity: 0.65;
+}
+
+.library-count {
+  margin: 0 0 var(--space-2);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.library-results {
+  /* Bounded so Session/Saved stay reachable; the list scrolls on its own. */
+  max-height: min(26rem, 45dvh);
+  overflow-y: auto;
+  padding-right: var(--space-1);
+  overscroll-behavior: contain;
 }
 
 .library-shuffle {
@@ -306,6 +389,7 @@
 .chart-mode {
   position: relative;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--space-3);
   margin: 0 0 var(--space-3);
@@ -313,7 +397,7 @@
 
 .chart-mode .chart-stage__title-input {
   margin: 0;
-  flex: 1 1 auto;
+  flex: 1 1 10rem;
   min-width: 0;
 }
 
@@ -412,6 +496,7 @@
 .panel-fold__summary .panel__title {
   display: inline;
   margin: 0;
+  color: var(--text);
 }
 
 .panel-fold .panel__copy {
@@ -427,7 +512,64 @@
   margin-bottom: 0;
 }
 
+.chart-quick {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-5);
+  margin-top: var(--space-4);
+}
+
+.chart-quick .style-picker {
+  margin-left: 0;
+}
+
+.chart-quick__toggles {
+  gap: var(--space-4);
+}
+
+.chart-toolbar--edit:not(:has(*)) {
+  display: none;
+}
+
+.settings-groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(15rem, 100%), 1fr));
+  gap: var(--space-4);
+  margin-top: var(--space-3);
+}
+
+.settings-group {
+  margin: 0;
+  padding: var(--space-3);
+  min-width: 0;
+  border: 1px solid rgba(26, 36, 40, 0.16);
+  border-radius: var(--radius-sm);
+  display: grid;
+  gap: var(--space-3);
+  align-content: start;
+}
+
+.settings-group__title {
+  padding: 0 var(--space-2);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-chart-muted, var(--text-muted));
+}
+
+.settings-group .style-picker {
+  margin-left: 0;
+}
+
+.settings-group .chart-toolbar {
+  margin-top: 0;
+}
+
 .chart-toolbar .btn,
+.settings-group .btn,
 .chart-toolbar__file {
   min-height: 2.25rem;
   padding: 0 var(--space-3);
@@ -441,6 +583,7 @@
 }
 
 .chart-toolbar .btn:hover,
+.settings-group .btn:hover,
 .chart-toolbar__file:hover {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-glow);
@@ -871,7 +1014,7 @@ button.bar.bar--playhead.bar--selected:hover {
 
 @media (max-width: 720px) {
   .app {
-    grid-template-rows: var(--header-h) 1fr calc(var(--transport-h) + 1.5rem);
+    grid-template-rows: var(--header-h) minmax(0, 1fr) calc(var(--transport-h) + 1.5rem);
   }
 
   .brand__tag {
@@ -882,8 +1025,12 @@ button.bar.bar--playhead.bar--selected:hover {
     padding: var(--space-4);
   }
 
-  .library-controls {
+  .library-filters__grid {
     grid-template-columns: 1fr;
+  }
+
+  .library-results {
+    max-height: 40dvh;
   }
 
   .bars {

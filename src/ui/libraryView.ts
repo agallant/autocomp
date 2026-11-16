@@ -1,5 +1,6 @@
 import {
   DEFAULT_LIBRARY_SHELF,
+  TUNE_LIBRARY,
   LIBRARY_SHELF_FILTERS,
   allLibraryTags,
   filterTunes,
@@ -75,6 +76,7 @@ export function libraryListHtml(state: LibraryViewState, tunes: readonly TuneEnt
     return `<p class="library-empty" role="status">${escapeHtml(empty)}</p>`
   }
   return `
+    <p class="library-count" role="status">${matches.length} ${matches.length === 1 ? 'tune' : 'tunes'}</p>
     <ul class="library-list" role="list">
       ${matches
         .map((tune) => {
@@ -128,6 +130,10 @@ function feelOptionsHtml(tags: readonly TuneTag[], selected: readonly TuneTag[])
     .join('')
 }
 
+function shelfCount(shelf: LibraryShelfFilter): number {
+  return shelf === 'all' ? TUNE_LIBRARY.length : TUNE_LIBRARY.filter((t) => t.shelf === shelf).length
+}
+
 export function libraryControlsHtml(state: LibraryViewState): string {
   const tags = allLibraryTags(state.shelf === 'all' ? undefined : state.shelf)
   return `
@@ -141,7 +147,7 @@ export function libraryControlsHtml(state: LibraryViewState): string {
             id="library-shelf-${escapeAttr(shelf.id)}"
             data-library-shelf="${escapeAttr(shelf.id)}"
             aria-pressed="${selected ? 'true' : 'false'}"
-          >${escapeHtml(shelf.label)}</button>
+          >${escapeHtml(shelf.label)}<span class="library-shelf__count">${shelfCount(shelf.id)}</span></button>
         `
       }).join('')}
     </div>
@@ -158,35 +164,42 @@ export function libraryControlsHtml(state: LibraryViewState): string {
           spellcheck="false"
         />
       </label>
-      <label class="library-field" for="library-genre">
-        <span class="library-field__label">Category</span>
-        <select id="library-genre" class="library-tag" aria-label="Filter by genre category">
-          <option value=""${state.genre === '' ? ' selected' : ''}>All genres</option>
-          ${genreOptionsHtml(tags, state.genre)}
-        </select>
-      </label>
-      <label class="library-field library-field--feel" for="library-feel">
-        <span class="library-field__label">Feel tags</span>
-        <select
-          id="library-feel"
-          class="library-feel"
-          multiple
-          size="4"
-          aria-label="Filter by feel or form tags (multi-select)"
-        >
-          ${feelOptionsHtml(tags, state.feelTags)}
-        </select>
-      </label>
-      ${
-        state.shelf === 'practice'
-          ? `<div class="library-field library-field--action">
-        <span class="library-field__label">Surprise</span>
-        <button type="button" class="library-shuffle" data-library-shuffle aria-label="Shuffle a practice chart">
-          Shuffle
-        </button>
-      </div>`
-          : ''
-      }
+      <details class="library-filters"${state.genre || state.feelTags.length > 0 ? ' open' : ''}>
+        <summary class="library-filters__summary">Filters${
+          state.shelf === 'practice' ? ' &amp; shuffle' : ''
+        }</summary>
+        <div class="library-filters__grid">
+          <label class="library-field" for="library-genre">
+            <span class="library-field__label">Category</span>
+            <select id="library-genre" class="library-tag" aria-label="Filter by genre category">
+              <option value=""${state.genre === '' ? ' selected' : ''}>All genres</option>
+              ${genreOptionsHtml(tags, state.genre)}
+            </select>
+          </label>
+          <label class="library-field library-field--feel" for="library-feel">
+            <span class="library-field__label">Feel tags</span>
+            <select
+              id="library-feel"
+              class="library-feel"
+              multiple
+              size="4"
+              aria-label="Filter by feel or form tags (multi-select)"
+            >
+              ${feelOptionsHtml(tags, state.feelTags)}
+            </select>
+          </label>
+          ${
+            state.shelf === 'practice'
+              ? `<div class="library-field library-field--action">
+            <span class="library-field__label">Surprise</span>
+            <button type="button" class="library-shuffle" data-library-shuffle aria-label="Shuffle a practice chart">
+              Shuffle
+            </button>
+          </div>`
+              : ''
+          }
+        </div>
+      </details>
     </div>
   `
 }

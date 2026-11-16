@@ -108,6 +108,7 @@ Client-side TypeScript PWA for automatic musical accompaniment (iReal Pro UX, Ba
 | M91 | Standards +1 | done | Add Four (harmony only) |
 | M92 | Standards +1 | done | Add Now's the Time (harmony only) |
 | M93 | Edit toggle contrast | done | Chart Edit button readable on parchment in dark shell |
+| M94 | Easy to play | done | Pinned transport, Songs-first bounded library beside the chart, quick settings row, grouped More settings |
 
 ## Library & generative depth (product intent)
 
@@ -774,6 +775,14 @@ Default first-run experience stays the **current compact Practice assortment** (
 
 - [x] Edit mode toggle keeps dark ink on light parchment (overrides shell `.btn` dark fill)
 - [x] Pressed / hover states stay teal-accented without light-on-dark text
+
+## M94 acceptance
+
+- [x] Play / tempo stay visible at every scroll position (only the main area scrolls)
+- [x] Panel order is Chart, Session, Library; on wide screens the library sits beside the chart
+- [x] Library opens on Songs with shelf counts, a bounded scrolling list, and Filters / Shuffle behind a disclosure
+- [x] Style, Count-in, Click and Loop sit under the chart; the rest is grouped (Feel, Mix, Practice, Sound & file) in a collapsed More settings
+- [x] Edit tools stay visible while Edit mode is on; no controls removed
 
 ## Process notes
 
